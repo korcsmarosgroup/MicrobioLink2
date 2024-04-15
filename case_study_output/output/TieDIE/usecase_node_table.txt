@@ -1,0 +1,798 @@
+node	all_nodes	bacteria_layer	bindingprot_layer	ppi_layer	tf_layer	deg_layer	gene_symbol	LinkerHeats	avg_log2FC
+Q8A5K0	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A5K0		
+Q8A2E4	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A2E4		
+Q8A8L5	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A8L5		
+Q8A7E9	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A7E9		
+Q8A8G0	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A8G0		
+Q8AB67	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8AB67		
+Q8A0Y6	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A0Y6		
+Q8A1G4	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A1G4		
+Q8A3C4	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A3C4		
+Q8A3Z4	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A3Z4		
+Q8A507	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A507		
+Q8A5V0	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A5V0		
+Q8A673	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A673		
+Q8A8D1	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A8D1		
+Q8A9X3	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A9X3		
+Q8A677	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A677		
+Q8A0Y2	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A0Y2		
+Q8A0H1	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A0H1		
+Q8A2L2	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A2L2		
+Q8A192	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A192		
+Q8A2Y6	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A2Y6		
+Q8A9F0	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A9F0		
+Q8AAM3	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8AAM3		
+Q89YL8	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q89YL8		
+Q89ZT1	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q89ZT1		
+Q89ZX6	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q89ZX6		
+Q8A0E7	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A0E7		
+Q8A0I1	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A0I1		
+Q8A0N3	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A0N3		
+Q8A1K7	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A1K7		
+Q8A515	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A515		
+Q8A7A0	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A7A0		
+Q8A8Y2	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8A8Y2		
+Q8AAK4	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8AAK4		
+Q8AAK5	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8AAK5		
+Q8AB22	bacteria,nan,nan	bacteria	NA	nan,nan	NA	NA	Q8AB22		
+P46937	bindingprot and/or protein,protein and/or tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	NA	deg	YAP1	0.199069879870255	3.40015126099839
+P40763	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	STAT3	0.2471310390945588	
+Q09472	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	EP300	0.1496453538213972	
+P61978	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	HNRNPK	0.1590648971184658	
+P45983	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAPK8	0.4615359406680169	
+P63096	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	GNAI1	0.0538854274126833	
+P67775	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PPP2CA	0.3894371440308349	
+P35222	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	CTNNB1	0.2979634386900922	
+P21860	bindingprot,bindingprot and/or protein,protein and/or tf	NA	bindingprot	bindingprot and/or protein,protein and/or tf	NA	NA	ERBB3	0.1067108804857026	
+P12931	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SRC	0.2154453297153588	
+P23458	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	JAK1	0.3045591743453281	
+P42229	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	STAT5A	0.2791483815977971	
+Q04206	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	RELA	0.1570804057313876	
+O95819	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAP4K4	0.1186524544088928	
+P51812	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RPS6KA3	0.2170951056326172	
+P17252	bindingprot and/or protein,protein and/or tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	NA	deg	PRKCA	0.2687492053445163	5.82779783787124
+P00533	bindingprot,bindingprot and/or protein,protein and/or tf	NA	bindingprot	bindingprot and/or protein,protein and/or tf	NA	NA	EGFR	0.2430989973020228	
+P49841	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	GSK3B	0.2273222502889748	
+P53355	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	DAPK1	0.2895566029249961	
+Q13469	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NFATC2	0.1268739294421105	
+Q9UBE8	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	NLK	0.5760899168219596	
+Q13133	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NR1H3	0.0330978305953639	
+P78527	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PRKDC	0.1143963240194629	
+P00519	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	ABL1	0.2552317991211514	
+Q05655	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PRKCD	0.280135413607637	
+P0DP24	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CALM3	0.1322182991665754	
+P46108	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CRK	0.17006151262042	
+Q13263	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	TRIM28	0.1134458920206801	
+Q06330	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	RBPJ	0.6139839248542774	
+Q08209	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PPP3CA	0.1010445732082126	
+P17612	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PRKACA	0.2412764756394556	
+P16070	bindingprot,bindingprot and/or protein,protein and/or tf,deg	NA	bindingprot	bindingprot and/or protein,protein and/or tf	NA	deg	CD44	0.1367594951307805	3.61205368168075
+O43474	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	KLF4	0.0943196933223956	
+Q16539	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAPK14	0.1683357773303482	
+P01375	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	TNF	0.2493396476668883	
+Q13233	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAP3K1	0.1948397678653899	
+P01100	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	FOS	0.2340881403435308	
+P08069	bindingprot,bindingprot and/or protein,protein and/or tf	NA	bindingprot	bindingprot and/or protein,protein and/or tf	NA	NA	IGF1R	0.220628367554552	
+Q12778	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	FOXO1	0.1523570910661912	
+Q16236	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NFE2L2	0.1967155461333583	
+P35568	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	IRS1	0.3118571854101201	
+O60716	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CTNND1	0.2578332376905502	
+P49674	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CSNK1E	0.1546233525630339	
+Q9UQL6	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	HDAC5	0.1406948194312237	
+P05412	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	JUN	0.1944191905722609	
+P24468	bindingprot and/or protein,protein and/or tf,tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	tf	deg	NR2F2	0.0348428083540657	7.2527580644243
+Q9Y297	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	BTRC	0.0915249193836129	
+P56945	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	BCAR1	0.227337142669301	
+Q9Y4K3	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	TRAF6	0.1958235053617631	
+P16591	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	FER	0.1931686882618646	
+P06213	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	INSR	0.191522250453403	
+P28482	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAPK1	0.1681713001115823	
+O15530	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PDPK1	0.2830446236363878	
+Q9UQE7	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SMC3	0.0287432553736812	
+P43405	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SYK	0.1826147738488494	
+O15111	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CHUK	0.2237315882387275	
+P19525	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	EIF2AK2	0.1364318331663885	
+P22681	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CBL	0.1740869047025888	
+Q12933	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	TRAF2	0.1579476080681949	
+Q92859	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	NEO1	0.021566275646721	
+O14640	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	DVL1	0.2374629046531296	
+Q9HBH9	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MKNK2	0.1093516501025286	
+P36897	bindingprot and/or protein,protein and/or tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	NA	deg	TGFBR1	0.1954861867092855	6.43481198193974
+P50750	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CDK9	0.1249499465138611	
+Q92793	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CREBBP	0.1834788552503616	
+P11362	bindingprot,bindingprot and/or protein,protein and/or tf	NA	bindingprot	bindingprot and/or protein,protein and/or tf	NA	NA	FGFR1	0.1605309784040921	
+Q14511	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	NEDD9	0.153649031761503	
+O43184	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	ADAM12	0.0474313127268003	
+O43524	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	FOXO3	0.1757820611707082	
+P25490	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	YY1	0.4102334674054357	
+P04637	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	TP53	0.1558320709694792	
+P41240	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CSK	0.213051425935069	
+P49840	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	GSK3A	0.2075194427750778	
+Q14164	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	IKBKE	0.1580798923057066	
+Q13043	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	STK4	0.1307571734510185	
+P22736	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NR4A1	0.1239670953738193	
+O75676	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RPS6KA4	0.1080679200711266	
+P36896	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ACVR1B	0.1869978523076652	
+Q02750	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAP2K1	0.2279668474628426	
+Q04721	bindingprot,bindingprot and/or protein,protein and/or tf	NA	bindingprot	bindingprot and/or protein,protein and/or tf	NA	NA	NOTCH2	0.3978845580483552	
+P04150	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NR3C1	0.1585987216392699	
+P31749	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	AKT1	0.1679657975092913	
+O00443	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PIK3C2A	0.0469523376918937	
+P28702	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RXRB	0.0321791934105678	
+Q15418	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RPS6KA1	0.1659544961314863	
+Q13188	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	STK3	0.1228895162588469	
+Q9NZJ5	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	EIF2AK3	0.0614316072490896	
+P56524	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	HDAC4	0.1331355608788231	
+P04083	bindingprot and/or protein,protein and/or tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	NA	deg	ANXA1	0.1387263387458037	7.2229947137514
+P27361	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAPK3	0.2448459182382655	
+Q15797	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	SMAD1	0.484824465877234	
+Q8WYK2	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	JDP2	0.0793854134685847	
+P17676	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	CEBPB	0.1661430898640623	
+O14672	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	ADAM10	0.1262188028272864	
+Q13976	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PRKG1	0.1625981735618915	
+Q08345	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	DDR1	0.0596601313918075	
+Q13523	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PRP4K	0.1029828804458991	
+P10827	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	THRA	0.0559861348537043	
+P08581	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MET	0.1787953173869696	
+P17535	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	JUND	0.1122114308014937	
+P05771	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PRKCB	0.1910495880749065	
+P12830	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CDH1	0.2357079481837484	
+Q13131	bindingprot and/or protein,protein and/or tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	NA	deg	PRKAA1	0.1011169884611041	2.35973456079798
+P23469	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PTPRE	0.1611964042581367	
+P20936	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RASA1	0.0765845932952876	
+P51617	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	IRAK1	0.0509642248205798	
+Q13485	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	SMAD4	0.1553540146636934	
+O60674	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	JAK2	0.3810962101860068	
+Q13555	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CAMK2G	0.1453924796469771	
+P52735	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	VAV2	0.1626836681169843	
+P19793	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	RXRA	0.1182442639469427	
+P40818	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	USP8	0.061956236615958	
+P04626	bindingprot,bindingprot and/or protein,protein and/or tf	NA	bindingprot	bindingprot and/or protein,protein and/or tf	NA	NA	ERBB2	0.1709280083082649	
+P16220	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	CREB1	0.2135819378166164	
+P17706	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PTPN2	0.3430736547845462	
+P36941	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	LTBR	0.024543729029578	
+P23443	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RPS6KB1	0.1953645492030076	
+P41279	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAP3K8	0.1203335250381696	
+Q92769	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	HDAC2	0.1004089073672847	
+P42336	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PIK3CA	0.153482656794606	
+P29353	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SHC1	0.2604837560138685	
+Q13627	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	DYRK1A	0.3135380764826231	
+P49137	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAPKAPK2	0.1865587778652616	
+P27986	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PIK3R1	0.2102363690177015	
+P15311	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	EZR	0.2001524789001977	
+P61586	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RHOA	0.1439093104453672	
+Q14847	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	LASP1	0.143025783528724	
+O60353	bindingprot,bindingprot and/or protein,protein and/or tf	NA	bindingprot	bindingprot and/or protein,protein and/or tf	NA	NA	FZD6	0.0289047310359954	
+Q9NWQ8	bindingprot,bindingprot and/or protein,protein and/or tf	NA	bindingprot	bindingprot and/or protein,protein and/or tf	NA	NA	PAG1	0.1964050775872155	
+P45985	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAP2K4	0.1442105377782179	
+P24385	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CCND1	0.1474565723332033	
+P46531	bindingprot,bindingprot and/or protein,protein and/or tf,tf	NA	bindingprot	bindingprot and/or protein,protein and/or tf	tf	NA	NOTCH1	0.5625871262724059	
+Q14289	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PTK2B	0.3453196544714178	
+Q13464	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ROCK1	0.1763734040137669	
+Q05513	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PRKCZ	0.2577031951467526	
+Q06124	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PTPN11	0.3011153902491668	
+P41235	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	HNF4A	0.1418836475553316	
+Q14247	bindingprot and/or protein,protein and/or tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	NA	deg	CTTN	0.2466013359553091	2.07986754951268
+Q9H6Z4	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RANBP3	0.0971746504647111	
+Q9UHD2	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	TBK1	0.1088694054331602	
+P42224	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	STAT1	0.2222208136090296	
+P78504	bindingprot,bindingprot and/or protein,protein and/or tf,deg	NA	bindingprot	bindingprot and/or protein,protein and/or tf	NA	deg	JAG1	0.1377643003112722	4.1749040980992
+P10914	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	IRF1	0.0312715777526718	
+P05067	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	APP	0.1496860401322065	
+P01106	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	MYC	0.1755136081345628	
+P09874	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PARP1	0.1674781930976224	
+Q03181	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	PPARD	0.0803554081745652	
+P62993	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	GRB2	0.1663447464957253	
+Q9UJU2	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	LEF1	0.4013610827770019	
+O75581	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	LRP6	0.2285204959785322	
+P18031	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PTPN1	0.367090903725302	
+Q13315	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ATM	0.1081338296347641	
+O43293	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	DAPK3	0.092679106365404	
+P21802	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	FGFR2	0.115281330941705	
+O95997	bindingprot and/or protein,protein and/or tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	NA	deg	PTTG1	0.0967556466827673	2.8788354515128
+P10301	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RRAS	0.1892326361326627	
+Q8WUI4	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	HDAC7	0.1212146705906355	
+P48730	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CSNK1D	0.1953894201165047	
+P11274	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	BCR	0.2035746568193948	
+Q13480	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	GAB1	0.1793157292014182	
+Q13177	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PAK2	0.1857628278719102	
+P29597	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	TYK2	0.2965272117728595	
+Q99717	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	SMAD5	0.3260909598650337	
+P50148	bindingprot and/or protein,protein and/or tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	NA	deg	GNAQ	0.0559952806758125	2.98957574886352
+Q9NPG1	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	FZD3	0.0858597883479245	
+P11802	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CDK4	0.1519404009458581	
+Q13153	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PAK1	0.206042270705707	
+Q96EB6	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	SIRT1	0.2320350231163661	
+Q13705	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ACVR2B	0.2117666951830467	
+P84022	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	SMAD3	0.2354060645366003	
+P55055	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	NR1H2	0.025188082698847	
+Q14012	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CAMK1	0.1196706300016387	
+P04899	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	GNAI2	0.1103146238706796	
+Q9H1C0	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	LPAR5	0.008011503025384	
+Q13761	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	RUNX3	0.6077739754359135	
+Q05209	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PTPN12	0.2540536208982805	
+Q00534	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CDK6	0.2051366317840912	
+P06400	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	RB1	0.1413042402967917	
+P17181	bindingprot,bindingprot and/or protein,protein and/or tf	NA	bindingprot	bindingprot and/or protein,protein and/or tf	NA	NA	IFNAR1	0.1650189745926039	
+P04792	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	HSPB1	0.1552375128620075	
+P53350	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PLK1	0.1158942567820473	
+P45984	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAPK9	0.1950174892675779	
+Q15596	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NCOA2	0.0811168738295322	
+Q15653	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	NFKBIB	0.0900750087303251	
+P48551	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	IFNAR2	0.4506263626952794	
+Q13526	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PIN1	0.3494567202839703	
+P67809	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	YBX1	0.376894451891569	
+P16298	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PPP3CB	0.089199204277682	
+P42574	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CASP3	0.2733680019179681	
+P07947	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	YES1	0.1466732449069572	
+P36507	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAP2K2	0.19956529061122	
+P54646	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PRKAA2	0.1538527033207177	
+Q96JA1	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	LRIG1	0.0523286075789099	
+P78324	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SIRPA	0.1016181867601367	
+P11309	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PIM1	0.1183815741607185	
+Q15118	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PDK1	0.2699882588957203	
+P01116	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	KRAS	0.1900164813485692	
+Q00653	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NFKB2	0.0773248491508399	
+Q9Y2W1	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	THRAP3	0.0727792715008343	
+P37173	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	TGFBR2	0.2140654647636619	
+P62136	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PPP1CA	0.1435914703778015	
+Q9C0B5	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	ZDHHC5	0.1612896247091736	
+Q15831	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	STK11	0.1111654048418794	
+Q04724	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	TLE1	0.0562291297137695	
+Q08050	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	FOXM1	0.187936895207279	
+Q16665	bindingprot and/or protein,protein and/or tf,tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	tf	deg	HIF1A	0.252343324870812	1.02047280610088
+P29350	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PTPN6	0.2836817624787455	
+Q13287	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	NMI	0.0252059371801041	
+P08047	bindingprot and/or protein,protein and/or tf,tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	tf	deg	SP1	0.201799559128144	4.2878212081925
+Q14118	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	DAG1	0.0468746640706862	
+Q15910	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	EZH2	0.3529507260298142	
+P29466	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CASP1	0.114162661403057	
+Q01974	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	ROR2	0.1129316709711404	
+Q05397	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PTK2	0.2285365576427456	
+P36402	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	TCF7	0.0792458171066297	
+P31431	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SDC4	0.1202332994341875	
+Q9H1B7	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	IRF2BPL	0.1150685667213004	
+Q14457	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	BECN1	0.1010706134552852	
+Q04771	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ACVR1	0.3256308793698184	
+Q9NR61	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	DLL4	0.1195565984714946	
+Q8N6T7	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SIRT6	0.2106661847386534	
+Q15717	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ELAVL1	0.476717918911535	
+Q9HBY8	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SGK2	0.14794647065514	
+Q9UJM3	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ERRFI1	0.0999803255182024	
+Q13547	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	HDAC1	0.094817484286416	
+P27348	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	YWHAQ	0.0920799685294846	
+P48454	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PPP3CC	0.0884255765264529	
+P10588	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NR2F6	0.0431792120340219	
+Q92878	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RAD50	0.0287765499259125	
+P49023	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PXN	0.3256372984043785	
+P0DP25	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CALM3	0.1308629711696807	
+Q13467	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	FZD5	0.0570255441831793	
+O15105	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	SMAD7	0.2471712343842007	
+P05556	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ITGB1	0.123574228432675	
+P31751	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	AKT2	0.219435197834565	
+Q9UBW7	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ZMYM2	0.0837024220082692	
+P10912	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	GHR	0.1907715204488901	
+P42684	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ABL2	0.2089287202869683	
+Q99623	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PHB2	0.0442178905114676	
+Q96AE4	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	FUBP1	0.1319411679348112	
+O00560	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SDCBP	0.0642876561669483	
+O14920	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	IKBKB	0.3935186633516578	
+Q13573	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SNW1	0.6120604808129385	
+Q00987	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MDM2	0.2529231950761626	
+P27540	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	ARNT	0.0663776303447871	
+P16144	bindingprot,bindingprot and/or protein,protein and/or tf	NA	bindingprot	bindingprot and/or protein,protein and/or tf	NA	NA	ITGB4	0.1033477384842613	
+P41182	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	BCL6	0.1047496624209559	
+O75925	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	PIAS1	0.1333662643468216	
+Q13618	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CUL3	0.0619685055879717	
+P19174	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PLCG1	0.1705797257365929	
+P15260	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	IFNGR1	0.0925358891071489	
+O94856	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	NFASC	0.0288107659207993	
+P98082	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	DAB2	0.1973444477195635	
+Q9UIW2	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PLXNA1	0.0901069217372915	
+P17275	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	JUNB	0.1667729610989851	
+Q13363	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CTBP1	0.0723371707177232	
+P20333	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	TNFRSF1B	0.0742088661773959	
+Q99708	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RBBP8	0.0429121442554357	
+Q15796	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	SMAD2	0.2255188602653546	
+Q13671	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RIN1	0.131262727160093	6.62083950799287
+P07954	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	FH	0.022181136070405	
+P10599	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	TXN	0.0693355525619321	
+P25963	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	NFKBIA	0.1582067416221359	
+O00571	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	DDX3X	0.1359838470722583	
+Q13444	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	ADAM15	0.038808918891275	
+Q14258	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	TRIM25	0.0608424227389305	
+P16333	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	NCK1	0.1165024858722177	
+O43318	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAP3K7	0.1885910976544499	
+P12643	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	BMP2	0.0538332196072634	
+Q9P0J1	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PDP1	0.1371777551109256	
+Q12986	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NFX1	0.0168858306105174	
+Q9Y5S8	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	NOX1	0.0858339134893401	
+P15529	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CD46	0.0315951809769128	
+P78347	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	GTF2I	0.2021010794680782	
+P36894	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	BMPR1A	0.2848876113213616	
+P37231	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	PPARG	0.1515667496735935	
+P07355	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ANXA2	0.0927900287029455	
+P07900	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	HSP90AA1	0.25347415806806	
+P29323	bindingprot and/or protein,protein and/or tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	NA	deg	EPHB2	0.0902259023115999	5.60656784827654
+Q08999	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RBL2	0.1238790956063385	
+P20749	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	BCL3	0.0659395455703411	
+P15941	bindingprot and/or protein,protein and/or tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	NA	deg	MUC1	0.2671928807345413	5.44897336588881
+Q02535	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	ID3	0.0939027299308869	
+P60484	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PTEN	0.2705875060318242	
+P63000	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RAC1	0.142797570812366	
+P22607	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	FGFR3	0.2404301300904213	
+P07948	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	LYN	0.2049809571805425	
+Q13322	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	GRB10	0.2497851131911032	
+Q16659	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAPK6	0.0783302622077471	
+Q14469	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	HES1	0.6765669943607788	
+Q13873	bindingprot,bindingprot and/or protein,nan,deg	NA	bindingprot	bindingprot and/or protein,nan	NA	deg	BMPR2	0.113674324072659	2.5446554696353
+P78536	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ADAM17	0.2438169879607653	
+P62140	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PPP1CB	0.1324289192432636	
+Q96N67	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	DOCK7	0.1099352643323021	
+P0DP23	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CALM3	0.1323587971057085	
+P15336	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	ATF2	0.1235255928421811	
+Q01892	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SPIB	0.0887465012815427	
+Q14451	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	GRB7	0.0841018172397392	
+Q9Y478	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PRKAB1	0.1077280687732057	
+P07384	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CAPN1	0.2549227953207513	
+P06756	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ITGAV	0.0658672790159758	
+P26006	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	ITGA3	0.0365497466181823	
+P24394	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	IL4R	0.1211270593707101	
+O00141	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SGK1	0.2774994204647549	
+Q03135	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CAV1	0.3293589344127267	
+P15692	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	VEGFA	0.2332684985409549	
+P41743	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PRKCI	0.1733410620262425	
+P42771	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CDKN2A	0.1172148566605287	
+O95405	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ZFYVE9	0.0581800317324176	
+P31943	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	HNRNPH1	0.1045066945529496	
+O14965	bindingprot and/or protein,protein and/or tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	NA	deg	AURKA	0.1098874574722435	3.70913140535165
+P17844	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	DDX5	0.084883743589583	
+P25054	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	APC	0.1692778224352107	
+Q99986	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	VRK1	0.061635469227908	
+Q14978	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	NOLC1	0.0896980997912467	
+P28066	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PSMA5	0.0568116634263752	
+P38398	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	BRCA1	0.1446029666291717	
+O15379	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	HDAC3	0.2194370089342366	
+Q9H1A4	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ANAPC1	0.1177699459783738	
+P52657	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	GTF2A2	0.052835571210029	
+O15169	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	AXIN1	0.2424905302981281	
+Q8IZL2	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAML2	0.4519664290395872	
+Q12888	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	TP53BP1	0.1105747215384076	
+Q9Y618	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NCOR2	0.1519756262505714	
+Q9UBN7	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	HDAC6	0.3622147848118223	
+P43354	bindingprot and/or protein,protein and/or tf,tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	tf	deg	NR4A2	0.0722536367474116	4.36445604740292
+O15198	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SMAD9	0.1687852731248185	
+Q8NFY4	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	SEMA6D	0.006784037021905	
+O75469	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NR1I2	0.0487550717620874	
+P19838	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NFKB1	0.1160964387045562	
+P24752	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ACAT1	0.0217972984444778	
+P14618	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PKM	0.3376144048992824	
+Q14145	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	KEAP1	0.0808181682872694	
+Q92569	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PIK3R3	0.0732911287372991	
+O14980	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	XPO1	0.043899235689068	
+Q9ULJ6	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ZMIZ1	0.1117548387234685	
+P06730	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	EIF4E	0.2096459702137909	
+P10242	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	MYB	0.1448232839684984	
+O60341	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	KDM1A	0.0513843208538487	
+P53004	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	BLVRA	0.1278569104323818	
+P98172	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	EFNB1	0.0296738307984118	
+Q96T58	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SPEN	0.1013765570848895	
+Q92934	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	BAD	0.163868717470306	
+Q96JC1	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	VPS39	0.1335114137098282	
+P46109	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CRKL	0.1265898609659187	
+Q9Y219	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	JAG2	0.209450091797451	
+Q9ULT6	bindingprot,bindingprot and/or protein,nan	NA	bindingprot	bindingprot and/or protein,nan	NA	NA	ZNRF3	0.0280350377288278	
+O94875	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SORBS2	0.0999304404540331	
+P08651	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NFIC	0.0733424660997072	
+Q96J02	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ITCH	0.2621705254936535	
+P12004	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PCNA	0.1230898464295154	
+P01112	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	HRAS	0.1658678192167402	
+O14744	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PRMT5	0.0894213724117763	
+P42685	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	FRK	0.1077179370447233	
+P49792	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RANBP2	0.0784417094029962	
+Q06413	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	MEF2C	0.3474450320789686	
+Q9BXK1	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	KLF16	0.1053993477246355	
+P49789	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	FHIT	0.0912650444864225	
+Q8N726	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CDKN2A	0.1068080845365533	
+P11940	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PABPC1	0.0936398220829601	
+O14543	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SOCS3	0.206163905950372	
+Q13501	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SQSTM1	0.0915935696337378	
+P05114	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	HMGN1	0.086854906529225	
+Q8IW41	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAPKAPK5	0.1006703460418745	
+P10586	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PTPRF	0.1597253881440878	
+Q9UBS0	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RPS6KB2	0.1316007334701223	
+P04406	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	GAPDH	0.0851002753664324	
+P52630	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	STAT2	0.0774073735273568	
+Q9NS56	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	TOPORS	0.0683518364838151	
+P60709	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ACTB	0.1265604676635992	
+P04049	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RAF1	0.1780458901233369	
+Q93008	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	USP9X	0.0828015333887572	
+O43639	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	NCK2	0.0591656057310931	
+P14921	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	ETS1	0.1856468238946981	
+Q9BUB5	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MKNK1	0.1247633135806201	
+P63098	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PPP3R1	0.0718484853235575	
+O00548	bindingprot,bindingprot and/or protein,protein and/or tf	NA	bindingprot	bindingprot and/or protein,protein and/or tf	NA	NA	DLL1	0.126535847093105	
+Q03060	bindingprot and/or protein,protein and/or tf,tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	tf	deg	CREM	0.1302571530731327	3.35966165774154
+Q15637	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SF1	0.0710394822562169	
+P51452	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	DUSP3	0.3475297078211904	
+Q12857	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	NFIA	0.0671137777389935	
+Q7KZF4	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SND1	0.0446844318008593	
+P42566	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	EPS15	0.1050778016957371	
+P55072	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	VCP	0.1310856962696473	
+P08887	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	IL6R	0.0665365278814198	
+Q96JK9	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MAML3	0.4519658286688848	
+P13688	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	CEACAM1	0.1468916699687246	
+P37023	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ACVRL1	0.1510362501160811	
+P08754	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	GNAI3	0.0416631978785677	
+P61925	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PKIA	0.0713120631314642	
+P27635	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RPL10	0.0728812739148679	
+Q9UQQ2	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SH2B3	0.0522437911415143	
+Q9C004	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	SPRY4	0.0376803225564857	
+Q9NZC7	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	WWOX	0.1474901453241535	
+Q96T23	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	RSF1	0.0317167111407635	
+O43157	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PLXNB1	0.0191397891855348	
+O14964	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	HGS	0.0941170356426166	
+P18146	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	EGR1	0.1206723347180957	
+Q96KS0	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	EGLN2	0.096817188496292	
+P09467	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	FBP1	0.0825647769745929	
+Q12972	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PPP1R8	0.1743469351734611	
+P09211	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	GSTP1	0.0614351789473443	
+P09341	bindingprot and/or protein,protein and/or tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	NA	deg	CXCL1	0.0417362560145633	7.38712496437115
+P31260	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	HOXA10	0.2069771294843686	
+P42226	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	STAT6	0.1483528181070382	
+Q04912	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MST1R	0.1067900429106643	
+Q9Y4A5	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	TRRAP	0.0821485616648335	
+P42345	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	MTOR	0.0791316143983743	
+P49768	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	PSEN1	0.3227072225910584	
+Q12955	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	ANK3	0.0936118634776978	
+O94806	bindingprot and/or protein,protein and/or tf,deg	NA	NA	bindingprot and/or protein,protein and/or tf	NA	deg	PRKD3	0.1581536682932304	6.12048652711167
+P49715	bindingprot and/or protein,protein and/or tf,tf	NA	NA	bindingprot and/or protein,protein and/or tf	tf	NA	CEBPA	0.1004170536161878	
+Q9Y6K9	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	IKBKG	0.1426120221857134	
+Q14694	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	USP10	0.0277166205827574	
+O14641	bindingprot and/or protein,protein and/or tf	NA	NA	bindingprot and/or protein,protein and/or tf	NA	NA	DVL2	0.261220907992093	
+COMPLEX:P05412	nan,nan,tf	NA	NA	nan,nan	tf	NA	COMPLEX:P05412		
+COMPLEX:P17275	nan,nan,tf	NA	NA	nan,nan	tf	NA	COMPLEX:P17275		
+COMPLEX:P17535	nan,nan,tf	NA	NA	nan,nan	tf	NA	COMPLEX:P17535		
+P43268	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ETV4	0.0066942188484896	6.30996165280021
+P20226	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	TBP	0.0077094483896835	
+P39880	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	CUX1	0.057811914210449	
+Q13948	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	CUX1	0.0368931643577064	
+Q04864	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	REL	0.0668832732356733	
+COMPLEX:Q04206	nan,nan,tf	NA	NA	nan,nan	tf	NA	COMPLEX:Q04206		
+COMPLEX:P19838	nan,nan,tf	NA	NA	nan,nan	tf	NA	COMPLEX:P19838		
+COMPLEX:Q01201	nan,nan,tf	NA	NA	nan,nan	tf	NA	COMPLEX:Q01201		
+COMPLEX:Q00653	nan,nan,tf	NA	NA	nan,nan	tf	NA	COMPLEX:Q00653		
+COMPLEX:Q04864	nan,nan,tf	NA	NA	nan,nan	tf	NA	COMPLEX:Q04864		
+P20823	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	HNF1A	0.0544314982565954	
+P35680	nan,nan,tf	NA	NA	nan,nan	tf	NA	HNF1B	0.0674689400441646	
+Q02447	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	SP3	0.052886500284711	
+P49716	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	CEBPD	0.0306979896651251	
+P32519	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ELF1	0.0846524224213206	
+Q99607	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ELF4	0.0467934395511763	
+Q13887	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	KLF5	0.0472714406895398	
+P14859	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	POU2F1	0.0467668717758759	
+P49711	nan,nan,tf	NA	NA	nan,nan	tf	NA	CTCF	0.0074258194006967	
+P61244	nan,nan,tf	NA	NA	nan,nan	tf	NA	MAX	0.087836732344048	
+P62380	nan,nan,tf	NA	NA	nan,nan	tf	NA	TBPL1		
+Q02078	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	MEF2A	0.1617706093749786	
+P22415	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	USF1	0.0377808351417227	
+Q02363	nan,nan,tf	NA	NA	nan,nan	tf	NA	ID2	0.0869175363789523	
+P41970	nan,nan,tf	NA	NA	nan,nan	tf	NA	ELK3	0.1025760160979654	
+P08235	nan,nan,tf	NA	NA	nan,nan	tf	NA	NR3C2	0.0232833313464321	
+P18846	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ATF1	0.0877582329138203	
+Q5T0B9	nan,nan,tf	NA	NA	nan,nan	tf	NA	ZNF362		
+P11473	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	VDR	0.1035246441380155	
+P23246	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	SFPQ	0.0484853887395111	
+P17096	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	HMGA1	0.0934625017416267	
+Q16254	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	E2F4	0.0512911032922729	
+Q14186	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	TFDP1	0.0140315373609797	
+Q02446	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	SP4	0.0164345283340628	
+Q99814	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	EPAS1	0.1085011629413734	
+P53539	nan,nan,tf	NA	NA	nan,nan	tf	NA	FOSB	0.0120681400161833	
+P53567	nan,nan,tf	NA	NA	nan,nan	tf	NA	CEBPG		
+P15923	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	TCF3	0.5724766701522946	
+Q05195	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	MXD1	0.0380838303635789	
+P35869	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	AHR	0.0299029855645985	
+Q06546	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	GABPA	0.0508965488405801	
+P50539	nan,nan,tf	NA	NA	nan,nan	tf	NA	MXI1	0.0058627119145609	
+Q12800	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	TFCP2	0.0786680151551508	
+Q02086	nan,nan,tf	NA	NA	nan,nan	tf	NA	SP2	0.0012607731822191	
+O43593	nan,nan,tf	NA	NA	nan,nan	tf	NA	HR		
+Q08945	nan,nan,tf	NA	NA	nan,nan	tf	NA	SSRP1	0.0120287618379605	
+Q15853	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	USF2	0.0317124796835857	
+O75376	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	NCOR1	0.1388701156596173	
+P18847	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ATF3	0.0180864810432293	
+P41134	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ID1	0.0704605075845947	
+Q99626	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	CDX2	0.0421375876425123	
+P47902	nan,nan,tf	NA	NA	nan,nan	tf	NA	CDX1		
+P51692	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	STAT5B	0.2759163984019364	
+Q02556	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	IRF8	0.0147232191304611	
+P56270	nan,nan,tf	NA	NA	nan,nan	tf	NA	MAZ	0.0761800252812727	
+P06733	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ENO1	0.1191160649050005	
+Q07869	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	PPARA	0.0831625416472904	
+P15036	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ETS2	0.0772756616103538	
+P14316	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	IRF2	0.0139864848427174	
+Q99697	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	PITX2	0.0571144079772604	
+O75444	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	MAF	0.0664071542256074	
+Q01196	nan,protein and/or tf,tf,deg	NA	NA	nan,protein and/or tf	tf	deg	RUNX1	0.0780408475382329	5.60656784827654
+O14503	nan,nan,tf	NA	NA	nan,nan	tf	NA	BHLHE40		
+P48436	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	SOX9	0.1263778607886702	
+P35398	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	RORA	0.054395711070627	
+Q14209	nan,protein and/or tf,tf,deg	NA	NA	nan,protein and/or tf	tf	deg	E2F2	0.0481913429606898	3.6446325612433
+O00716	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	E2F3	0.0271445747379143	
+Q00978	nan,nan,tf	NA	NA	nan,nan	tf	NA	IRF9	0.0548391463124295	
+P16989	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	YBX3	0.0368931854267463	
+Q14653	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	IRF3	0.1287016663659798	
+P10244	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	MYBL2	0.0601815157478008	
+P26358	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	DNMT1	0.0783551676246594	
+P11474	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ESRRA	0.06624818863167	
+Q03164	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	KMT2A	0.0564046756556346	
+Q14814	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	MEF2D	0.1801127431150743	
+Q66K89	nan,nan,tf	NA	NA	nan,nan	tf	NA	E4F1	0.014798261502382	
+P0DPQ6	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	P0DPQ6	0.0852164083779472	
+P35638	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	DDIT3	0.0840399142665032	
+P28698	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	MZF1	0.0466698761038902	
+P57682	nan,nan,tf	NA	NA	nan,nan	tf	NA	KLF3	0.0080355872058113	
+P40337	nan,nan,tf	NA	NA	nan,nan	tf	NA	VHL	0.0546310780594784	
+Q99583	nan,nan,tf	NA	NA	nan,nan	tf	NA	MNT	0.0047476642119116	
+Q9Y5J3	nan,nan,tf	NA	NA	nan,nan	tf	NA	HEY1	0.0549625730802357	
+Q06945	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	SOX4	0.0395697724326444	
+P19419	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ELK1	0.1130376458616638	
+Q12772	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	SREBF2	0.0438997836357976	
+Q99612	nan,nan,tf	NA	NA	nan,nan	tf	NA	KLF6	0.0084492585465605	
+Q9BYH8	nan,nan,tf	NA	NA	nan,nan	tf	NA	NFKBIZ	0.0162063970344868	
+Q9UMQ3	nan,nan,tf	NA	NA	nan,nan	tf	NA	BARX2		
+O95238	nan,nan,tf	NA	NA	nan,nan	tf	NA	SPDEF	0.0034339122888844	
+Q99732	nan,nan,tf	NA	NA	nan,nan	tf	NA	LITAF		
+P23511	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	NFYA	0.0401194417669927	
+O00482	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	NR5A2	0.0530478671736976	
+Q9NYF8	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	BCLAF1	0.0919198982496577	
+Q9Y2N7	nan,nan,tf	NA	NA	nan,nan	tf	NA	HIF3A	0.0016395330749414	
+P78545	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ELF3	0.0314520498797352	
+Q9NZC4	nan,nan,tf	NA	NA	nan,nan	tf	NA	EHF		
+O14867	nan,nan,tf	NA	NA	nan,nan	tf	NA	BACH1	0.0148393907085457	
+P28347	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	TEAD1	0.0374695455932039	
+P36956	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	SREBF1	0.1379452392981824	
+P55317	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	FOXA1	0.0404694533791679	
+O95365	nan,nan,tf	NA	NA	nan,nan	tf	NA	ZBTB7A		
+Q9Y2D9	nan,nan,tf	NA	NA	nan,nan	tf	NA	ZNF652	0.0	
+O75081	nan,nan,tf	NA	NA	nan,nan	tf	NA	CBFA2T3	0.0	
+Q9Y468	nan,nan,tf	NA	NA	nan,nan	tf	NA	L3MBTL1	0.0060642638625626	
+Q9UGL1	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	KDM5B	0.0115380772053572	
+Q01826	nan,nan,tf	NA	NA	nan,nan	tf	NA	SATB1	0.0106454386545072	
+Q92908	nan,protein and/or tf,tf,deg	NA	NA	nan,protein and/or tf	tf	deg	GATA6	0.0916415714159599	2.87226423662461
+Q9H4Z2	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ZNF335	0.0368931490059572	
+Q92664	nan,nan,tf	NA	NA	nan,nan	tf	NA	GTF3A		
+Q9H2X6	nan,nan,tf	NA	NA	nan,nan	tf	NA	HIPK2	0.1443787362562043	
+P18848	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ATF4	0.0437236963043405	
+Q01844	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	EWSR1	0.1211124305829587	
+Q15561	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	TEAD4	0.0113127755192185	
+P22670	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	RFX1	0.0491313453444743	
+Q15788	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	NCOA1	0.0960905618485402	
+Q9BUP3	nan,nan,tf	NA	NA	nan,nan	tf	NA	HTATIP2	0.0116139203654173	
+Q8TF68	nan,nan,tf	NA	NA	nan,nan	tf	NA	ZNF384		
+Q9Y6Q9	nan,protein and/or tf,tf,deg	NA	NA	nan,protein and/or tf	tf	deg	NCOA3	0.1814765643081536	4.76851040405672
+Q9Y5W3	nan,nan,tf	NA	NA	nan,nan	tf	NA	KLF2	0.0233216517588515	
+P51858	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	HDGF	0.0576711766838373	
+P25791	nan,nan,tf	NA	NA	nan,nan	tf	NA	LMO2		
+P98177	nan,nan,tf	NA	NA	nan,nan	tf	NA	FOXO4	0.1665222697631949	
+Q00613	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	HSF1	0.1490683016187707	
+Q15361	nan,nan,tf	NA	NA	nan,nan	tf	NA	TTF1		
+O75626	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	PRDM1	0.0348303322838173	
+Q14872	nan,nan,tf	NA	NA	nan,nan	tf	NA	MTF1		
+Q13330	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	MTA1	0.0339267497452713	
+Q9NRM2	nan,nan,tf	NA	NA	nan,nan	tf	NA	ZNF277		
+Q9NQB0	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	TCF7L2	0.1010909613527296	
+Q9BRR0	nan,nan,tf	NA	NA	nan,nan	tf	NA	ZKSCAN3	0.006616734315987	
+O15119	nan,nan,tf	NA	NA	nan,nan	tf	NA	TBX3		
+Q03933	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	HSF2	0.0052910045195597	
+Q00059	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	TFAM	0.0447552952313113	
+Q92993	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	KAT5	0.304454166536368	
+Q9NS37	nan,nan,tf	NA	NA	nan,nan	tf	NA	CREBZF		
+P25208	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	NFYB	0.0116944595323046	
+P11831	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	SRF	0.1126702504814385	
+Q13118	nan,nan,tf	NA	NA	nan,nan	tf	NA	KLF10	0.0129543703062591	
+Q9BQA5	nan,nan,tf	NA	NA	nan,nan	tf	NA	HINFP	0.0132184872506936	
+Q12968	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	NFATC3	0.1027695607356917	
+Q9Y5Q3	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	MAFB	0.0786194422213014	
+Q15233	nan,nan,tf	NA	NA	nan,nan	tf	NA	NONO	0.0038631241042407	
+Q92786	nan,nan,tf	NA	NA	nan,nan	tf	NA	PROX1	0.0013388029249904	
+P10828	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	THRB	0.0638108458259897	
+P52747	nan,nan,tf	NA	NA	nan,nan	tf	NA	ZNF143		
+Q9Y2D1	nan,nan,tf	NA	NA	nan,nan	tf	NA	ATF5		
+Q9Y2K7	nan,nan,tf	NA	NA	nan,nan	tf	NA	KDM2A	0.0096546855071526	
+Q9UBB5	nan,nan,tf	NA	NA	nan,nan	tf	NA	MBD2		
+Q86T24	nan,nan,tf	NA	NA	nan,nan	tf	NA	ZBTB33		
+P17861	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	XBP1	0.0741308505424213	
+P52926	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	HMGA2	0.0075282548403858	
+P09086	nan,nan,tf	NA	NA	nan,nan	tf	NA	POU2F2	0.0007904672645357	
+Q15723	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	ELF2	0.0419085864805456	
+Q99081	nan,protein and/or tf,tf,deg	NA	NA	nan,protein and/or tf	tf	deg	TCF12	0.0108631825482924	3.3358548270726
+Q00577	nan,nan,tf	NA	NA	nan,nan	tf	NA	PURA		
+P21675	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	TAF1	0.040994303368517	
+Q7RTV0	nan,nan,tf	NA	NA	nan,nan	tf	NA	PHF5A		
+Q9UL36	nan,nan,tf	NA	NA	nan,nan	tf	NA	ZNF236		
+O60675	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	MAFK	0.01857113300575	
+O75461	nan,nan,tf	NA	NA	nan,nan	tf	NA	E2F6	0.0098994678557303	
+Q9NR48	nan,nan,tf	NA	NA	nan,nan	tf	NA	ASH1L		
+Q13951	nan,nan,tf	NA	NA	nan,nan	tf	NA	CBFB	0.0037445583386517	
+Q14839	nan,nan,tf	NA	NA	nan,nan	tf	NA	CHD4	0.0700593524285723	
+P33076	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	CIITA	0.0918483256224867	
+P41212	nan,nan,tf	NA	NA	nan,nan	tf	NA	ETV6	0.0614828096925847	
+P15408	nan,nan,tf	NA	NA	nan,nan	tf	NA	FOSL2	0.0322975992119096	
+Q9C009	nan,nan,tf	NA	NA	nan,nan	tf	NA	FOXQ1		
+Q9UGP4	nan,nan,tf	NA	NA	nan,nan	tf	NA	LIMD1	0.0419086727822867	
+Q15648	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	MED1	0.0661131810124576	
+O94916	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	NFAT5	0.0901182080767139	
+Q13952	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	NFYC	0.0124138622164491	
+O75928	nan,nan,tf	NA	NA	nan,nan	tf	NA	PIAS2	0.0268676909731212	
+Q8N2W9	nan,nan,tf	NA	NA	nan,nan	tf	NA	PIAS4	0.0776830835085108	
+Q9UPG8	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	PLAGL2	0.0156255616181687	
+O14593	nan,nan,tf	NA	NA	nan,nan	tf	NA	RFXANK		
+O00287	nan,nan,tf	NA	NA	nan,nan	tf	NA	RFXAP		
+P51532	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	SMARCA4	0.0534733885107714	
+Q12824	nan,nan,tf	NA	NA	nan,nan	tf	NA	SMARCB1	0.0254611095885506	
+P15884	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	TCF4	0.098529428355065	
+Q04726	nan,nan,tf	NA	NA	nan,nan	tf	NA	TLE3	0.0449689726378093	
+Q99816	nan,nan,tf	NA	NA	nan,nan	tf	NA	TSG101	0.0009295467676373	
+Q01831	nan,nan,tf	NA	NA	nan,nan	tf	NA	XPC	0.0392830497196127	
+Q01201	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	RELB	0.0652927357813073	
+O60381	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	HBP1	0.0342737209652852	
+Q96ST3	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	SIN3A	0.0410335545409791	
+Q9UBK2	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	PPARGC1A	0.1054507202153746	
+Q9UKN5	nan,nan,tf	NA	NA	nan,nan	tf	NA	PRDM4		
+Q9BYM8	nan,nan,tf	NA	NA	nan,nan	tf	NA	RBCK1	0.0172046024124904	
+Q6W2J9	nan,nan,tf	NA	NA	nan,nan	tf	NA	BCOR	0.0287601284026406	
+Q9BTC8	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	MTA3	0.0134102719308119	
+Q01130	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	SRSF2	0.1163790957746447	
+Q9UPW6	nan,nan,tf,deg	NA	NA	nan,nan	tf	deg	SATB2	0.0064107784262539	1.00300432161211
+Q9NP71	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	MLXIPL	0.032198026905488	
+P49910	nan,nan,tf	NA	NA	nan,nan	tf	NA	ZNF165		
+P31269	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	HOXA9	0.0066081759961361	
+Q14865	nan,nan,tf	NA	NA	nan,nan	tf	NA	ARID5B	0.0009705391111156	
+Q9ULU4	nan,nan,tf	NA	NA	nan,nan	tf	NA	ZMYND8	0.0647975593400409	
+Q6VUC0	nan,nan,tf	NA	NA	nan,nan	tf	NA	TFAP2E		
+P17544	nan,nan,tf	NA	NA	nan,nan	tf	NA	ATF7	0.0	
+Q9Y603	nan,nan,tf	NA	NA	nan,nan	tf	NA	ETV7		
+O75593	nan,nan,tf	NA	NA	nan,nan	tf	NA	FOXH1	0.0126355386294175	
+Q92794	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	KAT6A	0.0249538807294774	
+O00470	nan,nan,tf	NA	NA	nan,nan	tf	NA	MEIS1	0.0027794158067742	
+Q06710	nan,nan,tf	NA	NA	nan,nan	tf	NA	PAX8	0.6250053916525505	
+Q13127	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	REST	0.0886478536832745	
+P19532	nan,nan,tf	NA	NA	nan,nan	tf	NA	TFE3		
+Q03701	nan,nan,tf	NA	NA	nan,nan	tf	NA	CEBPZ		
+O15516	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	CLOCK	0.0606148893445844	
+Q15562	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	TEAD2	0.0113127752421426	
+Q99592	nan,nan,tf	NA	NA	nan,nan	tf	NA	ZBTB18		
+P40424	nan,protein and/or tf,tf	NA	NA	nan,protein and/or tf	tf	NA	PBX1	0.0118890417590481	
+P25445	nan,nan,deg	NA	NA	nan,nan	NA	deg	FAS	0.3097033436637155	5.9154706665875
+P01033	nan,nan,deg	NA	NA	nan,nan	NA	deg	TIMP1	0.0056157864041365	3.56018278509748
+P14635	nan,nan,deg	NA	NA	nan,nan	NA	deg	CCNB1	0.1999840880258783	5.10932941055427
+P52655	nan,nan,deg	NA	NA	nan,nan	NA	deg	GTF2A1	0.0297013105605439	6.122572610002
+P19957	nan,nan,deg	NA	NA	nan,nan	NA	deg	PI3	0.0056014483502856	7.27369403846083
+P01009	nan,nan,deg	NA	NA	nan,nan	NA	deg	SERPINA1	0.0045636076636849	3.86114428273875
+P00374	nan,nan,deg	NA	NA	nan,nan	NA	deg	DHFR	0.0120681621876902	4.06747793675873
+P61626	nan,nan,deg	NA	NA	nan,nan	NA	deg	LYZ	0.0098757831799884	2.43826295768412
+P12544	nan,nan,deg	NA	NA	nan,nan	NA	deg	GZMA	0.0127305540853866	5.92197154110824
+P01903	nan,nan,deg	NA	NA	nan,nan	NA	deg	HLA-DRA	0.010908358416884	3.47510999675786
+P02786	nan,nan,deg	NA	NA	nan,nan	NA	deg	TFRC	0.1243167670781253	3.17276306140591
+P30279	nan,nan,deg	NA	NA	nan,nan	NA	deg	CCND2	0.0686684844063095	4.14600432356232
+P16949	nan,nan,deg	NA	NA	nan,nan	NA	deg	STMN1	0.1590569891500536	1.86087508308916
+Q9Y6J0	nan,nan,deg	NA	NA	nan,nan	NA	deg	CABIN1	0.0208471147048262	6.63875365070644
+Q5XPI4	nan,nan,deg	NA	NA	nan,nan	NA	deg	RNF123	0.0113355272979228	5.3304177720941
+P05156	nan,nan,deg	NA	NA	nan,nan	NA	deg	CFI		3.82098603070073
+Q06141	nan,nan,deg	NA	NA	nan,nan	NA	deg	REG3A		5.94330197334018
+P05451	nan,nan,deg	NA	NA	nan,nan	NA	deg	REG1A		11.0471334809875
+P14866	nan,nan,deg	NA	NA	nan,nan	NA	deg	HNRNPL		2.19144719422235
+Q13616	nan,nan,deg	NA	NA	nan,nan	NA	deg	CUL1	0.0510119584892822	3.61079408422703
+O95071	nan,nan,deg	NA	NA	nan,nan	NA	deg	UBR5	0.0209346692069405	5.67572562312402
+Q02817	nan,nan,deg	NA	NA	nan,nan	NA	deg	MUC2	0.0	2.0348467328525
+P0DJI8	nan,nan,deg	NA	NA	nan,nan	NA	deg	SAA1	0.0165114215530605	3.98545402074176
+P11912	nan,nan,deg	NA	NA	nan,nan	NA	deg	CD79A	0.0559698259507741	5.60656784827654
+Q9Y2Y9	nan,nan,deg	NA	NA	nan,nan	NA	deg	KLF13	0.0073681222861667	5.09170947205202
+P84103	nan,nan,deg	NA	NA	nan,nan	NA	deg	SRSF3	0.0002220493640187	2.29068856539671
+P46013	nan,nan,deg	NA	NA	nan,nan	NA	deg	MKI67	0.0368931793204022	4.00330924057383
+O15392	nan,nan,deg	NA	NA	nan,nan	NA	deg	BIRC5	0.1585322004613235	6.7039022075522
+Q9UBT6	nan,nan,deg	NA	NA	nan,nan	NA	deg	POLK	0.0439708094703858	4.434867394899
+P35240	nan,nan,deg	NA	NA	nan,nan	NA	deg	NF2	0.0771655822773256	1.59222433391614
+O95340	nan,nan,deg	NA	NA	nan,nan	NA	deg	PAPSS2		2.75954472875868
+P18510	nan,nan,deg	NA	NA	nan,nan	NA	deg	IL1RN	0.0	5.06869164850992
+P31350	nan,nan,deg	NA	NA	nan,nan	NA	deg	RRM2		3.73724900236035
+P22455	nan,nan,deg	NA	NA	nan,nan	NA	deg	FGFR4	0.1948494764548854	1.74583138695788
+P31323	nan,nan,deg	NA	NA	nan,nan	NA	deg	PRKAR2B	0.0600283543497969	5.63306298199514
+P06702	nan,nan,deg	NA	NA	nan,nan	NA	deg	S100A9	0.0279532703253945	6.05402877869639
+Q01628	nan,nan,deg	NA	NA	nan,nan	NA	deg	IFITM3		3.00245933969895
+P48304	nan,nan,deg	NA	NA	nan,nan	NA	deg	REG1B		6.97697611492879
+P08294	nan,nan,deg	NA	NA	nan,nan	NA	deg	SOD3	0.0116631613301063	2.62834019488444
+Q9NQP4	nan,nan,deg	NA	NA	nan,nan	NA	deg	PFDN4		2.03364128304472
+Q9UBU7	nan,nan,deg	NA	NA	nan,nan	NA	deg	DBF4	0.0108957995064994	3.82502051528998
+Q9BWD1	nan,nan,deg	NA	NA	nan,nan	NA	deg	ACAT2	0.0026251972496726	2.38265750824884
+P34810	nan,nan,deg	NA	NA	nan,nan	NA	deg	CD68	0.0012267516546577	4.25570740396524
+P19875	nan,nan,deg	NA	NA	nan,nan	NA	deg	CXCL2	0.0092705829204537	4.96511272561864
+Q86Z02	nan,nan,deg	NA	NA	nan,nan	NA	deg	HIPK1	0.0123038824010808	1.5703186986834
+P00390	nan,nan,deg	NA	NA	nan,nan	NA	deg	GSR	0.0058635548524845	4.50913374348111
+P14555	nan,nan,deg	NA	NA	nan,nan	NA	deg	PLA2G2A	0.0337735319157301	4.29463236723751
+Q99102	nan,nan,deg	NA	NA	nan,nan	NA	deg	MUC4		2.59053468363645
+O43251	nan,nan,deg	NA	NA	nan,nan	NA	deg	RBFOX2	0.0191893200689991	4.57396975819427
+Q9NSA3	nan,nan,deg	NA	NA	nan,nan	NA	deg	CTNNBIP1	0.0350969613811985	3.25073785751036
+P80188	nan,nan,deg	NA	NA	nan,nan	NA	deg	LCN2		6.37536607952935
+P35226	nan,nan,deg	NA	NA	nan,nan	NA	deg	BMI1	0.0544503598014265	3.86612722023507
+Q9H165	nan,nan,deg	NA	NA	nan,nan	NA	deg	BCL11A		5.45337210048067
+Q01105	nan,nan,deg	NA	NA	nan,nan	NA	deg	SET	0.1015165554690799	1.83901633982384
+Q9BY43	nan,nan,deg	NA	NA	nan,nan	NA	deg	CHMP4A		1.78654724466687
+O75563	nan,nan,deg	NA	NA	nan,nan	NA	deg	SKAP2	0.0376249788543993	2.91808717646953
+P0DJI9	nan,nan,deg	NA	NA	nan,nan	NA	deg	SAA2		5.60656784827654
+Q06643	nan,nan,deg	NA	NA	nan,nan	NA	deg	LTB	0.0071373590702829	6.5212524884265
+P42575	nan,nan,deg	NA	NA	nan,nan	NA	deg	CASP2	0.1482687182691036	4.64353982069413
+Q03112	nan,nan,deg	NA	NA	nan,nan	NA	deg	MECOM	0.0447533265262533	3.96052021802595
+P47989	nan,nan,deg	NA	NA	nan,nan	NA	deg	XDH	0.0431048030636681	6.07350595816965
+P15056	nan,nan,deg	NA	NA	nan,nan	NA	deg	BRAF	0.1381211322260351	5.60656784827654
+Q9H422	nan,nan,deg	NA	NA	nan,nan	NA	deg	HIPK3	0.0115743384944255	9.04540499891106
+P30305	nan,nan,deg	NA	NA	nan,nan	NA	deg	CDC25B	0.1268969380325502	3.92068907601751
+P01920	nan,nan,deg	NA	NA	nan,nan	NA	deg	HLA-DQB1	0.0032269555572736	4.02296973329131
+Q9HC84	nan,nan,deg	NA	NA	nan,nan	NA	deg	MUC5B		3.7352352550096
+P12757	nan,nan,deg	NA	NA	nan,nan	NA	deg	SKIL	0.1647679902286678	1.40312710867907
+Q8TAS1	nan,nan,deg	NA	NA	nan,nan	NA	deg	UHMK1	0.0405654791116377	3.36615200598495
+Q16881	nan,nan,deg	NA	NA	nan,nan	NA	deg	TXNRD1	0.016285631022795	2.40388009691866
+Q8ND76	nan,nan,deg	NA	NA	nan,nan	NA	deg	CCNY	0.0462367319924987	6.6711534693895
+Q96KP6	nan,nan,deg	NA	NA	nan,nan	NA	deg	TNIP3		6.2344143228367
+Q9NVH2	nan,nan,deg	NA	NA	nan,nan	NA	deg	INTS7		6.30836768483317
+Q9H5J4	nan,nan,deg	NA	NA	nan,nan	NA	deg	ELOVL6		2.76312304499344
+Q9UIL8	nan,nan,deg	NA	NA	nan,nan	NA	deg	PHF11		2.26312027898607
+P25815	nan,nan,deg	NA	NA	nan,nan	NA	deg	S100P		3.60147215679748
+P15924	nan,nan,deg	NA	NA	nan,nan	NA	deg	DSP	0.0480127168044269	1.35276064483355
+Q9UEW8	nan,nan,deg	NA	NA	nan,nan	NA	deg	STK39	0.0708821319373954	5.38634476062208
+P14735	nan,nan,deg	NA	NA	nan,nan	NA	deg	IDE		6.12048652711167
+Q969W9	nan,nan,deg	NA	NA	nan,nan	NA	deg	PMEPA1		3.64529559531554
+P47928	nan,nan,deg	NA	NA	nan,nan	NA	deg	ID4		2.35704410057645
+A6H8Y1	nan,nan,deg	NA	NA	nan,nan	NA	deg	BDP1		3.17970912579931
+Q15262	nan,nan,deg	NA	NA	nan,nan	NA	deg	PTPRK	0.1081405805011393	2.35778082809965
+Q6UX06	nan,nan,deg	NA	NA	nan,nan	NA	deg	OLFM4		2.99888237665243
+Q9UBM1	nan,nan,deg	NA	NA	nan,nan	NA	deg	PEMT		5.63306298199514
+Q9NP59	nan,nan,deg	NA	NA	nan,nan	NA	deg	SLC40A1		6.18142858947039
+Q13426	nan,nan,deg	NA	NA	nan,nan	NA	deg	XRCC4	0.0403954573744336	3.51512716188429
+Q9NZD2	nan,nan,deg	NA	NA	nan,nan	NA	deg	GLTP		1.99653670272098
+O60331	nan,nan,deg	NA	NA	nan,nan	NA	deg	PIP5K1C	0.169805994667931	5.62937893279157
+P19876	nan,nan,deg	NA	NA	nan,nan	NA	deg	CXCL3	0.0092705832181154	5.31741866807526
+O43704	nan,nan,deg	NA	NA	nan,nan	NA	deg	SULT1B1		2.13607097319407
+P00995	nan,nan,deg	NA	NA	nan,nan	NA	deg	SPINK1	0.0219292108101709	3.85990811153008
+Q9UMX3	nan,nan,deg	NA	NA	nan,nan	NA	deg	BOK		6.6711534693895
+P18206	nan,nan,deg	NA	NA	nan,nan	NA	deg	VCL	0.0557706825870382	5.60656784827654
+P46940	nan,nan,deg	NA	NA	nan,nan	NA	deg	IQGAP1	0.0614365506667255	3.19397399115013
+Q9BYZ8	nan,nan,deg	NA	NA	nan,nan	NA	deg	REG4		7.94453234449926
+Q9UPT9	nan,nan,deg	NA	NA	nan,nan	NA	deg	USP22	0.0278812667068233	5.28698648469002
+P48163	nan,nan,deg	NA	NA	nan,nan	NA	deg	ME1	0.0001496949969346	6.4282911023008
+P07195	nan,nan,deg	NA	NA	nan,nan	NA	deg	LDHB	0.0073075227273151	2.19370850307135
+P36551	nan,nan,deg	NA	NA	nan,nan	NA	deg	CPOX		6.56587561651755
+P20851	nan,nan,deg	NA	NA	nan,nan	NA	deg	C4BPB		2.1849225106862
+P78381	nan,nan,deg	NA	NA	nan,nan	NA	deg	SLC35A2		3.04669967102853
+Q9NRD8	nan,nan,deg	NA	NA	nan,nan	NA	deg	DUOX2		6.8059442862865
+Q49AR2	nan,nan,deg	NA	NA	nan,nan	NA	deg	C5orf22		3.51736343163668
+Q9UJW0	nan,nan,deg	NA	NA	nan,nan	NA	deg	DCTN4		3.84008785204626
+Q8IVW1	nan,nan,deg	NA	NA	nan,nan	NA	deg	ARL17A		6.26202575187953
+Q9UNS2	nan,nan,deg	NA	NA	nan,nan	NA	deg	COPS3	0.0128971764671074	1.5543866265125
+Q9HB19	nan,nan,deg	NA	NA	nan,nan	NA	deg	PLEKHA2		5.6720693111301
+Q13257	nan,nan,deg	NA	NA	nan,nan	NA	deg	MAD2L1	0.0199756689429189	6.69135007575379
+P04440	nan,nan,deg	NA	NA	nan,nan	NA	deg	HLA-DPB1	0.0032269549882823	4.59910553894284
+Q16763	nan,nan,deg	NA	NA	nan,nan	NA	deg	UBE2S	0.0183154732606269	7.09659802015068
+P08729	nan,nan,deg	NA	NA	nan,nan	NA	deg	KRT7		6.58727633382012
+Q9NR30	nan,nan,deg	NA	NA	nan,nan	NA	deg	DDX21	0.0265614365874129	4.01125602018942
+P50579	nan,nan,deg	NA	NA	nan,nan	NA	deg	METAP2		2.21722770466901
+P20036	nan,nan,deg	NA	NA	nan,nan	NA	deg	HLA-DPA1	0.0032269551810053	7.9729968506692
+Q9Y5Z0	nan,nan,deg	NA	NA	nan,nan	NA	deg	BACE2	0.0100799988302275	3.62547323408742
+P17900	nan,nan,deg	NA	NA	nan,nan	NA	deg	GM2A		4.48489450155407
+P19971	nan,nan,deg	NA	NA	nan,nan	NA	deg	TYMP		4.1842351689421
+O60575	nan,nan,deg	NA	NA	nan,nan	NA	deg	SPINK4		4.79182429191385
+Q16667	nan,nan,deg	NA	NA	nan,nan	NA	deg	CDKN3		3.25611613753882
+P13164	nan,nan,deg	NA	NA	nan,nan	NA	deg	IFITM1	0.0003240792150374	2.12581277806829
+Q01629	nan,nan,deg	NA	NA	nan,nan	NA	deg	IFITM2		2.75389684665549
+P13995	nan,nan,deg	NA	NA	nan,nan	NA	deg	MTHFD2		4.6691446111392
+Q96DH6	nan,nan,deg	NA	NA	nan,nan	NA	deg	MSI2		4.87930537302906
+P68366	nan,nan,deg	NA	NA	nan,nan	NA	deg	TUBA4A	0.0448546499615145	3.68531838976681
+Q86V86	nan,nan,deg	NA	NA	nan,nan	NA	deg	PIM3	0.0393274978507404	1.60406693291718
+Q02218	nan,nan,deg	NA	NA	nan,nan	NA	deg	OGDH	0.0197375088717187	3.92329225390758
+Q8N183	nan,nan,deg	NA	NA	nan,nan	NA	deg	NDUFAF2		3.4593424832607
+B9A064	nan,nan,deg	NA	NA	nan,nan	NA	deg	IGLL5		2.21472511314004
+Q6E0U4	nan,nan,deg	NA	NA	nan,nan	NA	deg	DMKN		5.45337210048067
+O43684	nan,nan,deg	NA	NA	nan,nan	NA	deg	BUB3	0.0733960007484682	2.56168944311873
+Q7Z2W4	nan,nan,deg	NA	NA	nan,nan	NA	deg	ZC3HAV1	0.040563975545938	3.7129314724392
