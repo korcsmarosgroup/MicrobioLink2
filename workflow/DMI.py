@@ -1,6 +1,7 @@
 import re
 import argparse
 from pyfasta import Fasta
+from collections.abc import Mapping
 
 def rename(fasta_key):
     """Extract UniProt ID from FASTA header."""
