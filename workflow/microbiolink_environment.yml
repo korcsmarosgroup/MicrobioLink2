@@ -1,0 +1,13 @@
+name: microbiolink
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pandas
+  - scipy
+  - bioconda::pyfasta
+  - conda-forge::biopython
+  - matplotlib
+  - seaborn
+  - networkx
