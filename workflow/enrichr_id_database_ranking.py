@@ -7,11 +7,8 @@ import numpy as np
 #Parse command-line arguments.
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Your script description here.")
-    parser.add_argument("--background_gene_list", required=True, help="Path to the background gene file (Gene expression with/without Z-score filter.")
-    parser.add_argument("--sep", required=True, help="Separator of the background gene file.")
-    parser.add_argument("--id_background", required=True, choices=["genesymbol", "uniprot"], help="ID type of background genes.")
-    parser.add_argument("--target_gene_list", required=True, help="Path to the target gene file.")
-    parser.add_argument("--analysis_level", required=True, help="The level in the process where you perfom enrichment analysis", choices=["HMI", "TieDIE"])
+    parser.add_argument("--background_gene_list", required=True, help="Path to the file background gene list if applicable.")
+    parser.add_argument("--target_gene_list", required=True, help="Path to the target gene list file.")
     parser.add_argument("--output_image", required=True, help="Path to the output image.")
     parser.add_argument("--output_file", required=True, help="Path to the output file.")
     parser.add_argument("--database", default="Reactome_2022", help="""Database to use as a reference for the enrichment analysis. 
@@ -30,78 +27,40 @@ def parse_arguments():
     return parser.parse_args()
 
 #Read the background gene list from a file.
-def read_background_gene_list(file_path, id_background, sep):
+def read_background_gene_list(file_path):
     background_genes = []
     with open(file_path, "r") as background_gene_list:
-        background_gene_list.readline()
         for line in background_gene_list:
-            line = line.strip().split(sep)
-            if len(line) > 1:
-                gene = line[0]
-                expression = line[1]
-                if line[1] !='NaN':
-                    expression = float(line[1])
-                    if expression != 0.0:
-                        if id_background == 'genesymbol':
-                            background_genes.append(gene)
-                    elif id_background == 'uniprot':
-                        translation_dict = translate_uniprot_to_symbols(gene)
-                        background_genes.extend(translation_dict.values())
-    print(len(background_genes))
+            line = line.strip().split(',')
+            background_genes.append(line[0])
     return background_genes
-    
 
-#TieDIE
 #Read the target gene list from a file.
-def read_target_gene_list_tiedie(file_path):
+def read_target_gene_list(file_path):
     target_geneset = []
     with open(file_path, "r") as target_gene_list:
-        target_gene_list.readline()
         for line in target_gene_list:
             line = line.strip().split("\t")
             target_geneset.extend([line[0], line[2]])
     target_geneset = list(set(target_geneset))
-    
-    print(target_geneset)
-    return target_geneset
-
-#HMI
-#Read the target gene list from a file.
-def read_target_gene_list_hmi(file_path):
-    target_geneset = []
-    with open(file_path, "r") as target_gene_list:
-        target_gene_list.readline()
-        for line in target_gene_list:
-            line = line.strip().split("\t")
-            target_geneset.append(line[0])
-    target_geneset = list(set(target_geneset))
-    print(len(target_geneset))
     return target_geneset
 
 #Translate UniProt IDs to gene symbols.
 def translate_uniprot_to_symbols(uniprot, species='human'):
     mg = MyGeneInfo()
-    genesymbols_translation = mg.querymany(uniprot, scopes='uniprot', fields='symbol', species='human', returnall=True)
+    target_genesymbols_translation = mg.querymany(uniprot, scopes='uniprot', fields='symbol', species='human', returnall=True)
     
-    translation_dict = {entry['query']: entry.get('symbol', None) for entry in genesymbols_translation['out']}
+    translation_dict = {entry['query']: entry.get('symbol', None) for entry in target_genesymbols_translation['out']}
     return translation_dict
 
 def main():
     args = parse_arguments()
-    
-    background_expressed_gene_symbols = read_background_gene_list(args.background_gene_list, args.id_background, args.sep)
 
-    if args.analysis_level == 'HMI':
-        target_geneset = read_target_gene_list_hmi(args.target_gene_list)
-        target_genesymbols = translate_uniprot_to_symbols(target_geneset)
-        only_target_genesymbols = list(target_genesymbols.values())
-        print(len(only_target_genesymbols))
+    background_expressed_gene_symbols = read_background_gene_list(args.background_gene_list)
+    target_geneset = read_target_gene_list(args.target_gene_list)
 
-    elif args.analysis_level == 'TieDIE':
-        target_geneset = read_target_gene_list_tiedie(args.target_gene_list)
-        target_genesymbols = translate_uniprot_to_symbols(target_geneset)
-        only_target_genesymbols = list(target_genesymbols.values())
-        print(only_target_genesymbols)
+    target_genesymbols = translate_uniprot_to_symbols(target_geneset)
+    only_target_genesymbols = list(target_genesymbols.values())
 
     if args.ranking == "combined_score":
 
