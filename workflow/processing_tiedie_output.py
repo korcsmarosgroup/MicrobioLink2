@@ -62,11 +62,13 @@ def process_edges(rec_tf, hbps, tf_deg, network_output):
 
         hbps2_filtered = hbps2[~hbps2['Source.node'].isin(rec_tf['Source.node']) & hbps2['Target.node'].isin(rec_tf['Source.node'])]
 
-    tf_deg['layer'] = "tf-deg"
-    tf_deg2 = tf_deg[['source','target','consensus_stimulation','layer']].copy()
+    tf_deg_filtered = tf_deg[tf_deg['source'].isin(rec_tf['Target.node'])]
+    tf_deg_filtered['layer'] = "tf-deg"
+    tf_deg2 = tf_deg_filtered[['source','target','consensus_stimulation','layer']].copy()
     tf_deg2 = tf_deg2.rename(columns={'source':'Source.node','target':'Target.node','consensus_stimulation':'Relationship'})
 
     dfs = [hbps2_filtered, rec_tf, tf_deg2]
+
     whole_net = pd.concat(dfs)
 
     whole_net.to_csv(network_output, sep="\t", index=None)
