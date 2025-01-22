@@ -1,5 +1,5 @@
 # Author : Lejla Gul
-# Date : January 2024
+# Update : January 2025
 #
 # Script to combine TieDie outputs into 1 network table and one node table
 #
@@ -18,7 +18,7 @@ import numpy as np
 from mygene import MyGeneInfo
 import argparse
 
-def load_data(tiedie_network, tiedie_heats,hmi,tf_tg_network,endpoint):
+def load_data(tiedie_network, tiedie_heats,hmi, tf_tg_network,endpoint, sep_endpoint, endpoint_pvalue_column, endpoint_value_column):
     rec_tf = pd.read_csv(tiedie_network, header=None, names=["Source.node","Relationship","Target.node"], sep = "\t")
 
     heats = pd.read_csv(tiedie_heats, sep="=")
@@ -35,9 +35,15 @@ def load_data(tiedie_network, tiedie_heats,hmi,tf_tg_network,endpoint):
     tf_deg = pd.read_csv(tf_tg_network, sep = "\t")
     tf_deg['consensus_stimulation'] = tf_deg['consensus_stimulation'].replace({True: 'stimulates>', False: 'inhibits>'})
 
-    endpoint = pd.read_csv(endpoint)
-    endpoint = endpoint[endpoint['adj.P.Val'] < 0.05]
-    endpoint = endpoint[['Gene', 'logFC']]
+    endpoint = pd.read_csv(endpoint, sep=sep_endpoint)
+    endpoint_pvalue_column = int(endpoint_pvalue_column) -1
+    endpoint_pvalue_column = endpoint.columns[endpoint_pvalue_column]
+    #endpoint = endpoint[endpoint[endpoint_pvalue_column] < 0.05]
+    endpoint_value_column = int(endpoint_value_column) -1
+    endpoint_value_column = endpoint.columns[endpoint_value_column]
+    endpoint = endpoint.iloc[:, [0, endpoint.columns.get_loc(endpoint_value_column)]]
+
+    #endpoint = endpoint[[0, endpoint_value_column]]
 
     return rec_tf, heats, hbps, bacteria, tf_deg, endpoint
 
@@ -189,12 +195,15 @@ def main():
     parser.add_argument('--hmi_file', type=str, help='Path to the host-microbe interaction file')
     parser.add_argument('--tf_tg_file', type=str, help='Path to contextualised regulatory network file')
     parser.add_argument('--endpoint_file', type=str, help='Path to the endpoint gene list/DEG file')
+    parser.add_argument('--endpoint_pvalue_column', type=int, help='Column number for the p-value')
+    parser.add_argument('--endpoint_value_column', type=int, help='Column number for the differential expression values')
+    parser.add_argument('--sep_endpoint', type=str, help='Separator for the endpoint file')
     parser.add_argument('--network_output', type=str, help='Output path and name for the network file')
     parser.add_argument('--node_attr_output', type=str, help='Output path and name for the node attribute file')
 
     args = parser.parse_args()
 
-    rec_tf, heats, hbps, _, tf_deg, exp = load_data(args.tiedie_file, args.heats_file, args.hmi_file, args.tf_tg_file, args.endpoint_file)
+    rec_tf, heats, hbps, _, tf_deg, exp = load_data(args.tiedie_file, args.heats_file, args.hmi_file, args.tf_tg_file, args.endpoint_file, args.sep_endpoint, args.endpoint_pvalue_column, args.endpoint_value_column)
 
     whole_net = process_edges(rec_tf, hbps, tf_deg, args.network_output)
 
@@ -206,7 +215,8 @@ def main():
 
     merged_df = pd.merge(merged_df, heats, how='left', on='node')
 
-    exp = exp.rename(columns={'Gene':'gene_symbol'})
+    exp = exp.rename(columns={exp.columns[0]: 'gene_symbol'})
+
 
     merged_df = pd.merge(merged_df, exp, how='left', on='gene_symbol')
 
