@@ -11,6 +11,7 @@
 <h2>Key Features</h2>
 <ul>
   <li><strong>Prediction of Host-Microbe Protein-Protein Interactions</strong>: Uses structural data and domain-motif interactions to predict interactions between microbial proteins and host proteins.</li>
+  <li><strong>Disordered Region and Binding Site Prediction</strong>: Leverages AIUPred to identify intrinsically disordered regions and predict potential binding surfaces and scores, enhancing interaction confidence.</li>
   <li><strong>Multi-omic Data Integration</strong>: Combines transcriptomic data and proteomics data to create a comprehensive model of host-microbe interactions.</li>
   <li><strong>Downstream Signaling Network Analysis</strong>: Models how microbial interactions affect host cellular processes and identifies impacted signaling pathways.</li>
   <li><strong>Visualize Networks in Cytoscape</strong>: Supports export to Cytoscape for interactive visualization of host-microbe interaction networks.</li>
@@ -39,7 +40,7 @@ cd MicrobioLink2</code></pre>
   </li>
   <li><strong>Set up the Environment</strong>:
     <p>Using Conda (recommended):</p>
-    <pre><code>conda create --name microbiolink --file workflow/microbiolink_env.yml
+    <pre><code>conda env create --name microbiolink --file workflow/microbiolink_env.yml
 conda activate microbiolink</code></pre>
   </li>
   <li><strong>Alternative Setup Without Conda</strong>:
@@ -66,6 +67,9 @@ pip install -r workflow/requirements.txt</code></pre>
   </li>
   <li><strong>Predict Protein-Protein Interactions</strong>:
     <pre><code>python workflow/DMI.py --fasta_file &lt;human_fasta.fasta&gt; --elm_regex_file &lt;elm_classes.tsv&gt; --motif_domain_file &lt;motif_domains.tsv&gt; --bacterial_domain_file &lt;bacterial_domains.tsv&gt; --output_file &lt;output.csv&gt;</code></pre>
+  </li>
+  <li><strong>Filtering for Binding Region</strong>:
+    <pre><code>python workflow/AIUPred.py --hmi_prediction &lt;hmi.csv&gt; --fasta_file &lt;sequences.fasta&gt; --resources &lt;resources folder&gt; --results &lt;results folder&gt; --output &lt;output_file &gt </code></pre>
   </li>
   <li><strong>Run TieDIE for Downstream Analysis</strong>:
     <pre><code>python workflow/tiedie.py --network &lt;network.sif&gt; --up_heats &lt;upstream.input&gt; --down_heats &lt;downstream.input&gt; --output_folder &lt;output_directory&gt;</code></pre>
