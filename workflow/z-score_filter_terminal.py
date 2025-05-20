@@ -74,7 +74,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Gene expression filtration based on individual cell count and z-score.")
     parser.add_argument("-i", "--input_file", required=True, help="Input CSV file with gene expression data.")
-    parser.add_argument("-zscore", "--zscore", required=True, default = -3, help="Z-score cut-off to filter lowely expressed genes")
+    parser.add_argument("-zscore", "--zscore", required=True, type=int, default = -3, help="Z-score cut-off to filter lowely expressed genes")
     parser.add_argument("-o", "--output_file", required=True, help="Output CSV file for filtered results.")
     args = parser.parse_args()
     main(args)
