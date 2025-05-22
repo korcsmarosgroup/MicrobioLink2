@@ -25,12 +25,12 @@ def download_proteome(UP_id):
 # OPTION B: Download the list of proteins with Uniprot ID
 def download_protein_list(Uniprot_ids):
     for index, value in enumerate(Uniprot_ids):
-        print(Uniprot_ids)
+        #print(Uniprot_ids)
         if index == len(Uniprot_ids) - 1:
             Uniprot_ids[index] = '%28accession%3A' + Uniprot_ids[index] + '%29%29'
         else:
             Uniprot_ids[index] = '%28accession%3A' + Uniprot_ids[index] + '%29+OR+'
-
+    print(Uniprot_ids)
     url = 'https://rest.uniprot.org/uniprotkb/stream?fields=accession%2Cxref_pfam%2Cgene_names&format=tsv&query=%28' + "".join(Uniprot_ids)
 
     response = requests.get(url)
@@ -79,48 +79,42 @@ def parse_args(argv):
 
 
 def main(argv):
-    """ Main method and logic """
-
-    # Read args
     args = parse_args(argv)
-
-    # Download proteomes or list of proteins with their domains
     ids = read_ids(args.id_list, args.sep, args.id_column)
 
-    batch_size = 1000
+    BATCH = 1000
+    header_written = False
 
-    with open(args.output, 'w') as output:
-        header_added = False
-        for i in range(0, len(ids), batch_size):
-            # Split the ids list into batches
-            #0:1000; 1000:2000; 2000:4000
-            batch_ids = ids[i:i + batch_size]
+    with open(args.output, "w") as fout:
+        for start in range(0, len(ids), BATCH):
+            batch = ids[start: start+BATCH]
 
-            # Download protein details for the batch
-            batch_results = []
-            if args.id_type == 'UP':
-                for id_ in batch_ids:
-                    result = download_proteome(id_)
-                    batch_results.append([result,id_])
+            if args.id_type == "UP":
+                for up_id in batch:
+                    tsv = download_proteome(up_id)
+                    lines = tsv.rstrip().split("\n")
 
-            elif args.id_type == 'Uniprot':
-                batch_results = []
-                result = download_protein_list(batch_ids)
-                batch_results.append(result)
+                    # write header (once) + extra column name
+                    if not header_written:
+                        fout.write(lines[0] + "\tProteome_ID\n")
+                        header_written = True
 
-            # Add the header only if it hasn't been added yet
-            if header_added == False:
-                header_added = True
-                header = batch_results[0][0].split('\n', 1)[0]  # Extract the header from the first batch result
-                output.write(header + '\n')
+                    for row in lines[1:]:
+                        if row:
+                            fout.write(f"{row}\t{up_id}\n")
 
-            # Write the batch results to the main output file, skipping the header in subsequent batches
-            for result_list in batch_results:
-                result = result_list[0].split('\n')
-                print(result)
-                for ids in result[1:]:
-                    if ids:
-                        output.write(ids + "\t" + result_list[1] + "\n")
+            else:   # id_type == "Uniprot"
+                tsv = download_protein_list(batch)
+                lines = tsv.rstrip().split("\n")
+
+                if not header_written:
+                    fout.write(lines[0] + "\n")
+                    header_written = True
+
+                for row in lines[1:]:
+                    if row:
+                        fout.write(row + "\n")
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
