@@ -67,7 +67,7 @@ def parse_args(argv):
                         dest="output",
                         action="store",
                         required=True)
-                        
+
     parser.add_argument("-v", "--verbose",
                         help="Increase output verbosity",
                         action="store_true")
@@ -95,6 +95,15 @@ def process_hmi(hmi_path):
             if pid not in ids:
                 ids.append(pid)
     return ids
+
+def get_interaction(hmi_path):
+    """ Opening hmi file and select the human interactors """
+    with open(hmi_path) as hmi_table:
+        hmi = []
+        for line in hmi_table:
+            line = line.strip().split(";")
+            hmi.append(line)
+    return hmi
 
 
 def get_motif_dict(hmi_path):
@@ -213,6 +222,7 @@ def predict_binding_v2(resources_folder, seq, embed_model, dec_model, device,
     pred = dec_model(decoder_in).detach().cpu().numpy()
 
     if binding:
+        print(binding_transform_v2(resources_folder, pred, smoothing=smoothing))
         return binding_transform_v2(resources_folder, pred, smoothing=smoothing)
     if smoothing and len(seq) > 10:
         return savgol_filter(pred, 11, 5)
@@ -235,6 +245,8 @@ def predict_tracks(folder, seq_dict, device, gpu_num, force_cpu):
         folder, 'binding',  device=device, gpu_num=gpu_num, force_cpu=force_cpu)
 
     disorder_profiles, binding_profiles = {}, {}
+    print(seq_dict.items())
+    print(len(seq_dict.items()))
     for pid, seq in seq_dict.items():
         disorder_profiles[pid] = aiupred_lib.predict_disorder(
             seq, dis_e, dis_d, device, smoothing=True)
@@ -259,12 +271,46 @@ def keep_high_confidence(motif_dict, disorder, binding, thr=THRESHOLD):
     return kept
 
 
-def write_output(rows, out_path):
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    with open(out_path, 'w') as fh:
-        fh.write('protein;motif_seq;start;end\n')
-        for r in rows:
-            fh.write(';'.join(map(str, r)) + '\n')
+# def write_output(rows, out_path):
+#     os.makedirs(os.path.dirname(out_path), exist_ok=True)
+#     with open(out_path, 'w') as fh:
+#         fh.write('protein;motif_seq;start;end\n')
+#         for r in rows:
+#             fh.write(';'.join(map(str, r)) + '\n')
+
+def write_output(folder, idr_motifs, hmi, output):
+    """ Writing output file """
+    output_file = os.path.join(folder, output)
+    written_entries = set()
+
+    with open(output_file, 'w') as output_file:
+        output_file.write("# Human Protein" + "\t" + "Motif" + "\t" +  "Start" + "\t" +  "End" +
+                          "\t" +"Bacterial domain" + "\t" + "Bacterial protein" "\n")
+
+        idr_motifs = list(set(idr_motifs))
+
+        for motif in idr_motifs:
+            for interaction in hmi:
+                if motif[0] in interaction and motif[1] in interaction and str(motif[2]) in interaction and str(motif[3]) in interaction:
+                    entry = "\t".join(interaction)
+                    if entry not in written_entries:
+                        output_file.write(entry + "\n")
+                        written_entries.add(entry)
+
+def delete_files_in_folder(folder_path):
+    try:
+        # Check if the folder exists
+        if os.path.exists(folder_path):
+            # Iterate over all files in the folder and delete them
+            for filename in os.listdir(folder_path):
+                file_path = os.path.join(folder_path, filename)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+            print(f"All files in {folder_path} have been deleted.")
+        else:
+            print(f"The folder {folder_path} does not exist.")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
 
 # ═════════════════════════════════════════════════════════════════════════════
 # Main
@@ -278,6 +324,7 @@ def main(argv=None):
     # 1) collect protein IDs & motif metadata
     logging.info('Reading HMI table %s', args.hmi_prediction)
     prot_ids   = process_hmi(args.hmi_prediction)
+    hmi = get_interaction(args.hmi_prediction)
     motif_dict = get_motif_dict(args.hmi_prediction)
 
     # 2) write per‑protein FASTAs (if not already there)
@@ -285,8 +332,10 @@ def main(argv=None):
     split_large_fasta(args.fasta_file, prot_ids, args.resources)
 
     seq_dir = os.path.join(args.resources, 'protein_sequences')
+
     seqs = {f[:-6]: read_seq(os.path.join(seq_dir, f))
             for f in os.listdir(seq_dir) if f.endswith('.fasta')}
+    print(len(seqs))
 
     # 3) device selection
     device = torch.device('cpu') if args.force_cpu or not torch.cuda.is_available() \
@@ -303,9 +352,13 @@ def main(argv=None):
     logging.info('Kept %d motifs', len(kept))
 
     # 6) write output
-    write_output(kept, args.output)
+    write_output(args.results, kept, hmi, args.output)
     logging.info('Results written to %s', args.output)
 
+
+    # Remove files from protein_sequences folder
+    folder_to_delete_files = os.path.join(args.resources, "protein_sequences")
+    delete_files_in_folder(folder_to_delete_files)
 
 if __name__ == '__main__':
     sys.exit(main())
