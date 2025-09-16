@@ -1,7 +1,7 @@
 # Author: Lejla Gul, Toby Lawrence
 # Date: May, 2025
 
-# Aim: Filter host-micere protein-protein interactions, keeping only those where
+# Aim: Filter host-microbe protein-protein interactions, keeping only those where
 # the target motif lies on residues that are both disordered
 # (AIUPred‑disorder ≥ 0.60)and binding‑prone (AIUPred‑binding ≥ 0.60)
 
