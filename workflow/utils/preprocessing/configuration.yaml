@@ -1,0 +1,7 @@
+platforms: "10x" 
+input_dir: "./fastq"
+output_dir: "./results"
+whitelist_10x: "./whitelist"
+genome_dir:"./genome" # 2 files needed fasta and gtf annotations
+
+
