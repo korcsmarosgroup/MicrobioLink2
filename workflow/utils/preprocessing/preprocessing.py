@@ -114,7 +114,7 @@ def CheckFASTQFiles(input_folder):
     fastq_files = glob.glob(os.path.join(input_folder, "*.fastq")) + \
               glob.glob(os.path.join(input_folder, "*.fastq.gz"))
 
-    if not fastq_files:
+    if len(fastq_files) == 0:
         sys.stderr.write(f"ERROR: No FASTQ files found in {input_folder}\n")
         sys.exit(4)
 
@@ -122,7 +122,9 @@ def CheckFASTQFiles(input_folder):
     samples = {}
     for f in fastq_files:
         base = os.path.basename(f)
-        sample_name = base.split("_")[0]
+        sample_R1_name = base.split("R1")[0]
+        sample_R2_name = base.split("R2")[0]
+        sample_I1_name = base.split("I1")[0]        
 
         if sample_name not in samples:
             samples[sample_name] = []

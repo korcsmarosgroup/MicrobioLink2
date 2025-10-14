@@ -8,3 +8,6 @@ gtf_file: "./gtf"
 fastqc_output_folder: "./fastqcoutput"
 run_fastqc: true
 run_starsolo: true
+
+## Bse parameters
+input_folder_type: "merged" ##split between samples
