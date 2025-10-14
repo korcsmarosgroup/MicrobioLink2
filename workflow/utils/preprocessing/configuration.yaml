@@ -1,5 +1,10 @@
-platforms: "10x" 
+platform: "dropseq"
 input_dir: "./fastq"
 output_dir: "./results"
-whitelist_10x: "./whitelist"
-genome_dir:"./genome" # 2 files needed fasta and gtf annotations
+genome_dir: "./genome"
+whitelist_10x: "./whitelist/10x_whitelist.txt"
+fasta_file: "./fasta"
+gtf_file: "./gtf"
+fastqc_output_folder: "./fastqcoutput"
+run_fastqc: true
+run_starsolo: true
