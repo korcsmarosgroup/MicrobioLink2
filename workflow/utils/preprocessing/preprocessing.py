@@ -257,7 +257,7 @@ def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
             The path of the log file to record events and errors.
 
     Error codes:
-        ERROR CODE 12: STAR genome generation failed.
+        ERROR CODE 8: STAR genome generation failed.
 
     Behavior:
         - If genome_dir exists and contains valid STAR index files
@@ -274,7 +274,7 @@ def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
     # ------------------------------------------------------------
     if os.path.isdir(genome_dir):
         existing_files = os.listdir(genome_dir)
-        required_files = {"Genome", "SA", "SAindex"}
+        required_files = {"Genome", "SA", "SAindex"} # TODO: Check what file extensions needed to be inside a STAR index folder
         if required_files.issubset(set(existing_files)):
             _log(f"STAR genome index already exists at {genome_dir}. Skipping generation.", log_file)
             return
@@ -282,8 +282,9 @@ def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
     # ------------------------------------------------------------
     # Create genome directory if missing
     # ------------------------------------------------------------
-    _log(f"STAR genome index not found. Generating new index at {genome_dir}", log_file)
-    os.makedirs(genome_dir, exist_ok=True)
+    else:
+        _log(f"STAR genome index not found. Generating new index at {genome_dir}", log_file)
+        os.makedirs(genome_dir, exist_ok=True)
 
     # ------------------------------------------------------------
     # Build STAR command
@@ -310,7 +311,7 @@ def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
         error_msg = f"ERROR: STAR genome generation failed: {e}"
         _log(error_msg, log_file)
         sys.stderr.write(f"ERROR MESSAGE: STAR genome generation failed: {e}\n")
-        sys.exit(12)
+        sys.exit(8)
 
 def main():
     """
