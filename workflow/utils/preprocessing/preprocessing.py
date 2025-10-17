@@ -102,7 +102,7 @@ def LoadingConfiguration(configuration_file_path, log_file):
 
     return configuration
 
-def CheckFASTQFiles(input_folder, Fastq_file_format):
+def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
     """
     Checking the FASTQ input folder: verifies that all expected sequencing files are present
     and correctly structured according to the specified Fastq_file_format ('merged' or 'subdir').
@@ -118,14 +118,14 @@ def CheckFASTQFiles(input_folder, Fastq_file_format):
             The organization style of the FASTQ data to validate. Must be either:
                 - 'merged': all FASTQ files are in a single directory.
                 - 'subdir': each sample has its own subdirectory containing FASTQ files.
+        log_file:
+            The path of the log file.
 
     Error codes:
+        ERROR CODE 4: Invalid Fastq_file_format
         ERROR CODE 5: No FASTQ files found (merged layout)
-        ERROR CODE 6: Sample missing R1/R2/I1 (merged layout)
-        ERROR CODE 7: Sample has wrong number of files (merged layout)
-        ERROR CODE 9: No FASTQ files found in a subdirectory
-        ERROR CODE 10: Subdirectory missing R1/R2/I1
-        ERROR CODE 11: Subdirectory has wrong number of files
+        ERROR CODE 6: Subdirectory missing R1/R2/I1 (subdir layout)
+        ERROR CODE 7: Subdirectory has wrong number of files (subdir layout)
 
     Returns:
         None
@@ -149,7 +149,7 @@ def CheckFASTQFiles(input_folder, Fastq_file_format):
             sys.stderr.write(f"ERROR: No FASTQ files found in {input_folder}\n")
             sys.exit(5)
 
-        sys.stdout.write("Using flat FASTQ layout.\n")
+        _log("Using flat FASTQ layout", log_file)
 
         # Group files by sample prefix
         samples = {}
@@ -163,6 +163,7 @@ def CheckFASTQFiles(input_folder, Fastq_file_format):
                 sample = base.split("_I1")[0]
             else:
                 sys.stderr.write(f"WARNING: Skipping unrecognized FASTQ file name: {base}\n")
+                _log(f"WARNING: Skipping unrecognized FASTQ file name: {base}")
                 continue
 
             if sample not in samples:
@@ -180,20 +181,16 @@ def CheckFASTQFiles(input_folder, Fastq_file_format):
 
             missing = [k for k, v in found.items() if not v]
             if missing:
-                sys.stderr.write(
-                    f"ERROR: Sample '{sample}' is missing {', '.join(missing)} file(s).\n"
+                _log(
+                    f"WARNING: {sample} is missing {', '.join(missing)} file(s).", log_file
                 )
-                for f in sorted(files):
-                    sys.stderr.write(f"  - {f}\n")
-                sys.exit(6)
+                continue
 
             if len(files) != 3:
-                sys.stderr.write(
-                    f"ERROR: Sample '{sample}' should have 3 FASTQ files, but found {len(files)}.\n"
+                _log(
+                    f"WARNING: {sample} should have 3 FASTQ files, but {len(files)} found.", log_file
                 )
-                for f in sorted(files):
-                    sys.stderr.write(f"  - {f}\n")
-                sys.exit(7)
+                continue
 
     # ------------------------------------------------------------
     # Case 2: Subdirectory layout — one folder per sample
@@ -203,9 +200,9 @@ def CheckFASTQFiles(input_folder, Fastq_file_format):
 
         if len(subdirs) == 0:
             sys.stderr.write(f"ERROR: No sample subdirectories found in {input_folder}\n")
-            sys.exit(8)
+            sys.exit(6)
 
-        sys.stdout.write("Using per-sample subdirectory layout.\n")
+        _log("Using per-sample subdirectory layout.\n", log_file)
 
         for folder in subdirs:
             sample_name = os.path.basename(folder)
@@ -213,8 +210,8 @@ def CheckFASTQFiles(input_folder, Fastq_file_format):
                      glob.glob(os.path.join(folder, "*.fastq.gz"))
 
             if len(fastqs) == 0:
-                sys.stderr.write(f"ERROR: No FASTQ files found in {folder}\n")
-                sys.exit(9)
+                sys.stderr.write(f"ERROR: No FASTQ files found in {folder}")
+                sys.exit(7)
 
             found = {"R1": False, "R2": False, "I1": False}
             for f in fastqs:
@@ -225,21 +222,17 @@ def CheckFASTQFiles(input_folder, Fastq_file_format):
 
             missing = [k for k, v in found.items() if not v]
             if missing:
-                sys.stderr.write(
-                    f"ERROR: Folder '{sample_name}' is missing {', '.join(missing)} file(s).\n"
+                _log(
+                    f"WARNING: {sample_name} is missing the {', '.join(missing)} file(s).", log_file
                 )
-                for f in sorted(fastqs):
-                    sys.stderr.write(f"  - {f}\n")
-                sys.exit(10)
+                continue
 
             if len(fastqs) != 3:
-                sys.stderr.write(
-                    f"ERROR: Folder '{sample_name}' should have exactly 3 FASTQ files, but found {len(fastqs)}.\n"
+                _log(
+                    f"WARNING: {sample_name} should have exactly 3 FASTQ files, but {len(fastqs)} found.", log_file
                 )
-                for f in sorted(fastqs):
-                    sys.stderr.write(f"  - {f}\n")
-                sys.exit(11)
-                
+                continue
+
 def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
     """
     Preparing the STAR genome index directory.
