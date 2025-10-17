@@ -102,41 +102,222 @@ def LoadingConfiguration(configuration_file_path, log_file):
 
     return configuration
 
-def CheckFASTQFiles(input_folder):
+def CheckFASTQFiles(input_folder, Fastq_file_format):
     """
-    Checks that each sample in the input folder has exactly 3 FASTQ files.
-    Assumes files are named like:
-        sample1_R1.fastq.gz, sample1_R2.fastq.gz, sample1_index.fastq.gz
+    Checking the FASTQ input folder: verifies that all expected sequencing files are present
+    and correctly structured according to the specified Fastq_file_format ('merged' or 'subdir').
 
-    #TODO: Check if we have more than 3 FASTQ file pairs, because of subsamples
+    If any expected file (R1, R2, or I1) is missing, or the folder structure does not match 
+    the specified layout, an error is raised, and execution stops.
+
+    Args:
+        input_folder:
+            The system-based absolute path to the input directory containing the FASTQ files
+            or per-sample subdirectories.
+        Fastq_file_format:
+            The organization style of the FASTQ data to validate. Must be either:
+                - 'merged': all FASTQ files are in a single directory.
+                - 'subdir': each sample has its own subdirectory containing FASTQ files.
+
+    Error codes:
+        ERROR CODE 5: No FASTQ files found (merged layout)
+        ERROR CODE 6: Sample missing R1/R2/I1 (merged layout)
+        ERROR CODE 7: Sample has wrong number of files (merged layout)
+        ERROR CODE 9: No FASTQ files found in a subdirectory
+        ERROR CODE 10: Subdirectory missing R1/R2/I1
+        ERROR CODE 11: Subdirectory has wrong number of files
+
+    Returns:
+        None
+            The function does not return any value. If all checks pass, execution continues normally.
     """
-    
-    fastq_files = glob.glob(os.path.join(input_folder, "*.fastq")) + \
-              glob.glob(os.path.join(input_folder, "*.fastq.gz"))
-
-    if len(fastq_files) == 0:
-        sys.stderr.write(f"ERROR: No FASTQ files found in {input_folder}\n")
+    # ------------------------------------------------------------
+    # Validate Fastq_file_format
+    # ------------------------------------------------------------
+    if Fastq_file_format not in ("merged", "subdir"):
+        sys.stderr.write(f"ERROR: Invalid Fastq_file_format '{Fastq_file_format}'. Must be 'merged' or 'subdir'.\n")
         sys.exit(4)
 
-    # Group by sample
-    samples = {}
-    for f in fastq_files:
-        base = os.path.basename(f)
-        sample_R1_name = base.split("R1")[0]
-        sample_R2_name = base.split("R2")[0]
-        sample_I1_name = base.split("I1")[0]        
+    # ------------------------------------------------------------
+    # Case 1: Flat layout — all FASTQs in one directory
+    # ------------------------------------------------------------
+    if Fastq_file_format == "merged":
+        fastq_files = glob.glob(os.path.join(input_folder, "*.fastq")) + \
+                      glob.glob(os.path.join(input_folder, "*.fastq.gz"))
 
-        if sample_name not in samples:
-            samples[sample_name] = []
-
-        samples[sample_name].append(f)
-
-    # Check each sample has 3 files
-    for sample, files in samples.items():
-        if len(files) != 3:
-            sys.stderr.write(f"ERROR: Sample '{sample}' should have 3 FASTQ files, but found {len(files)}.\n")
+        if len(fastq_files) == 0:
+            sys.stderr.write(f"ERROR: No FASTQ files found in {input_folder}\n")
             sys.exit(5)
 
+        sys.stdout.write("Using flat FASTQ layout.\n")
+
+        # Group files by sample prefix
+        samples = {}
+        for f in fastq_files:
+            base = os.path.basename(f)
+            if "_R1" in base:
+                sample = base.split("_R1")[0]
+            elif "_R2" in base:
+                sample = base.split("_R2")[0]
+            elif "_I1" in base:
+                sample = base.split("_I1")[0]
+            else:
+                sys.stderr.write(f"WARNING: Skipping unrecognized FASTQ file name: {base}\n")
+                continue
+
+            if sample not in samples:
+                samples[sample] = []
+            samples[sample].append(f)
+
+        # Validate each sample
+        for sample, files in samples.items():
+            found = {"R1": False, "R2": False, "I1": False}
+            for f in files:
+                fname = os.path.basename(f)
+                for tag in found:
+                    if tag in fname:
+                        found[tag] = True
+
+            missing = [k for k, v in found.items() if not v]
+            if missing:
+                sys.stderr.write(
+                    f"ERROR: Sample '{sample}' is missing {', '.join(missing)} file(s).\n"
+                )
+                for f in sorted(files):
+                    sys.stderr.write(f"  - {f}\n")
+                sys.exit(6)
+
+            if len(files) != 3:
+                sys.stderr.write(
+                    f"ERROR: Sample '{sample}' should have 3 FASTQ files, but found {len(files)}.\n"
+                )
+                for f in sorted(files):
+                    sys.stderr.write(f"  - {f}\n")
+                sys.exit(7)
+
+    # ------------------------------------------------------------
+    # Case 2: Subdirectory layout — one folder per sample
+    # ------------------------------------------------------------
+    elif Fastq_file_format == "subdir":
+        subdirs = [d for d in glob.glob(os.path.join(input_folder, "*")) if os.path.isdir(d)]
+
+        if len(subdirs) == 0:
+            sys.stderr.write(f"ERROR: No sample subdirectories found in {input_folder}\n")
+            sys.exit(8)
+
+        sys.stdout.write("Using per-sample subdirectory layout.\n")
+
+        for folder in subdirs:
+            sample_name = os.path.basename(folder)
+            fastqs = glob.glob(os.path.join(folder, "*.fastq")) + \
+                     glob.glob(os.path.join(folder, "*.fastq.gz"))
+
+            if len(fastqs) == 0:
+                sys.stderr.write(f"ERROR: No FASTQ files found in {folder}\n")
+                sys.exit(9)
+
+            found = {"R1": False, "R2": False, "I1": False}
+            for f in fastqs:
+                fname = os.path.basename(f)
+                for tag in found:
+                    if tag in fname:
+                        found[tag] = True
+
+            missing = [k for k, v in found.items() if not v]
+            if missing:
+                sys.stderr.write(
+                    f"ERROR: Folder '{sample_name}' is missing {', '.join(missing)} file(s).\n"
+                )
+                for f in sorted(fastqs):
+                    sys.stderr.write(f"  - {f}\n")
+                sys.exit(10)
+
+            if len(fastqs) != 3:
+                sys.stderr.write(
+                    f"ERROR: Folder '{sample_name}' should have exactly 3 FASTQ files, but found {len(fastqs)}.\n"
+                )
+                for f in sorted(fastqs):
+                    sys.stderr.write(f"  - {f}\n")
+                sys.exit(11)
+                
+def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
+    """
+    Preparing the STAR genome index directory.
+
+    Checks whether a valid STAR genome index already exists in the specified
+    genome directory. If all required index files are present, the function
+    logs this and skips index generation. If not, it generates a new STAR
+    genome index using the provided FASTA and GTF annotation files.
+
+    Args:
+        genome_dir:
+            The system-based absolute path of the directory where the STAR
+            genome index will be stored.
+        fasta_file:
+            The absolute path to the reference genome FASTA file.
+        gtf_file:
+            The absolute path to the GTF annotation file.
+        read_length:
+            Integer, the sequencing read length. STAR will use (read_length - 1)
+            as the sjdbOverhang value.
+        log_file:
+            The path of the log file to record events and errors.
+
+    Error codes:
+        ERROR CODE 12: STAR genome generation failed.
+
+    Behavior:
+        - If genome_dir exists and contains valid STAR index files
+          (Genome, SA, and SAindex), the generation step is skipped.
+        - If the index is missing, a new one is created with STAR.
+
+    Returns:
+        None
+            The function logs progress and errors but returns no value.
+    """
+
+    # ------------------------------------------------------------
+    # Check for existing valid STAR index
+    # ------------------------------------------------------------
+    if os.path.isdir(genome_dir):
+        existing_files = os.listdir(genome_dir)
+        required_files = {"Genome", "SA", "SAindex"}
+        if required_files.issubset(set(existing_files)):
+            _log(f"STAR genome index already exists at {genome_dir}. Skipping generation.", log_file)
+            return
+
+    # ------------------------------------------------------------
+    # Create genome directory if missing
+    # ------------------------------------------------------------
+    _log(f"STAR genome index not found. Generating new index at {genome_dir}", log_file)
+    os.makedirs(genome_dir, exist_ok=True)
+
+    # ------------------------------------------------------------
+    # Build STAR command
+    # ------------------------------------------------------------
+    cmd = [
+        "STAR",
+        "--runThreadN", "8",
+        "--runMode", "genomeGenerate",
+        "--genomeDir", genome_dir,
+        "--genomeFastaFiles", fasta_file,
+        "--sjdbGTFfile", gtf_file,
+        "--sjdbOverhang", str(read_length - 1)
+    ]
+
+    # ------------------------------------------------------------
+    # Run STAR to generate the genome index
+    # ------------------------------------------------------------
+    try:
+        _log(f"Running STAR command: {' '.join(cmd)}", log_file)
+        subprocess.run(cmd, check=True)
+        _log(f"STAR genome index successfully generated at {genome_dir}", log_file)
+
+    except subprocess.CalledProcessError as e:
+        error_msg = f"ERROR: STAR genome generation failed: {e}"
+        _log(error_msg, log_file)
+        sys.stderr.write(f"ERROR MESSAGE: STAR genome generation failed: {e}\n")
+        sys.exit(12)
 
 def main():
     """
@@ -145,6 +326,7 @@ def main():
 
     config_folder = os.path.dirname(os.path.abspath(__file__))
     logfile = CheckingLogFile(config_folder)
+    logfile = f"{config_folder}/preprocessing.log"  
 
     _log("Log file created", logfile)
 
@@ -155,8 +337,36 @@ def main():
     configuration = LoadingConfiguration(configuration_file_path, logfile)
     _log("Configuration file successfully loaded.", logfile)
     
+    input_dir = configuration.get("input_dir")
+    Fastq_file_format = configuration.get("Fastq_file_format")  # must be "merged" or "subdir"
 
+    if not input_dir or not os.path.isdir(input_dir):
+        sys.stderr.write("ERROR: Invalid or missing 'input_dir' in configuration file.\n")
+        _log("ERROR: Invalid or missing 'input_dir' in configuration file.", logfile)
+        sys.exit(6)
+
+    if not Fastq_file_format:
+        sys.stderr.write("ERROR: Missing 'Fastq_file_format' in configuration file.\n")
+        _log("ERROR: Missing 'Fastq_file_format' in configuration file.", logfile)
+        sys.exit(6)
+
+    _log(f"Checking FASTQ files in: {input_dir} (mode: {Fastq_file_format})", logfile)
+    CheckFASTQFiles(input_dir, Fastq_file_format)
+    _log("FASTQ file structure successfully validated.", logfile)
     
+    genome_dir = configuration.get("genome_dir")
+    fasta_file = configuration.get("fasta_file")
+    gtf_file = configuration.get("gtf_file")
+    read_length = configuration.get("read_length")
+    
+    # Validate config values before running
+    if not all([genome_dir, fasta_file, gtf_file, read_length]):
+        sys.stderr.write("ERROR: Missing required genome preparation parameters in configuration file.\n")
+        _log("ERROR: Missing required genome preparation parameters in configuration file.", logfile)
+        sys.exit(6)
+
+    # Prepare STAR genome index
+    PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, logfile)
         
 
 

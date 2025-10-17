@@ -1,13 +1,12 @@
 platform: "dropseq"
 input_dir: "./fastq"
 output_dir: "./results"
-genome_dir: "./genome"
 whitelist_10x: "./whitelist/10x_whitelist.txt"
-fasta_file: "./fasta"
-gtf_file: "./gtf"
-fastqc_output_folder: "./fastqcoutput"
-run_fastqc: true
 run_starsolo: true
 
 ## Bse parameters
-input_folder_type: "merged" ##split between samples
+Fastq_file_format: "merged" #"subdir"  sub dir per sample
+genome_dir: "./genome"
+fasta_file: "./fasta"
+gtf_file: "./gtf"
+read_length: 
