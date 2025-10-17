@@ -1,0 +1,10 @@
+# Use Python 3.9 (create your venv with 3.9)
+
+pandas==2.2.2
+numpy==1.26.4
+scipy==1.13.1
+mygene==3.2.2
+omnipath==1.0.8
+gget==0.28.6
+pyfasta==0.5.2
+biopython==1.84
