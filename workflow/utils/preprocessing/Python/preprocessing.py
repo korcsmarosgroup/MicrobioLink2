@@ -314,10 +314,29 @@ def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
         sys.exit(8)
         
 def _pair_fastqs(input_dir, layout):
+
     """
-    Helper: match R1 and R2 FASTQs per sample.
-    Works for both 'merged' and 'subdir' layouts.
+    Match R1, R2, and optional I1 FASTQ files per sample.
+    
+    This helper function scans the input directory (or per-sample subdirectories)
+    and pairs sequencing files for each sample based on filename prefixes. It works
+    for both 'merged' (all files in one directory) and 'subdir' (one folder per sample) layouts.
+
+    Notes:
+        - Expects FASTQ filenames to contain '_R1', '_R2', and optionally '_I1'.
+        - Does not validate that all paired files exist; just groups them.
+        - Returns a dictionary suitable for feeding into STAR/STARsolo commands.
+        
+    Args:
+            input_dir (str): Absolute or relative path to the input FASTQ folder.
+            layout (str): Organization style of FASTQ files:
+                  - 'merged': all FASTQs in a single directory.
+                  - 'subdir': one subdirectory per sample containing FASTQs.
+
+    Returns:
+        dict: Nested dictionary of samples and their corresponding FASTQ paths:
     """
+
     fastq_files = []
 
     if layout == "merged":
@@ -326,9 +345,6 @@ def _pair_fastqs(input_dir, layout):
         subdirs = [d for d in glob.glob(os.path.join(input_dir, "*")) if os.path.isdir(d)]
         for sd in subdirs:
             fastq_files.extend(glob.glob(os.path.join(sd, "*.fastq*")))
-    else:
-        sys.stderr.write(f"ERROR: Unknown layout '{layout}' in _pair_fastqs.\n")
-        sys.exit(4)
 
     samples = {}
     for f in fastq_files:
@@ -347,26 +363,30 @@ def _pair_fastqs(input_dir, layout):
     return samples
 
 
-def RunSTARsolo(configuration, log_file):
+def RunSTARUnified(configuration, log_file, solo=False):
     """
-    Run STARsolo for droplet-based platforms, per-sample pairing ensured.
+    Run STAR or STARsolo depending on the `solo` flag.
     """
     platform = configuration.get("platform", "").lower()
-    if platform != "droplet":
-        _log(f"Platform is not droplet ({platform}). Skipping STARsolo.", log_file)
-        return
-
     input_dir = configuration.get("input_dir")
     genome_dir = configuration.get("genome_dir")
-    output_dir = configuration.get("STARsolo_outdir", os.path.join(input_dir, "STARsolo_out"))
     threads = configuration.get("threads", 8)
     layout = configuration.get("Fastq_file_format", "merged")
-    solo_params = configuration.get("STARsolo_params", {})
+
+    if solo:
+        if platform != "droplet":
+            _log(f"Platform is not droplet ({platform}). Skipping STARsolo.", log_file)
+            return
+        output_dir = configuration.get("STARsolo_outdir", os.path.join(input_dir, "STARsolo_out"))
+        params = configuration.get("STARsolo_params", {})
+    else:
+        if platform != "microwell":
+            _log(f"Platform '{platform}' is not microwell. Skipping STAR.", log_file)
+            return
+        output_dir = configuration.get("STAR_outdir", os.path.join(input_dir, "STAR_out"))
+        params = configuration.get("STAR_params", {})
 
     samples = _pair_fastqs(input_dir, layout)
-    if not samples:
-        sys.stderr.write("ERROR: No FASTQ samples found for STARsolo.\n")
-        sys.exit(9)
 
     for sample, files in samples.items():
         if "R1" not in files or "R2" not in files:
@@ -384,82 +404,27 @@ def RunSTARsolo(configuration, log_file):
             "--outFileNamePrefix", os.path.join(sample_out, "")
         ]
 
-        # Handle gzipped FASTQs
+        # gzipped FASTQs
         if files["R1"].endswith(".gz") or files["R2"].endswith(".gz"):
             cmd += ["--readFilesCommand", "zcat"]
 
-        # Add STARsolo-specific params
-        for param, value in solo_params.items():
+        # Add STAR/STARsolo parameters
+        for param, value in params.items():
             cmd.append(f"--{param}")
             if str(value).lower() not in ("none", ""):
                 cmd.append(str(value))
 
         try:
-            _log(f"Running STARsolo for {sample}: {' '.join(cmd)}", log_file)
+            mode = "STARsolo" if solo else "STAR"
+            _log(f"Running {mode} for {sample}: {' '.join(cmd)}", log_file)
             subprocess.run(cmd, check=True)
-            _log(f"STARsolo completed for {sample}. Output: {sample_out}", log_file)
+            _log(f"{mode} completed for {sample}. Output: {sample_out}", log_file)
         except subprocess.CalledProcessError as e:
-            _log(f"ERROR: STARsolo failed for {sample}: {e}", log_file)
-            sys.stderr.write(f"ERROR MESSAGE: STARsolo failed for {sample}: {e}\n")
-            continue  # Continue with next sample
-
-
-def RunSTAR(configuration, log_file):
-    """
-    Run STAR alignment for non-droplet (e.g., microwell) platforms per sample.
-    """
-    platform = configuration.get("platform", "").lower()
-    if platform not in ("microwell"):
-        _log(f"Platform '{platform}' is not supported for this STAR pipeline. Skipping.", log_file)
-        return
-
-    input_dir = configuration.get("input_dir")
-    genome_dir = configuration.get("genome_dir")
-    output_dir = configuration.get("STAR_outdir", os.path.join(input_dir, "STAR_out"))
-    threads = configuration.get("threads", 8)
-    layout = configuration.get("Fastq_file_format", "merged")
-    star_params = configuration.get("STAR_params", {})
-
-    samples = _pair_fastqs(input_dir, layout)
-    if not samples:
-        sys.stderr.write("ERROR: No FASTQ samples found for STAR alignment.\n")
-        sys.exit(9)
-
-    for sample, files in samples.items():
-        if "R1" not in files or "R2" not in files:
-            _log(f"Skipping {sample}: missing R1 or R2.", log_file)
+            _log(f"ERROR: {mode} failed for {sample}: {e}", log_file)
+            sys.stderr.write(f"ERROR MESSAGE: {mode} failed for {sample}: {e}\n")
             continue
-
-        sample_out = os.path.join(output_dir, sample)
-        os.makedirs(sample_out, exist_ok=True)
-
-        cmd = [
-            "STAR",
-            "--runThreadN", str(threads),
-            "--genomeDir", genome_dir,
-            "--readFilesIn", files["R1"], files["R2"],
-            "--outFileNamePrefix", os.path.join(sample_out, "")
-        ]
-
-        # Handle gzipped FASTQs
-        if files["R1"].endswith(".gz") or files["R2"].endswith(".gz"):
-            cmd += ["--readFilesCommand", "zcat"]
-
-        # Add custom STAR parameters
-        for param, value in star_params.items():
-            cmd.append(f"--{param}")
-            if str(value).lower() not in ("none", ""):
-                cmd.append(str(value))
-
-        try:
-            _log(f"Running STAR for {sample}: {' '.join(cmd)}", log_file)
-            subprocess.run(cmd, check=True)
-            _log(f"STAR alignment completed for {sample}. Output: {sample_out}", log_file)
-        except subprocess.CalledProcessError as e:
-            _log(f"ERROR: STAR failed for {sample}: {e}", log_file)
-            sys.stderr.write(f"ERROR MESSAGE: STAR failed for {sample}: {e}\n")
-            continue
-
+        
+        
 def main():
     """
     Main function for the script.
@@ -511,14 +476,9 @@ def main():
     platform = configuration.get("platform", "").lower()
 
     if platform == "droplet":
-        _log("Running STARsolo for droplet platform...", logfile)
-        RunSTARsolo(configuration, logfile)
-
+        RunSTARUnified(configuration, logfile, solo=True)
     elif platform == "microwell":
-        _log("Running custom code for microwell platform...", logfile)
-        #Call a new function you would write for microwell
-        RunSTAR(configuration, logfile)
-        
+        RunSTARUnified(configuration, logfile, solo=False)
     else:
         msg = f"Platform is '{platform}'. No processing available for this platform. Exiting."
         _log(msg, logfile)

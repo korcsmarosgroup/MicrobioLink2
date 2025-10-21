@@ -17,7 +17,7 @@ read_length: 100
 # ==============================
 # STARsolo parameters
 # ==============================
-solo_params:
+STARsolo_params:
   solo_type: "CB_UMI_Simple"
   cb_start: 1
   cb_length: 16
