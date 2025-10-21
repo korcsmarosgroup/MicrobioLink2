@@ -1,12 +1,40 @@
-platform: "dropseq"
-input_dir: "./fastq"
+# ==============================
+# Base directories
+# ==============================
+input_dir: "./input_dir"
 output_dir: "./results"
-whitelist_10x: "./whitelist/10x_whitelist.txt"
-run_starsolo: true
+platform: "droplet" #mircowell
+Fastq_file_format: "merged"  # or "subdir"
 
-## Bse parameters
-Fastq_file_format: "merged" #"subdir"  sub dir per sample
+# ==============================
+# STAR genome build parameters
+# ==============================
 genome_dir: "./genome"
-fasta_file: "./fasta"
-gtf_file: "./gtf"
-read_length: 
+fasta_file: "./fasta/genome.fa"
+gtf_file: "./gtf/annotation.gtf"
+read_length: 100
+
+# ==============================
+# STARsolo parameters
+# ==============================
+solo_params:
+  solo_type: "CB_UMI_Simple"
+  cb_start: 1
+  cb_length: 16
+  umi_start: 17
+  umi_length: 12
+  whitelist: "./whitelist/10x_whitelist.txt"
+
+# ==============================
+# STAR parameters
+# ==============================
+star_params:
+  outSAMtype: "BAM SortedByCoordinate"
+  outFilterMultimapNmax: 1
+  twopassMode: "Basic"
+  outSAMattributes: "NH HI AS nM MD"
+  outSAMunmapped: "Within"
+  outSAMmapqUnique: 60
+  outFilterMismatchNoverLmax: 0.04
+  alignSJoverhangMin: 8
+  alignSJDBoverhangMin: 1
