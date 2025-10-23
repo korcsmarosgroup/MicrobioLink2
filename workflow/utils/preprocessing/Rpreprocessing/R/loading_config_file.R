@@ -1,23 +1,21 @@
-# Loading the content from the configuration file.
-#
-# Args:
-#
-#   configuration_file_path:
-#     The absolute path of the configuration file.
-#   log_file:
-#     The path of the log file.
-#
-# Error codes:
-#
-#   ERROR CODE 2: Unable to read configuration file.
-#   ERROR CODE 3: Configuration file is empty.
-#
-# Return:
-#
-#   Yaml object: contains the configuration file's content.
+usethis::use_package("yaml", type="Imports")
 
-
-install.packages("yaml")
+#' loading_config_file
+#'
+#' Loading the content from the configuration file.
+#'
+#' @param configuration_file_path The absolute path of the configuration file.
+#'
+#' @param log_file The path of the log file.
+#'
+#' Error codes:
+#'
+#'   ERROR CODE 2: Unable to read configuration file.
+#'   ERROR CODE 3: Configuration file is empty.
+#'
+#' @return Yaml object: contains the configuration file's content.
+#'
+#' @export
 
 loading.config.file <- function(configuration.file.path, log.file) {
 
@@ -35,8 +33,9 @@ loading.config.file <- function(configuration.file.path, log.file) {
 
     {
 
-      file <- read_yaml(configuration.file.path, stringsAsFactors=FALSE)
+      file <- yaml::read_yaml(configuration.file.path, stringsAsFactors=FALSE)
       return(file)
+
     },
 
     error=function(e) {

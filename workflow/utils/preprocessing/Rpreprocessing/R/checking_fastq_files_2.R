@@ -1,5 +1,7 @@
 check.fastq.files <- function (input_folder, Fastq_file_format) {
 
+  stop("function not implemented yet")
+
   # ------------------------------------------------------------
   # Validate Fastq_file_format
   # ------------------------------------------------------------
@@ -11,7 +13,6 @@ check.fastq.files <- function (input_folder, Fastq_file_format) {
   #   Case 1: Flat layout - all FASTQs in one directory
   # --------------------------------------------------------
   #
-
 
   if (Fastq_file_format == "merged") {
 

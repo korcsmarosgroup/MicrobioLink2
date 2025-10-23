@@ -1,5 +1,8 @@
 prepare_STAR_genome <- function (genome_dir, fasta_file, gtf_file, read_length, log_file) {
 
+  stop("function not implemented yet")
+
+
 # Preparing the STAR genome index directory.
 #
 # Checks whether a valid STAR genome index already exists in the specified
