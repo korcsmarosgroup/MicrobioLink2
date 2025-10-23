@@ -4,12 +4,12 @@
 #'
 #' @param message The actual commit message before push
 #'
-#' @param log.file The path of the log file
+#' @param log_file The path of the log file
 #' @keywords internal
 
-log <- function (message, log.file) {
+log <- function (message, log_file) {
 
-  write((paste0(format(Sys.time(), format = "%Y-%m-%d %H:%M:%S"), sep=" ", message)), file = log.file)
+  write((paste0(format(Sys.time(), format = "%Y-%m-%d %H:%M:%S"), sep=" ", message)), file = log_file)
 
 }
 

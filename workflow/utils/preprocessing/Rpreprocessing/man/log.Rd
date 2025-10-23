@@ -4,12 +4,12 @@
 \alias{log}
 \title{add_log_message}
 \usage{
-log(message, log.file)
+log(message, log_file)
 }
 \arguments{
 \item{message}{The actual commit message before push}
 
-\item{log.file}{The path of the log file}
+\item{log_file}{The path of the log file}
 }
 \description{
 Log a message with a time stamp.

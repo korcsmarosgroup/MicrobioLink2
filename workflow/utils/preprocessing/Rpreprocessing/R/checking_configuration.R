@@ -6,6 +6,7 @@
 #' @param config_foler The system based absolute path of this script (because
 #' the configuration file needs to be next to it).
 #'
+#' @details
 #' Error codes:
 #'
 #'   ERROR CODE 1: The configuration file does not exist.
@@ -14,14 +15,14 @@
 #'
 #' @export
 
-checking.configuration <- function (config_folder) {
+checking_configuration <- function (config_folder) {
 
-  configuration.file.path <- paste0(config_folder, sep="/", "configuration.yaml")
+  configuration_file_path <- paste0(config_folder, sep="/", "configuration.yaml")
 
-  if (!file.exists(configuration.file.path)) {
-    stop(paste0("ERROR CODE 1: The configuration file does not exist: ", sep="\n", configuration.file.path))
+  if (!file.exists(configuration_file_path)) {
+    stop(paste0("ERROR CODE 1: The configuration file does not exist: ", sep="\n", configuration_file_path))
   }
 
-  return(configuration.file.path)
+  return(configuration_file_path)
 
 }

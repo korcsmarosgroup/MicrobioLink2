@@ -9,14 +9,14 @@
 #'
 #' @export
 
-checking.log.file <- function (config_folder) {
+checking_log_file <- function (config_folder) {
 
-  log.file <- paste0(config_folder, sep="/", "preprocessing.log")
+  log_file <- paste0(config_folder, sep="/", "preprocessing.log")
 
-  if (file.exists(log.file)) {
-    file.remove(log.file)
+  if (file.exists(log_file)) {
+    file.remove(log_file)
   }
 
-  return(log.file)
+  return(log_file)
 
 }
