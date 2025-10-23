@@ -1,7 +1,7 @@
 # ==============================
 # Base directories
 # ==============================
-input_dir: "./input_dir"
+input_dir: "/input_dir"
 output_dir: "./results"
 platform: "droplet" #mircowell
 Fastq_file_format: "merged"  # or "subdir"
@@ -10,8 +10,10 @@ Fastq_file_format: "merged"  # or "subdir"
 # STAR genome build parameters
 # ==============================
 genome_dir: "./genome"
-fasta_file: "./fasta/genome.fa"
-gtf_file: "./gtf/annotation.gtf"
+fasta_file: ".fasta"
+gtf_file: ".gtf"
+
+
 read_length: 100
 
 # ==============================

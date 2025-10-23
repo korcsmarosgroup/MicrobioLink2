@@ -3,7 +3,6 @@
 
 
 from time import strftime
-import scanpy as sc
 import subprocess
 import sys
 import os
@@ -122,10 +121,10 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
             The path of the log file.
 
     Error codes:
-        ERROR CODE 4: Invalid Fastq_file_format
-        ERROR CODE 5: No FASTQ files found (merged layout)
-        ERROR CODE 6: Subdirectory missing R1/R2/I1 (subdir layout)
-        ERROR CODE 7: Subdirectory has wrong number of files (subdir layout)
+        ERROR CODE 5: Invalid Fastq_file_format
+        ERROR CODE 6: No FASTQ files found (merged layout)
+        ERROR CODE 7: Subdirectory missing R1/R2/I1 (subdir layout)
+        ERROR CODE 8: Subdirectory has wrong number of files (subdir layout)
 
     Returns:
         None
@@ -136,7 +135,7 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
     # ------------------------------------------------------------
     if Fastq_file_format not in ("merged", "subdir"):
         sys.stderr.write(f"ERROR: Invalid Fastq_file_format '{Fastq_file_format}'. Must be 'merged' or 'subdir'.\n")
-        sys.exit(4)
+        sys.exit(5)
 
     # ------------------------------------------------------------
     # Case 1: Flat layout — all FASTQs in one directory
@@ -147,7 +146,7 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
 
         if len(fastq_files) == 0:
             sys.stderr.write(f"ERROR: No FASTQ files found in {input_folder}\n")
-            sys.exit(5)
+            sys.exit(6)
 
         _log("Using flat FASTQ layout", log_file)
 
@@ -200,7 +199,7 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
 
         if len(subdirs) == 0:
             sys.stderr.write(f"ERROR: No sample subdirectories found in {input_folder}\n")
-            sys.exit(6)
+            sys.exit(7)
 
         _log("Using per-sample subdirectory layout.\n", log_file)
 
@@ -211,7 +210,7 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
 
             if len(fastqs) == 0:
                 sys.stderr.write(f"ERROR: No FASTQ files found in {folder}")
-                sys.exit(7)
+                sys.exit(8)
 
             found = {"R1": False, "R2": False, "I1": False}
             for f in fastqs:
@@ -257,7 +256,7 @@ def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
             The path of the log file to record events and errors.
 
     Error codes:
-        ERROR CODE 8: STAR genome generation failed.
+        ERROR CODE 11: STAR genome generation failed.
 
     Behavior:
         - If genome_dir exists and contains valid STAR index files
@@ -311,7 +310,7 @@ def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
         error_msg = f"ERROR: STAR genome generation failed: {e}"
         _log(error_msg, log_file)
         sys.stderr.write(f"ERROR MESSAGE: STAR genome generation failed: {e}\n")
-        sys.exit(8)
+        sys.exit(11)
         
 def _pair_fastqs(input_dir, layout):
 
@@ -365,8 +364,44 @@ def _pair_fastqs(input_dir, layout):
 
 def RunSTARUnified(configuration, log_file, solo=False):
     """
-    Run STAR or STARsolo depending on the `solo` flag.
-    """
+    Run STAR or STARsolo depending on the experimental platform and configuration settings.
+
+    This function executes the STAR aligner for microwell-based experiments or STARsolo
+    for droplet-based single-cell RNA-seq data. It automatically detects input FASTQ pairs,
+    constructs appropriate STAR command-line arguments, and logs progress and errors.
+
+    The function supports both gzipped and uncompressed FASTQ files, and dynamically
+    includes custom STAR/STARsolo parameters defined in the configuration.
+
+    Args:
+        configuration (dict): Dictionary containing run parameters and paths. Expected keys:
+            - "platform" (str): Sequencing platform ("microwell" or "droplet").
+            - "input_dir" (str): Directory containing FASTQ files.
+            - "genome_dir" (str): Directory of the STAR genome index.
+            - "threads" (int, optional): Number of CPU threads for STAR. Defaults to 8.
+            - "Fastq_file_format" (str, optional): Layout of FASTQ files ("merged" or "subdir").
+            - "STAR_outdir" (str, optional): Output directory for STAR alignments.
+            - "STAR_params" (dict, optional): Additional STAR command-line parameters.
+            - "STARsolo_outdir" (str, optional): Output directory for STARsolo.
+            - "STARsolo_params" (dict, optional): Additional STARsolo command-line parameters.
+
+        log_file (str): Path to a log file for recording messages and errors.
+        
+        solo (bool, optional): 
+            - If True: Runs STARsolo (droplet-based single-cell data).
+            - If False: Runs standard STAR alignment (microwell-based data).
+            Defaults to False.
+            
+            Returns:
+                
+
+    Notes:
+        - Requires STAR to be installed and accessible in the system PATH.
+        - FASTQ files must contain '_R1' and '_R2' in their filenames.
+        - Skips samples missing either R1 or R2.
+        - Use
+        
+"""
     platform = configuration.get("platform", "").lower()
     input_dir = configuration.get("input_dir")
     genome_dir = configuration.get("genome_dir")
@@ -428,6 +463,11 @@ def RunSTARUnified(configuration, log_file, solo=False):
 def main():
     """
     Main function for the script.
+    
+    ERROR CODE 4: Invalid or missing 'input_dir' in configuration file
+    ERROR CODE 9:  Missing 'Fastq_file_format' in configuration file.
+    ERROR CODE 10:  Missing required genome preparation parameters in configuration file
+    ERROR CODE 12: Platform is '{platform}'. No processing available for this platform. Exiting
     """
 
     config_folder = os.path.dirname(os.path.abspath(__file__))
@@ -449,12 +489,12 @@ def main():
     if not input_dir or not os.path.isdir(input_dir):
         sys.stderr.write("ERROR: Invalid or missing 'input_dir' in configuration file.\n")
         _log("ERROR: Invalid or missing 'input_dir' in configuration file.", logfile)
-        sys.exit(6)
+        sys.exit(4)
 
     if not Fastq_file_format:
         sys.stderr.write("ERROR: Missing 'Fastq_file_format' in configuration file.\n")
         _log("ERROR: Missing 'Fastq_file_format' in configuration file.", logfile)
-        sys.exit(6)
+        sys.exit(9)
 
     _log(f"Checking FASTQ files in: {input_dir} (mode: {Fastq_file_format})", logfile)
     CheckFASTQFiles(input_dir, Fastq_file_format, logfile)
@@ -468,11 +508,11 @@ def main():
     if not all([genome_dir, fasta_file, gtf_file, read_length]):
         sys.stderr.write("ERROR: Missing required genome preparation parameters in configuration file.\n")
         _log("ERROR: Missing required genome preparation parameters in configuration file.", logfile)
-        sys.exit(6)
+        sys.exit(10)
 
     # Prepare STAR genome index
     PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, logfile)
-        
+    #check platform and run star    
     platform = configuration.get("platform", "").lower()
 
     if platform == "droplet":
@@ -483,7 +523,7 @@ def main():
         msg = f"Platform is '{platform}'. No processing available for this platform. Exiting."
         _log(msg, logfile)
         sys.stderr.write(msg + "\n")
-        sys.exit(10)
+        sys.exit(12)
 
 
 
