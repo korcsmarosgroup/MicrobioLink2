@@ -17,7 +17,7 @@
 
 checking_configuration <- function (config_folder) {
 
-  configuration_file_path <- paste0(config_folder, sep="/", "configuration.yaml")
+  configuration_file_path <- paste0(dirname(config_folder), sep="/", "configuration.yaml")
 
   if (!file.exists(configuration_file_path)) {
     stop(paste0("ERROR CODE 1: The configuration file does not exist: ", sep="\n", configuration_file_path))

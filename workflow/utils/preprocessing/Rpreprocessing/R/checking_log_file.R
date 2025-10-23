@@ -11,11 +11,13 @@
 
 checking_log_file <- function (config_folder) {
 
-  log_file <- paste0(config_folder, sep="/", "preprocessing.log")
+  log_file <- paste0(dirname(config_folder), sep="/", "preprocessing.log")
 
   if (file.exists(log_file)) {
     file.remove(log_file)
   }
+
+  file.create(log_file)
 
   return(log_file)
 

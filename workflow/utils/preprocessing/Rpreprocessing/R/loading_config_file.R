@@ -18,8 +18,6 @@ usethis::use_package("yaml", type="Imports")
 #'
 #' @export
 
-configuration_file_path <- "C:/Users/bogla/PycharmProjects/MicrobioLink2/workflow/utils/preprocessing/Rpreprocessing/configuration.yaml"
-
 loading_config_file <- function(configuration_file_path, log_file) {
 
   if (file.size(configuration_file_path) == 0) {
@@ -36,7 +34,7 @@ loading_config_file <- function(configuration_file_path, log_file) {
 
     {
 
-      file <- yaml::read_yaml(configuration_file_path, stringsAsFactors=FALSE)
+      file <- yaml::read_yaml(configuration_file_path)
 
       return(file)
 
@@ -44,11 +42,11 @@ loading_config_file <- function(configuration_file_path, log_file) {
 
     error=function(e) {
 
-      msg_2 <- paste0("Error reading configuration file", configuration_file_path)
+      msg_2 <- paste0("Error reading configuration file", sep="/n", configuration_file_path)
 
       write_log(msg_2, log_file)
 
-      stop(paste0("Unable to read configuration file", configuration_file_path))
+      stop(paste0("Unable to read configuration file:", sep=" ", configuration_file_path))
 
     }
 
