@@ -1,0 +1,7 @@
+# ==============================
+# Base directories
+# ==============================
+input_dir: "/input_dir"
+output_dir: "./results"
+platform: "droplet" #mircowell
+Fastq_file_format: "merged"  # or "subdir"

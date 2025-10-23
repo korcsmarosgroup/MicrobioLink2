@@ -67,6 +67,7 @@ def CheckingConfiguration(config_folder):
 
     return configuration_file_path
 
+
 def LoadingConfiguration(configuration_file_path, log_file):
     """
     Loading the content from the configuration file.
@@ -524,8 +525,6 @@ def main():
         _log(msg, logfile)
         sys.stderr.write(msg + "\n")
         sys.exit(12)
-
-
 
 
 if __name__ == '__main__':
