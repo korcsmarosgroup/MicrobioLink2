@@ -8,6 +8,7 @@ usethis::use_package("yaml", type="Imports")
 #'
 #' @param log_file The path of the log file.
 #'
+#' @details
 #' Error codes:
 #'
 #'   ERROR CODE 2: Unable to read configuration file.
@@ -17,15 +18,17 @@ usethis::use_package("yaml", type="Imports")
 #'
 #' @export
 
+configuration_file_path <- "C:/Users/bogla/PycharmProjects/MicrobioLink2/workflow/utils/preprocessing/Rpreprocessing/configuration.yaml"
+
 loading_config_file <- function(configuration_file_path, log_file) {
 
   if (file.size(configuration_file_path) == 0) {
 
     msg_1 <- "Configuration file is empty"
 
-    cat(msg_1, log_file, append=TRUE)
+    write_log(msg_1, log_file)
 
-    stop(paste0("The configuration file is empty"))
+    stop("Configuration file is empty")
 
   }
 
@@ -34,6 +37,7 @@ loading_config_file <- function(configuration_file_path, log_file) {
     {
 
       file <- yaml::read_yaml(configuration_file_path, stringsAsFactors=FALSE)
+
       return(file)
 
     },
@@ -42,7 +46,7 @@ loading_config_file <- function(configuration_file_path, log_file) {
 
       msg_2 <- paste0("Error reading configuration file", configuration_file_path)
 
-      cat(msg_2, file=log_file, append=TRUE)
+      write_log(msg_2, log_file)
 
       stop(paste0("Unable to read configuration file", configuration_file_path))
 

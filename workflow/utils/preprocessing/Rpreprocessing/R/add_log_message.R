@@ -7,9 +7,13 @@
 #' @param log_file The path of the log file
 #' @keywords internal
 
-log <- function (message, log_file) {
+log_file <- "C:/Users/bogla/PycharmProjects/MicrobioLink2/workflow/utils/preprocessing/Rpreprocessing/preprocessing.log"
 
-  write((paste0(format(Sys.time(), format = "%Y-%m-%d %H:%M:%S"), sep=" ", message)), file = log_file)
+write_log <- function (message, log_file) {
+
+  time_stamp <- format(Sys.time(), format = "%Y-%m-%d %H:%M:%S")
+
+  write((paste0(time_stamp, sep=" ", message)), file = log_file, append = TRUE)
 
 }
 
