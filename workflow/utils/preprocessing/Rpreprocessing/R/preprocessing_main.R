@@ -21,7 +21,7 @@ main <- function() {
 
   print(log_file)
 
-  write_log("Log file created", log_file) # TO-DO: why message not displayed in log_file -> bad log_file path
+  write_log("Log file created", log_file)
 
   configuration_file_path <- checking_configuration(config_folder)
 

@@ -9,16 +9,17 @@ loading_config_file(configuration_file_path, log_file)
 \arguments{
 \item{configuration_file_path}{The absolute path of the configuration file.}
 
-\item{log_file}{The path of the log file.
-
-Error codes:
-
-ERROR CODE 2: Unable to read configuration file.
-ERROR CODE 3: Configuration file is empty.}
+\item{log_file}{The path of the log file.}
 }
 \value{
 Yaml object: contains the configuration file's content.
 }
 \description{
 Loading the content from the configuration file.
+}
+\details{
+Error codes:
+
+ERROR CODE 2: Unable to read configuration file.
+ERROR CODE 3: Configuration file is empty.
 }
