@@ -210,8 +210,12 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
                      glob.glob(os.path.join(folder, "*.fastq.gz"))
 
             if len(fastqs) == 0:
-                sys.stderr.write(f"ERROR: No FASTQ files found in {folder}")
-                sys.exit(8)
+                _log(
+                    f"WARNING: {sample_name} has no FASTQ files", log_file
+                )
+                continue
+
+            _log(f"{sample_name} has FASTQ files", log_file)
 
             found = {"R1": False, "R2": False, "I1": False}
             for f in fastqs:
@@ -232,6 +236,8 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
                     f"WARNING: {sample_name} should have exactly 3 FASTQ files, but {len(fastqs)} found.", log_file
                 )
                 continue
+
+            _log(f"{sample_name} has the necessary FASTQ files (R1, R2, I1)", log_file)
 
 def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
     """
