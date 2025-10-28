@@ -22,31 +22,39 @@ check.fastq.files <- function (input_folder, Fastq_file_format) {
 
       write_log("Using flat FASTQ layout", log_file)
 
-      group_names <- sub("^([^_]+)_.*$", "\\1", fastq.files)
-      groups <- split(fastq.files, group_names)
-      sample_order <- order(as.numeric(gsub("\\D", "", names(groups))))
-      groups <- groups[sample_order]
-      read_order <- c("R1", "R2", "I1")
-      groups <- lapply(groups, function(files) {
-        files[order(match(sub(".*_(R1|R2|I1).*", "\\1", files), read_order))]
-      })
+      # Validate file names
 
-      pattern <- c("_R1", "_R2", "_I1")
-      check_files <- function(groups, pattern) {
-          for (i in seq_along(groups)) {
-              if (all(sapply(pattern, function(x) any(grepl(x, groups[[i]]))))) {
-                  message(sprintf("Sample %d contains all required FASTQ files", i))
-                } else {
-                  warning(sprintf("Sample %d is missing one or more FASTQ files", i))
-                }
-          }
+      tags <- c("R1", "R2", "I1")
+      validate_file_names <- function(fastq.files, tags) {
+        matches <- sapply(tags, function(t) grepl(t, fastq.files))
+        if (any(rowSums(matches)) > 0) {
+          warning("Unrecognised file name")
+        }
       }
 
-      print(check_files(groups, pattern))
+      # Group files by sample prefix
 
-      lapply(groups, function(x)
-          if (length(x) != 3) write_log("Sample should have 3 FASTQ files")
-        )
+      fastq.files <- list.files(input_folder, pattern="fastq|fastq.gz", recursive=FALSE)
+      group_names <- sub("^(.*)_(R1|R2|I1).*", "\\1", fastq.files)
+      keys <- (unique(group_names))
+
+      group_files <- function(keys, tags, fastq.files) {
+        samples <- list()
+
+        for (key in keys) {
+          samples[[key]] <- list()
+          for (tag in tags) {
+            matched <- grep(paste0(key, ".*", tag), fastq.files, value=TRUE)
+            samples[[key]][[tag]] <- matched
+          }
+        }
+
+        return(samples)
+      }
+
+      # lapply(groups, function(x)
+      #     if (length(x) != 3) write_log("Sample should have 3 FASTQ files")
+      #   )
 
     }
 
@@ -63,26 +71,35 @@ check.fastq.files <- function (input_folder, Fastq_file_format) {
 
       write_log("Using per-sample subdirectory layout", log_file )
 
-      group_names <- sub("^([^_]+)_.*$", "\\1", fastq.files)
-      groups <- split(fastq.files, group_names)
-      sample_order <- order(as.numeric(gsub("\\D", "", names(groups))))
-      groups <- groups[sample_order]
-      read_order <- c("R1", "R2", "I1")
-      groups <- lapply(groups, function(files) {
-          files[order(match(sub(".*_(R1|R2|I1).*", "\\1", files), read_order))]
-      })
+      # Validate file names
 
-      pattern <- c("_R1", "_R2", "_I1")
-      check_files <- function(groups, pattern) {
-          for (i in seq_along(groups)) {
-              if (all(sapply(pattern, function(x) any(grepl(x, groups[[i]]))))) {
-                  message(sprintf("Sample %d contains all required FASTQ files", i))
-                } else {
-                  warning(sprintf("Sample %d is missing one or more FASTQ files", i))
-                }
-          }
+      tags <- c("R1", "R2", "I1")
+      validate_file_names <- function(fastq.files, tags) {
+        matches <- sapply(tags, function(t) grepl(t, fastq.files))
+        if (any(rowSums(matches)) > 0) {
+          warning("Unrecognised file name")
+        }
       }
 
+      # Group files by sample prefix
+
+      fastq.files <- list.files(input_folder, pattern="fastq|fastq.gz", recursive=FALSE)
+      group_names <- sub("^(.*)_(R1|R2|I1).*", "\\1", fastq.files)
+      keys <- (unique(group_names))
+
+      group_files <- function(keys, tags, fastq.files) {
+        samples <- list()
+
+        for (key in keys) {
+          samples[[key]] <- list()
+          for (tag in tags) {
+            matched <- grep(paste0(key, ".*", tag), fastq.files, value=TRUE)
+            samples[[key]][[tag]] <- matched
+          }
+        }
+
+        return(samples)
+      }
       lapply(groups, function(x)
           if (length(x) != 3) write_log("Sample should have 3 FASTQ files")
       )
