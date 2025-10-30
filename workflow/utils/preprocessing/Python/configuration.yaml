@@ -14,7 +14,7 @@ fasta_file: "fasta"
 gtf_file: ".gtf"
 
 
-read_length: 100
+read_length: 100 # refering to sjdbOverhang
 
 # ==============================
 # STARsolo parameters

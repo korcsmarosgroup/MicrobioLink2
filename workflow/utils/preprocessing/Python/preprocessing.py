@@ -3,6 +3,7 @@
 
 
 from time import strftime
+import scanpy as sc
 import subprocess
 import sys
 import os
@@ -412,7 +413,7 @@ def RunSTARUnified(configuration, log_file, solo=False):
     platform = configuration.get("platform", "").lower()
     input_dir = configuration.get("input_dir")
     genome_dir = configuration.get("genome_dir")
-    threads = configuration.get("threads", 8)
+    threads = configuration.get("threads", 4)
     layout = configuration.get("Fastq_file_format", "merged")
 
     if solo:
@@ -465,8 +466,24 @@ def RunSTARUnified(configuration, log_file, solo=False):
             _log(f"ERROR: {mode} failed for {sample}: {e}", log_file)
             sys.stderr.write(f"ERROR MESSAGE: {mode} failed for {sample}: {e}\n")
             continue
-        
-        
+
+
+def QC(output_folder):
+    """
+    Function for the quality checks.
+    """
+
+    for sample in os.listdir(output_folder):
+        sample_path = os.path.join(output_folder, sample)
+        raw_dir = f"{sample_path}/raw"
+        filtered_dir = f"{sample_path}/filtered"
+
+        adata_raw = sc.read_10x_mtx(raw_dir, var_names = "gene_symbols", cache = True, make_unique = True)
+        adata = sc.read_10x_mtx(filtered_dir, var_names = "gene_symbols", cache = True, make_unique = True)
+
+        adata.layers["counts"] = adata.X.copy()
+
+
 def main():
     """
     Main function for the script.
@@ -507,6 +524,7 @@ def main():
     CheckFASTQFiles(input_dir, Fastq_file_format, logfile)
     _log("FASTQ file structure successfully validated.", logfile)
     
+    output_dir = configuration.get("output_dir")
     genome_dir = configuration.get("genome_dir")
     fasta_file = configuration.get("fasta_file")
     gtf_file = configuration.get("gtf_file")
