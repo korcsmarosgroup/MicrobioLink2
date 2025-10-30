@@ -31,4 +31,6 @@ main <- function() {
 
   write_log("Configuration file is successfully loaded", log_file)
 
+
+
 }
