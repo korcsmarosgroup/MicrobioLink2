@@ -1,3 +1,5 @@
+usethis::use_package("processx", type = "Import")
+
 #' run_star_solo_unified
 #'
 #' Run STAR or STARsolo depending on the experimental platform and configuration settings.
@@ -39,10 +41,10 @@ run_STAR_unified <- function(configuration, log_file, solo = FALSE) {
   platform <- tolower(file$platform)
   input_dir <- file$input_dir
   genome_dir <- file$genome_dir
-  threads <- file$threads
+  threads <- as.character(file$threads)
   layout <- file$Fastq_file_format
 
-  if (solo == TRUE) {
+  if (isTRUE(solo == TRUE)) {
     if (platform != "droplet") {
       write_log(paste0("Platform is not droplet: ", platform, ". Skipping STARsolo"), log_file)
       output_dir <- paste0(file$STARsolo_outdir, input_dir, file$STARsolo_out, sep = "/")
@@ -57,30 +59,85 @@ run_STAR_unified <- function(configuration, log_file, solo = FALSE) {
   samples <- pair_fastqs(input_dir, layout)
 
   for (sample in names(samples)) {
-    files <- sample[[samples]]
+    files <- samples[[sample]]
     found <- sapply(tags, function(tag) any(grepl(tag, files)))
     if (!(all(found))) {
       missing_tags <- tags[!found]
-      message <- message(sample, ": missing -> ", paste0(missing_tags, collapse = ", "))
-      write_log(message, log_file)
+      write_log(paste0("Skipping ", sample, " missing R1 or R2"), log_file)
     }
 
-    pattern_1 <- paste0(sample, "R1")
-    pattern_2 <- paste0(sample, "R2")
+    sample_out <- file.path(output_dir, sample)
+    dir.create(sample_out)
 
-    cmd <- "STAR"
-    args <- c("--runThreadN", as.character(threads),
-              "--genomeDir", genome_dir,
-              "--readFilesIn", all(grep(pattern_1, files, values = TRUE)), all(grep(pattern_2, files, values = TRUE)),
-              "--outFileNamePrefix", file.path(sample_out, ""))
+    file_R1 <- grep("R1", files, value = TRUE)
+    file_R2 <- grep("R2", files, value = TRUE)
+
+    cmd_base <- "STAR"
+    cmd_args <- list(
+      paste("--runThreadN", shQuote(threads)),
+      paste("--genomeDir", shQuote(genome_dir)),
+      paste("--readFilesIn", shQuote(file_R1), shQuote(file_R2)),
+      paste("--outFileNamePrefix", shQuote(sample_out))
+    )
+
+    cmd <- c(cmd_base, cmd_args)
+    pipeline <- paste(cmd, collapse = " ")
 
     # gzipped FASTQs
 
+    gzipped <- FALSE
+    zcat <- NULL
+    cmd_unzip <- NULL
+
+    if (isTRUE(all(any(grepl(".gz$", files))) && any(grepl("R[12]", files)))) {
+      gzipped <- TRUE
+      zcat <- "zcat"
+      cmd_unzip <- list(
+        paste("--readFilesCommand", shQuote(zcat))
+      )
+      cmd <- c(cmd, cmd_unzipped)
+      pipeline <- paste(cmd, collapse = " ")
+    }
+
     # Add STAR/STARsolo parameters
+    # Loop through named list of params
+    # add name and content as paste("--k", shQuote(v))
+    # if the value is not NULL or an empty string
+    # add value
 
-    result <- tryCatch({
-      ifelse(solo, mode = "STARsolo", mode = "STAR")
-    } error = function(e) cat("ERROR: ", mode, " failed for ", sample))
-
+    STARUnified_result <- tryCatch(
+      {
+        if (isTRUE(all(any(grepl(".gz$", files))) && any(grepl("R[12]", files)))) {
+          if (isTRUE(mode == "STARsolo")) {
+            write_log(paste0("Running ", mode, "for ", sample, " : ", pipeline), log_file)
+            result <- processx::run(cmd_base, c(unlist(cmd_args), cmd_unzip), error_on_status = TRUE)
+            write_log(paste0(mode, " completed for ", sample, " . Output: ", sample_out), log_file)
+            return(result)
+          } else if (isTRUE(mode == "STAR")) {
+            write_log(paste0("Running ", mode, "for ", sample, " : ", pipeline), log_file)
+            result <- processx::run(cmd_base, c(unlist(cmd_args), cmd_unzip), error_on_status = TRUE)
+            write_log(paste0(mode, " completed for ", sample, " . Output: ", sample_out), log_file)
+            return(result)
+          }
+        } else {
+          if (isTRUE(mode == "STARsolo")) {
+            write_log(paste0("Running ", mode, "for ", sample, " : ", pipeline), log_file)
+            result <- processx::run(cmd_base, unlist(cmd_args), error_on_status = TRUE)
+            write_log(paste0(mode, " completed for ", sample, " . Output: ", sample_out), log_file)
+            return(result)
+          } else if (isTRUE(mode == "STAR")) {
+            write_log(paste0("Running ", mode, "for ", sample, " : ", pipeline), log_file)
+            result <- processx::run(cmd_base, unlist(cmd_args), error_on_status = TRUE)
+            write_log(paste0(mode, " completed for ", sample, " . Output: ", sample_out), log_file)
+            return(result)
+          }
+        }
+      },
+      error = function(e) {
+        write_log(paste0("ERROR: ", mode, " failed for: ", sample, result$stderr))
+        cat("ERROR MESSAGE", mode, "failed for:", sample, e$message)
+        return(NULL)
+      }
+    )
   }
 }

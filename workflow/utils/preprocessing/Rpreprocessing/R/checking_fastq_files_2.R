@@ -1,4 +1,33 @@
-check.fastq.files <- function(input_folder, Fastq_file_format) {
+#' checking_fastq_files_2.R
+#'
+#' Checking the FASTQ input folder: verifies that all expected sequencing files are present
+#' and correctly structured according to the specified Fastq_file_format ('merged' or 'subdir').
+#'
+#' If any expected file (R1, R2, or I1) is missing, or the folder structure does not match
+#' the specified layout, an error is raised, and execution stops.
+#'
+#' @param input_folder The system-based absolute path to the input directory containing the FASTQ files or pe
+#' -sample subdirectories.
+#' @param Fastq_file_format The organization style of the FASTQ data to validate.
+#'    Must be either:
+#'        - 'merged': all FASTQ files are in a single directory.
+#'        - 'subdir': each sample has its own subdirectory containing FASTQ files.
+#' @param log_file The path of the log file.
+#'
+#' @details
+#' Error codes:
+#'    ERROR CODE 5: Invalid Fastq_file_format
+#'    ERROR CODE 6: No FASTQ files found (merged layout)
+#'    ERROR CODE 7: Subdirectory missing R1/R2/I1 (subdir layout)
+#'    ERROR CODE 8: Subdirectory has wrong number of files (subdir layout)
+#'
+#' @return NULL
+#'    The function does not return any value. If all checks pass, execution continues normally.
+#'
+#' @export
+
+
+check.fastq.files <- function(input_folder, Fastq_file_format, log_file) {
   stop("function not implemented yet")
 
   # ------------------------------------------------------------
@@ -14,43 +43,56 @@ check.fastq.files <- function(input_folder, Fastq_file_format) {
   #
 
   if (Fastq_file_format == "merged") {
-    fastq.files <- list.files(input_folder, pattern = "*.fastq$|*.fastq.gz$", recursive = FALSE)
+    fastq.files <- list.files(input_folder, pattern = "fastq|fastq.gz", recursive = FALSE)
     if (length(fastq.files) == 0) {
       stop(paste0("ERROR CODE 6: No FASTQ files found in ", input_folder))
     }
-    write_log("Using flat FASTQ layout", log_file)
+    print(fastq.files)
 
-    # Validate file names
     tags <- c("R1", "R2", "I1")
-    validate_file_names <- function(fastq.files, tags) {
-      matches <- sapply(tags, function(t) grepl(t, fastq.files))
-      if (any(rowSums(matches)) > 0) {
-        warning("Unrecognised file name")
-      }
+
+    group_names <- sub("^([^_]+)_.*$", "\\1", fastq.files)
+    print(group_names)
+    group_names <- unique(group_names)
+    print(group_names)
+
+    samples <- list()
+    for (g in group_names) {
+      samples[[g]] <- list(
+        R1 = NULL,
+        R2 = NULL,
+        I1 = NULL
+      )
     }
 
-    # Group files by sample prefix
-    fastq.files <- list.files(input_folder, pattern = "fastq|fastq.gz", recursive = FALSE)
-    group_names <- sub("^(.*)_(R1|R2|I1).*", "\\1", fastq.files)
-    keys <- (unique(group_names))
+    print(samples)
 
-    group_files <- function(keys, tags, fastq.files) {
-      samples <- list()
-
-      for (key in keys) {
-        samples[[key]] <- list()
-        for (tag in tags) {
-          matched <- grep(paste0(key, ".*", tag), fastq.files, value = TRUE)
-          samples[[key]][[tag]] <- matched
+    for (sample in names(samples)) {
+      pattern <- sample
+      for (tag in (names(samples[[sample]]))) {
+        for (f in fastq.files) {
+          if (grepl(sample, f) && grepl(tag, f)) {
+            samples[[sample]][[tag]] <- f
+          }
         }
       }
-
-      return(samples)
     }
 
-    # lapply(groups, function(x)
-    #     if (length(x) != 3) write_log("Sample should have 3 FASTQ files")
-    #   )
+    print(samples)
+
+    for (tag in names(samples[[sample]])) {
+      value <- samples[[sample]][[tag]]
+      if (is.null(value) || is.na(value)) {
+        message(sample, " ", tag, " file is missing")
+      }
+    }
+
+    for (sample in names(samples)) {
+      missing_tags <- names(samples[[sample]])[sapply(samples[[sample]], is.null)]
+      if (length(missing_tags) > 0) {
+        message(paste0(sample, " should have 3 FASTQ files. But only ", 3 - (length(missing_tags)), " files found."))
+      }
+    }
   }
 
   # ------------------------------------------------------------
@@ -58,43 +100,70 @@ check.fastq.files <- function(input_folder, Fastq_file_format) {
   # ------------------------------------------------------------
 
   else if (Fastq_file_format == "subdir") {
-    subdirectories <- list.dirs(input_folder, full.names = TRUE, recursive = FALSE)
-    fastq.files <- list.files(subdirectories, pattern = "*.fastq$|*.fastq.gz$", recursive = FALSE)
-    #     if (length(fastq.files) == 0) {
-    #         stop(paste0("ERROR CODE 7: No FASTQ files found in ", input_folder))
-    #     }
-    write_log("Using per-sample subdirectory layout", log_file)
+    subdirs <- list.dirs(input_folder, recursive = FALSE)
 
-    # Validate file names
-    tags <- c("R1", "R2", "I1")
-    validate_file_names <- function(fastq.files, tags) {
-      matches <- sapply(tags, function(t) grepl(t, fastq.files))
-      if (any(rowSums(matches)) > 0) {
-        warning("Unrecognised file name")
-      }
+    if (length(subdirs) == 0) {
+      error(paste0("ERROR CODE 7: No sample subdirectories found in ", input_folder))
     }
 
-    # Group files by sample prefix
-    fastq.files <- list.files(input_folder, pattern = "fastq|fastq.gz", recursive = FALSE)
-    group_names <- sub("^(.*)_(R1|R2|I1).*", "\\1", fastq.files)
-    keys <- (unique(group_names))
+    write_log("Using per-sample subdirectory layout", log_file)
 
-    group_files <- function(keys, tags, fastq.files) {
+    for (folder in subdirs) {
+      sample_name <- basename(folder)
+      fastqs <- list.files(folder, pattern = "fastq|fastq.gz", recursive = FALSE)
+      if (length(fastqs) == 0) {
+        write_log(paste0("WARNING: ", sample_name, " has no FASTQ files"), log_file)
+      } else {
+        write_log(paste0(sample_name, " has FASTQ files"))
+      }
+
+      group_names <- sub("^([^_]+)_.*$", "\\1", fastqs)
+      print(group_names)
+      group_names <- unique(group_names)
+      print(group_names)
+
       samples <- list()
+      for (g in group_names) {
+        samples[[g]] <- list(
+          R1 = NULL,
+          R2 = NULL,
+          I1 = NULL
+        )
+      }
 
-      for (key in keys) {
-        samples[[key]] <- list()
-        for (tag in tags) {
-          matched <- grep(paste0(key, ".*", tag), fastq.files, value = TRUE)
-          samples[[key]][[tag]] <- matched
+      print(samples)
+
+      for (sample in names(samples)) {
+        pattern <- sample
+        for (tag in (names(samples[[sample]]))) {
+          for (f in fastqs) {
+            if (grepl(sample, f) && grepl(tag, f)) {
+              samples[[sample]][[tag]] <- f
+            }
+          }
         }
       }
 
-      return(samples)
-    }
+      print(samples)
 
-    lapply(groups, function(x) {
-      if (length(x) != 3) write_log("Sample should have 3 FASTQ files")
-    })
+      for (tag in names(samples[[sample]])) {
+        value <- samples[[sample]][[tag]]
+        if (is.null(value) || is.na(value)) {
+          warning(sample, " ", tag, " file is missing")
+          write_log(paste0("WARNING: ", sample, " is missing", tag, " file"), log_file)
+        }
+      }
+
+      for (sample in names(samples)) {
+        missing_tags <- names(samples[[sample]])[sapply(samples[[sample]], is.null)]
+        if (length(missing_tags) > 0) {
+          message(paste0(
+            sample, " should have 3 FASTQ files. But only ", 3 - (length(missing_tags)),
+            " files found."
+          ))
+        }
+      }
+      write_log(paste0(sample_name, " has the necessary FASTQ files (R1, R2, R3"), log_file)
+    }
   }
 }

@@ -1,7 +1,4 @@
-prepare_STAR_genome <- function (genome_dir, fasta_file, gtf_file, read_length, log_file) {
-
-  stop("function not implemented yet")
-
+usethis::use_package("processx", type = "Imports")
 
 #' Preparing the STAR genome index directory.
 #'
@@ -30,57 +27,70 @@ prepare_STAR_genome <- function (genome_dir, fasta_file, gtf_file, read_length, 
 #'
 #'  @return None The function logs progress and errors but returns no value.
 
-    # ------------------------------------------------------------
-    # Check for existing valid STAR index
-    # ------------------------------------------------------------
+# ------------------------------------------------------------
+# Check for existing valid STAR index
+# ------------------------------------------------------------
 
-    if (dir.exists(genome_dir)) {
+prepare_STAR_genome <- function(genome_dir, fasta_file, gtf_file, read_length, log_file) {
+  stop("function not implemented yet")
 
-        existing_files <- unlist(list.files(genome_dir))
-        required_files <- c("Genome", "SA", "SAIndex")
+  if (dir.exists(genome_dir)) {
+    existing_files <- unlist(list.files(genome_dir))
+    required_files <- c("Genome", "SA", "SAIndex")
 
-        if ((length(existing_files %in% required_files)) == 3) {
-            write_log(paste0("STAR genome index already exists at ", genome_dir, " Skipping generation."), log_file)
-            return(NULL)
-       }
+    if ((length(required_files %in% existing_files)) == 3) {
+      write_log(paste0("STAR genome index already exists at ", genome_dir, " Skipping generation."), log_file)
+      return(NULL)
+    }
+  }
 
-     }
+  # ------------------------------------------------------------
+  # Create genome directory if missing
+  # ------------------------------------------------------------
 
-    # ------------------------------------------------------------
-    # Create genome directory if missing
-    # ------------------------------------------------------------
+  else {
+    write_log(paste0("STAR genome index not found. Generating new index at ", genome_dir), log_file)
+    dir.create(genome_dir, recursive = TRUE)
+  }
 
-    else {
-        write_log(paste0("STAR genome index not found. Generating new index at ", genome_dir), log_file)
-        dir.create(genome_dir, recursive = TRUE)
+  # ------------------------------------------------------------
+  # Build STAR command
+  # ------------------------------------------------------------
 
-     }
+  sjdbOverhang_value <- as.character(as.integer(read_length) - 1)
 
-    # ------------------------------------------------------------
-    # Build STAR command
-    # ------------------------------------------------------------
+  cmd_base <- "STAR"
+  cmd_args <- list(
+    paste("--runThreadN", "8"),
+    paste("--runMode", "genomeGenerate"),
+    paste("--genomeDir", shQuote(genome_dir)),
+    paste("--genomeFastaFiles", shQuote(fasta_file)),
+    paste("--sjdbGTFfile", shQuote(gtf_file)),
+    paste("--sjdbOverhang", shQuote(sjdbOverhang_value))
+  )
+  cmd <- c(cmd_base, cmd_args)
 
-    cmd <- "STAR"
-    args <- c("--runThreadN", "8",
-               "--runMode", "genomeGenerate",
-               "--genomeDir", genome_dir,
-               "--genomeFastaFiles", fasta_file,
-               "--sjdbGTFfile", gtf_file,
-               "--sjdbOverhang", is.character(read_length - 1))
+  pipeline <- paste(cmd, collapse = " ")
 
-    # ------------------------------------------------------------
-    # Run STAR to generate the genome index
-    # ------------------------------------------------------------
+  # ------------------------------------------------------------
+  # Run STAR to generate the genome index
+  # ------------------------------------------------------------
 
-
-  tryCatch(
-
-      write_log("Running STAR command", log_file),
-      system2(cmd, args = args),
-      write_log(paste0("STAR genome index generated at ", genome_dir), log_file),
-
-      error = function(e) cat("ERROR CODE 11: START genome generation failed")
-
-    )
-
+  STAR_result <- tryCatch(
+    {
+      write_log(paste0("Running STAR command: ", pipeline), log_file)
+      result <- processx::run(cmd_base, unlist(cmd_args), error_on_status = TRUE)
+      write_log(paste0("STAR genome index generated at ", genome_dir), log_file)
+      return(result)
+    },
+    error = function(e) {
+      cat("ERROR CODE 11: STAR genome generation failed", e$message)
+      return(NULL)
+    },
+    warning = function(w) {
+      cat("WARNING:", w$message)
+      return(NULL)
+    }
+  )
+  return(STAR_result)
 }

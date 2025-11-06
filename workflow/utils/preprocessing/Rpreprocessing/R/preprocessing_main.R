@@ -1,4 +1,4 @@
-usethis::use_package("this.path", type="Imports")
+usethis::use_package("this.path", type = "Imports")
 
 #' preprocessing_main
 #'
@@ -14,7 +14,6 @@ usethis::use_package("this.path", type="Imports")
 
 
 main <- function() {
-
   config_folder <- this.path::this.dir()
 
   log_file <- checking_log_file(config_folder)
@@ -31,6 +30,45 @@ main <- function() {
 
   write_log("Configuration file is successfully loaded", log_file)
 
+  input_dir <- configuration$input_dir
+  Fastq_file_format <- configuration$Fastq_file_format # must be "merged" or "subdir"
 
+  if (isTRUE((is.null(input_dir)) || (!dir.exists(input_dir)))) {
+    stop("ERROR CODE 4: Invalid or missing 'input_dir' in configuration file.")
+    write_log("ERROR CODE 4: Invalid or missing /'input_dir/' in configuration file.", log_file)
+  }
 
+  if (is.null(Fastq_file_format)) {
+    stop("ERROR CODE 9: Missing 'Fastq_file_format' in configuration file.")
+    write_log("ERROR CODE 9: Missing 'Fastq_file_format' in configuration file.", log_file)
+  }
+
+  write_log(paste0("Checking FASTQ files in: ", input_dir, " (mode: ", Fastq_file_format, " )", log_file))
+  checking_fastq_files_2(input_dir, Fastq_file_format, log_file)
+  write_log("FASTQ file structure successfully validated.", log_file)
+
+  genome_dir <- configuration$genome_dir
+  fasta_file <- configuration$fasta_file
+  gtf_file <- configuration$gtf_file
+  read_length <- configuration$read_length
+  # Validate config values before running
+  if (any(sapply(list(genome_dir, fasta_file, gtf_file, read_length), is.null))) {
+    stop("ERROR CODE 10: Missing required genome preparation parameters in configuration file.")
+    write_log("ERROR CODE 10: Missing required genome preparation parameters in configuration file.", log_file)
+  }
+
+  # Prepare STAR genome index
+  prepare_STAR_genome(genome_dir, fasta_file, gtf_file, read_length, log_file)
+  # check platform and run star
+  platform <- tolower(configuration$platform)
+
+  if (isTRUE(platform == "droplet")) {
+    run_STAR_unified(configuration, log_file, solo = TRUE)
+  } else if (isTRUE(platform == "microwell")) {
+    run_STAR_unified(configuration, log_file, solo = FALSE)
+  } else {
+    msg <- paste0("Platform is ", platform, " No processing available for this platform. Exiting.")
+    write_log(msg, log_file)
+    stop(paste0("ERROR CODE 12: ", msg))
+  }
 }
