@@ -11,6 +11,7 @@ import yaml
 import glob
 import scrublet as scr
 import matplotlib.pyplot as plt
+import pandas as pd
 
 def _log(message, log_file):
     """
@@ -717,7 +718,7 @@ def QC_smartseq2(output_folder, log_file, platform="smartseq2"):
         _log(f"QC results saved for {sample}", log_file)
         
         
-def NormalizeAllSamples(output_dir, log_file):
+def NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, log_file):
     """
     Normalize all QC-filtered .h5ad files from each sample directory.
 
@@ -746,6 +747,9 @@ def NormalizeAllSamples(output_dir, log_file):
 
             input_h5ad = os.path.join(sample_path, "QC_filtered.h5ad")
             output_h5ad = os.path.join(sample_path, "normalized.h5ad")
+            output_tsv = os.path.join(sample_path, "normalized.tsv")
+            output_hvg_h5ad = os.path.join(sample_path, "normalized_hvg.h5ad")
+            output_hvg_tsv = os.path.join(sample_path, "normalized_hvg.tsv")
 
             if not os.path.exists(input_h5ad):
                 _log(f"Skipping {sample}: No QC_filtered.h5ad found.", log_file)
@@ -757,10 +761,36 @@ def NormalizeAllSamples(output_dir, log_file):
             # Normalization steps
             sc.pp.normalize_total(adata, target_sum=1e4)
             sc.pp.log1p(adata)
+            sc.pp.scale(adata, max_value=10)
+
+            if HVG_selection:
+                adata_hvg = sc.pp.highly_variable_genes(
+                    adata,
+                    n_top_genes = number_top_genes,
+                    flavour = 'seurat_v3'
+                )
+                adata_hvg.write(output_hvg_h5ad)
+                _log(f"Saved normalized HVG data for {sample} to {output_hvg_h5ad}", log_file)
+
+                norm_hvg_count_matix = pd.DataFrame(
+                    adata_hvg.X.toarray() if hasattr(adata_hvg.X, "toarray") else adata_hvg.X,
+                    index = adata_hvg.obs_names,
+                    columns = adata_hvg.var_names
+                )
+                norm_hvg_count_matix.to_csv(output_hvg_tsv, sep = '\t')
+                _log(f"Saved normalized data for {sample} to {output_hvg_tsv}", log_file)
 
             # Save normalized file
             adata.write(output_h5ad)
             _log(f"Saved normalized data for {sample} to {output_h5ad}", log_file)
+
+            norm_count_matix = pd.DataFrame(
+                adata.X.toarray() if hasattr(adata.X, "toarray") else adata.X,
+                index = adata.obs_names,
+                columns = adata.var_names
+            )
+            norm_count_matix.to_csv(output_tsv, sep = '\t')
+            _log(f"Saved normalized data for {sample} to {output_tsv}", log_file)
 
         _log("All sample normalizations completed successfully.", log_file)
 
@@ -815,6 +845,8 @@ def main():
     fasta_file = configuration.get("fasta_file")
     genome_index_params = configuration.get("genome_index_params", {})
     splice_junction_params = configuration.get("splice_junction_params", {})
+    HVG_selection = configuration.get("HVG_selection")
+    number_top_genes = configuration.get("number_top_genes")
 
     # Validate required genome parameters
     if not all([genome_dir, fasta_file, genome_index_params, splice_junction_params]):
@@ -846,7 +878,7 @@ def main():
         sys.exit(12)
         
         # ✅ Normalization step runs for both platforms
-    NormalizeAllSamples(output_dir, logfile)
+    NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, logfile)
     _log("Normalization completed for all samples.", logfile)
         
 if __name__ == '__main__':
