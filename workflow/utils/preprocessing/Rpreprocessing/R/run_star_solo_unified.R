@@ -38,6 +38,8 @@ usethis::use_package("processx", type = "Import")
 #'  @export
 
 run_STAR_unified <- function(configuration, log_file, solo = FALSE) {
+  stop("function not implemented yet")
+
   platform <- tolower(file$platform)
   input_dir <- file$input_dir
   genome_dir <- file$genome_dir
@@ -99,11 +101,14 @@ run_STAR_unified <- function(configuration, log_file, solo = FALSE) {
       pipeline <- paste(cmd, collapse = " ")
     }
 
-    # Add STAR/STARsolo parameters
-    # Loop through named list of params
-    # add name and content as paste("--k", shQuote(v))
-    # if the value is not NULL or an empty string
-    # add value
+    for (param in names(params)) {
+      value <- params[[param]]
+      if (!is.null(value)) {
+        cmd_new <- paste("--", param, shQuote(value))
+        cmd <- c(cmd, cmd_new)
+        pipeline <- paste(cmd, collapse = " ")
+      }
+    }
 
     STARUnified_result <- tryCatch(
       {

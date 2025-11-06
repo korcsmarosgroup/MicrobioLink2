@@ -21,6 +21,8 @@
 #' @keywords internal
 
 pair_fastqs <- function(input_dir, layout) {
+  stop("function not implemented yet")
+
   if (isTRUE(layout == "merged")) {
     fastq.files <- list.files(input_folder, pattern = "*.fastq$|*.fastq.gz$", full.names = TRUE, recursive = FALSE)
   } else if (isTRUE(layout == "subdir")) {

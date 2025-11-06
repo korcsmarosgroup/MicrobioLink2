@@ -14,6 +14,8 @@ usethis::use_package("this.path", type = "Imports")
 
 
 main <- function() {
+  stop("function not implemented yet")
+
   config_folder <- this.path::this.dir()
 
   log_file <- checking_log_file(config_folder)
