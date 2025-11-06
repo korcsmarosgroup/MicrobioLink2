@@ -9,6 +9,8 @@ import sys
 import os
 import yaml
 import glob
+import scrublet as scr
+import matplotlib.pyplot as plt
 
 def _log(message, log_file):
     """
@@ -239,7 +241,8 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
                 continue
 
             _log(f"{sample_name} has the necessary FASTQ files (R1, R2, I1)", log_file)
-
+            
+'''
 def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
     """
     Preparing the STAR genome index directory.
@@ -311,6 +314,98 @@ def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
     # ------------------------------------------------------------
     try:
         _log(f"Running STAR command: {' '.join(cmd)}", log_file)
+        subprocess.run(cmd, check=True)
+        _log(f"STAR genome index successfully generated at {genome_dir}", log_file)
+
+    except subprocess.CalledProcessError as e:
+        error_msg = f"ERROR: STAR genome generation failed: {e}"
+        _log(error_msg, log_file)
+        sys.stderr.write(f"ERROR MESSAGE: STAR genome generation failed: {e}\n")
+        sys.exit(11)
+'''
+def PrepareSTARGenome(genome_dir, fasta_file, genome_index_params, splice_junction_params, log_file):
+    """
+    Preparing the STAR genome index directory using full genome indexing and splice junction parameters.
+
+    Checks whether a valid STAR genome index already exists in the specified
+    genome directory. If all required index files are present, it skips index generation.
+    Otherwise, it generates a new STAR genome index using the provided FASTA, genome indexing
+    parameters, and splice junction parameters.
+
+    Args:
+        genome_dir (str): Directory where the STAR genome index will be stored.
+        fasta_file (str): Path to the reference genome FASTA file.
+        genome_index_params (dict): Genome indexing parameters from YAML (17.5).
+        splice_junction_params (dict): Splice junction parameters from YAML (17.6).
+        log_file (str): Path of the log file.
+
+    Error codes:
+        ERROR CODE 11: STAR genome generation failed.
+
+    Returns:
+        None
+    """
+    # ------------------------------------------------------------
+    # Check for existing valid STAR index
+    # ------------------------------------------------------------
+    if os.path.isdir(genome_dir):
+        existing_files = os.listdir(genome_dir)
+        required_files = {"Genome", "SA", "SAindex"}
+        if required_files.issubset(set(existing_files)):
+            _log(f"STAR genome index already exists at {genome_dir}. Skipping generation.", log_file)
+            return
+
+    # ------------------------------------------------------------
+    # Create genome directory if missing
+    # ------------------------------------------------------------
+    else:
+        _log(f"STAR genome index not found. Generating new index at {genome_dir}", log_file)
+        os.makedirs(genome_dir, exist_ok=True)
+
+    # ------------------------------------------------------------
+    # Build STAR genomeGenerate command
+    # ------------------------------------------------------------
+    cmd = [
+        "STAR",
+        "--runThreadN", "8",
+        "--runMode", "genomeGenerate",
+        "--genomeDir", genome_dir,
+        "--genomeFastaFiles", fasta_file,
+        "--sjdbGTFfile", splice_junction_params["sjdbGTFfile"],
+        "--sjdbOverhang", str(splice_junction_params["sjdbOverhang"]),
+        "--genomeChrBinNbits", str(genome_index_params["genomeChrBinNbits"]),
+        "--genomeSAindexNbases", str(genome_index_params["genomeSAindexNbases"]),
+        "--genomeSAsparseD", str(genome_index_params["genomeSAsparseD"]),
+        "--genomeSuffixLengthMax", str(genome_index_params["genomeSuffixLengthMax"])
+    ]
+
+    # Optional genome transform
+    if genome_index_params["genomeTransformType"] is not None:
+        cmd += ["--genomeTransformType", genome_index_params["genomeTransformType"]]
+        if genome_index_params["genomeTransformVCF"]:
+            cmd += ["--genomeTransformVCF", genome_index_params["genomeTransformVCF"]]
+
+    # Optional splice junction file
+    if splice_junction_params["sjdbFileChrStartEnd"]:
+        cmd += ["--sjdbFileChrStartEnd", splice_junction_params["sjdbFileChrStartEnd"]]
+
+    # Splice junction tags
+    cmd += [
+        "--sjdbGTFchrPrefix", splice_junction_params["sjdbGTFchrPrefix"],
+        "--sjdbGTFfeatureExon", splice_junction_params["sjdbGTFfeatureExon"],
+        "--sjdbGTFtagExonParentTranscript", splice_junction_params["sjdbGTFtagExonParentTranscript"],
+        "--sjdbGTFtagExonParentGene", splice_junction_params["sjdbGTFtagExonParentGene"],
+        "--sjdbGTFtagExonParentGeneName", splice_junction_params["sjdbGTFtagExonParentGeneName"],
+        "--sjdbGTFtagExonParentGeneType", splice_junction_params["sjdbGTFtagExonParentGeneType"],
+        "--sjdbScore", str(splice_junction_params["sjdbScore"]),
+        "--sjdbInsertSave", splice_junction_params["sjdbInsertSave"]
+    ]
+
+    # ------------------------------------------------------------
+    # Run STAR genome generation
+    # ------------------------------------------------------------
+    try:
+        _log(f"Running STAR genomeGenerate command: {' '.join(cmd)}", log_file)
         subprocess.run(cmd, check=True)
         _log(f"STAR genome index successfully generated at {genome_dir}", log_file)
 
@@ -468,22 +563,213 @@ def RunSTARUnified(configuration, log_file, solo=False):
             continue
 
 
-def QC(output_folder):
+def QC_10x(output_folder, log_file):
     """
-    Function for the quality checks.
+    Perform comprehensive QC on 10x Genomics data:
+      - Load raw & filtered matrices
+      - Compute QC metrics
+      - Visualize QC (violin & bar plots)
+      - Filter poor-quality cells
+      - Detect potential doublets using Scrublet
     """
 
     for sample in os.listdir(output_folder):
         sample_path = os.path.join(output_folder, sample)
-        raw_dir = f"{sample_path}/raw"
-        filtered_dir = f"{sample_path}/filtered"
+        raw_dir = os.path.join(sample_path, "raw")
+        filtered_dir = os.path.join(sample_path, "filtered")
 
-        adata_raw = sc.read_10x_mtx(raw_dir, var_names = "gene_symbols", cache = True, make_unique = True)
-        adata = sc.read_10x_mtx(filtered_dir, var_names = "gene_symbols", cache = True, make_unique = True)
+        if not os.path.isdir(filtered_dir):
+            _log(f"Skipping {sample}: no filtered directory found.", log_file)
+            continue
+
+        # --- Load data ---
+        try:
+            _log(f"Loading filtered 10x data for {sample}", log_file)
+            adata = sc.read_10x_mtx(filtered_dir, var_names="gene_symbols", cache=True, make_unique=True)
+        except Exception as e:
+            _log(f"ERROR loading data for {sample}: {e}", log_file)
+            continue
 
         adata.layers["counts"] = adata.X.copy()
 
+        # --- Basic QC metrics ---
+        _log(f"Calculating QC metrics for {sample}", log_file)
+        adata.var["mt"] = adata.var_names.str.startswith("MT-")  # Mitochondrial genes
+        sc.pp.calculate_qc_metrics(adata, qc_vars=["mt"], percent_top=None, log1p=False, inplace=True)
 
+        # --- Violin plots ---
+        qc_plot_dir = os.path.join(sample_path, "QC_plots")
+        os.makedirs(qc_plot_dir, exist_ok=True)
+        _log(f"Generating QC violin plots for {sample}", log_file)
+
+        sc.pl.violin(
+            adata,
+            ["total_counts", "n_genes_by_counts", "pct_counts_mt"],
+            jitter=0.4,
+            multi_panel=True,
+            save=f"_{sample}_qc_violin.png"
+        )
+
+        # --- Barplot summary ---
+        plt.figure(figsize=(6, 4))
+        adata.obs["pct_counts_mt"].hist(bins=50)
+        plt.title(f"{sample}: Mitochondrial % per Cell")
+        plt.xlabel("% mitochondrial counts")
+        plt.ylabel("Cell count")
+        plt.tight_layout()
+        barplot_path = os.path.join(qc_plot_dir, f"{sample}_mt_barplot.png")
+        plt.savefig(barplot_path)
+        plt.close()
+        _log(f"Saved barplot: {barplot_path}", log_file)
+
+        # --- Filtering poor-quality cells ---
+        _log(f"Filtering low-quality cells for {sample}", log_file)
+        before = adata.n_obs
+        adata = adata[
+            (adata.obs["n_genes_by_counts"] < 2500)
+            & (adata.obs["pct_counts_mt"] < 5)
+            & (adata.obs["total_counts"] > 1000)
+        ].copy()
+        after = adata.n_obs
+        _log(f"{sample}: filtered {before - after} cells; {after} remain.", log_file)
+
+        # --- Doublet detection using Scrublet ---
+        _log(f"Running Scrublet for doublet detection on {sample}", log_file)
+        try:
+            scrub = scr.Scrublet(adata.X)
+            doublet_scores, predicted_doublets = scrub.scrub_doublets()
+
+            adata.obs["doublet_score"] = doublet_scores
+            adata.obs["predicted_doublet"] = predicted_doublets
+
+            scrub.plot_histogram()
+            scrub_hist = os.path.join(qc_plot_dir, f"{sample}_scrublet_hist.png")
+            plt.savefig(scrub_hist)
+            plt.close()
+            _log(f"Scrublet histogram saved to {scrub_hist}", log_file)
+
+            doublet_rate = (predicted_doublets.sum() / len(predicted_doublets)) * 100
+            _log(f"{sample}: estimated doublet rate = {doublet_rate:.2f}%", log_file)
+        except Exception as e:
+            _log(f"WARNING: Scrublet failed for {sample}: {e}", log_file)
+
+        # --- Save QC results ---
+        qc_out = os.path.join(sample_path, "QC_filtered.h5ad")
+        adata.write(qc_out)
+        _log(f"QC complete for {sample}. Saved to {qc_out}", log_file)
+
+def QC_smartseq2(output_folder, log_file, platform="smartseq2"):
+    """
+    Perform QC and visualization for Smart-seq2 or Smart-seq3 data.
+    """
+
+    _log(f"Running QC for {platform} samples...", log_file)
+
+    for sample in os.listdir(output_folder):
+        sample_path = os.path.join(output_folder, sample)
+        count_file = os.path.join(sample_path, "counts.tsv")
+
+        # --- Detect matrix type ---
+        if os.path.exists(os.path.join(sample_path, "matrix.mtx")):
+            adata = sc.read_10x_mtx(sample_path, var_names="gene_symbols", cache=True, make_unique=True)
+        elif os.path.exists(count_file):
+            adata = sc.read_text(count_file).T
+        else:
+            _log(f"No count matrix found for {sample}. Skipping.", log_file)
+            continue
+
+        adata.layers["counts"] = adata.X.copy()
+
+        # --- Calculate QC metrics ---
+        sc.pp.calculate_qc_metrics(adata, qc_vars=["MT"], percent_top=None, log1p=False, inplace=True)
+
+        qc_dir = os.path.join(sample_path, "QC")
+        os.makedirs(qc_dir, exist_ok=True)
+
+        # --- Violin plots ---
+        sc.pl.violin(
+            adata,
+            ["n_genes_by_counts", "total_counts", "pct_counts_MT"],
+            jitter=0.4,
+            multi_panel=True,
+            save=f"_{sample}_violin.png",
+            show=False
+        )
+
+        # --- Bar plot: total counts ---
+        plt.figure()
+        plt.bar(range(len(adata.obs_names)), adata.obs["total_counts"])
+        plt.title(f"{sample} - Total Counts per Cell")
+        plt.xlabel("Cells")
+        plt.ylabel("Total Counts")
+        plt.tight_layout()
+        plt.savefig(os.path.join(qc_dir, f"{sample}_barplot_total_counts.png"))
+        plt.close()
+
+        # --- Filtering ---
+        adata = adata[adata.obs.n_genes_by_counts < 10000, :]
+        adata = adata[adata.obs.pct_counts_MT < 15, :]
+
+        _log(f"Filtered {sample}: retained {adata.n_obs} cells.", log_file)
+
+        # Save results
+        adata.write_h5ad(os.path.join(qc_dir, f"{sample}_filtered_qc.h5ad"))
+        _log(f"QC results saved for {sample}", log_file)
+        
+        
+def NormalizeAllSamples(output_dir, log_file):
+    """
+    Normalize all QC-filtered .h5ad files from each sample directory.
+
+    For each sample in the output_dir:
+        - Loads its 'QC_filtered.h5ad' file
+        - Performs total-count normalization (counts per 10,000)
+        - Applies log1p transformation
+        - Saves the normalized file as 'normalized.h5ad' in the same folder
+
+    Args:
+        output_dir (str): Path to the main output directory containing per-sample subfolders.
+        log_file (str): Path to the central log file.
+
+    Error Codes:
+        ERROR CODE 13: Normalization failed.
+    """
+
+    _log(f"Starting normalization of all samples in {output_dir}", log_file)
+
+    try:
+        # Loop through all sample folders
+        for sample in os.listdir(output_dir):
+            sample_path = os.path.join(output_dir, sample)
+            if not os.path.isdir(sample_path):
+                continue
+
+            input_h5ad = os.path.join(sample_path, "QC_filtered.h5ad")
+            output_h5ad = os.path.join(sample_path, "normalized.h5ad")
+
+            if not os.path.exists(input_h5ad):
+                _log(f"Skipping {sample}: No QC_filtered.h5ad found.", log_file)
+                continue
+
+            _log(f"Normalizing sample: {sample}", log_file)
+            adata = sc.read_h5ad(input_h5ad)
+
+            # Normalization steps
+            sc.pp.normalize_total(adata, target_sum=1e4)
+            sc.pp.log1p(adata)
+
+            # Save normalized file
+            adata.write(output_h5ad)
+            _log(f"Saved normalized data for {sample} to {output_h5ad}", log_file)
+
+        _log("All sample normalizations completed successfully.", log_file)
+
+    except Exception as e:
+        msg = f"ERROR: Normalization failed due to: {e}"
+        _log(msg, log_file)
+        sys.stderr.write(msg + "\n")
+        sys.exit(13)
+        
 def main():
     """
     Main function for the script.
@@ -527,29 +813,41 @@ def main():
     output_dir = configuration.get("output_dir")
     genome_dir = configuration.get("genome_dir")
     fasta_file = configuration.get("fasta_file")
-    gtf_file = configuration.get("gtf_file")
-    read_length = configuration.get("read_length") 
-    # Validate config values before running
-    if not all([genome_dir, fasta_file, gtf_file, read_length]):
+    genome_index_params = configuration.get("genome_index_params", {})
+    splice_junction_params = configuration.get("splice_junction_params", {})
+
+    # Validate required genome parameters
+    if not all([genome_dir, fasta_file, genome_index_params, splice_junction_params]):
         sys.stderr.write("ERROR: Missing required genome preparation parameters in configuration file.\n")
         _log("ERROR: Missing required genome preparation parameters in configuration file.", logfile)
         sys.exit(10)
 
-    # Prepare STAR genome index
-    PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, logfile)
-    #check platform and run star    
+    # Prepare STAR genome index using new function signature
+    PrepareSTARGenome(
+        genome_dir=genome_dir,
+        fasta_file=fasta_file,
+        genome_index_params=genome_index_params,
+        splice_junction_params=splice_junction_params,
+        log_file=logfile
+    )
+    #check platform and run star and qc after    
     platform = configuration.get("platform", "").lower()
 
     if platform == "droplet":
         RunSTARUnified(configuration, logfile, solo=True)
+        QC_10x(output_dir, logfile)
     elif platform == "microwell":
         RunSTARUnified(configuration, logfile, solo=False)
+        QC_smartseq2(output_dir, logfile)  # placeholder for Smart-seq QC
     else:
         msg = f"Platform is '{platform}'. No processing available for this platform. Exiting."
         _log(msg, logfile)
         sys.stderr.write(msg + "\n")
         sys.exit(12)
-
-
+        
+        # ✅ Normalization step runs for both platforms
+    NormalizeAllSamples(output_dir, logfile)
+    _log("Normalization completed for all samples.", logfile)
+        
 if __name__ == '__main__':
     main()

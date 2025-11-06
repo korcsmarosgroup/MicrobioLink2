@@ -11,10 +11,29 @@ Fastq_file_format: "merged"  # or "subdir"
 # ==============================
 genome_dir: "./genome"
 fasta_file: "fasta"
-gtf_file: ".gtf"
 
+# Genome indexing parameters (17.5)
+genome_index_params:
+  genomeChrBinNbits: 18
+  genomeSAindexNbases: 14
+  genomeSAsparseD: 1
+  genomeSuffixLengthMax: -1
+  genomeTransformType: None       # None | Haploid | Diploid
+  genomeTransformVCF: null        # Path to VCF if genomeTransformType is Haploid/Diploid
 
-read_length: 100 # refering to sjdbOverhang
+# Splice junction parameters (17.6)
+splice_junction_params:
+  sjdbFileChrStartEnd: null       # Optional path(s) to files with genomic coordinates of introns
+  sjdbGTFfile: ".gtf"
+  sjdbGTFchrPrefix: ""
+  sjdbGTFfeatureExon: "exon"
+  sjdbGTFtagExonParentTranscript: "transcript_id"
+  sjdbGTFtagExonParentGene: "gene_id"
+  sjdbGTFtagExonParentGeneName: "gene_name"
+  sjdbGTFtagExonParentGeneType: "gene_biotype"
+  sjdbOverhang: 99                
+  sjdbScore: 2
+  sjdbInsertSave: "Basic"         # "Basic" or "All"
 
 # ==============================
 # STARsolo parameters

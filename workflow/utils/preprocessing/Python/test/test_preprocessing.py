@@ -164,6 +164,20 @@ def test_CheckFASTQFiles_subdir_no_subdirs(tmp_path, capsys):
 #     assert e.value.code == 8
 #     out, err = capsys.readouterr()
 #     assert "No FASTQ files found" in (out + err)
+def test_CheckFASTQFiles_subdir_empty_warning(tmp_path):
+    """Empty subdirectory logs a warning but does not exit."""
+    log_file = tmp_path / "test.log"
+
+    # Create empty subdirectory
+    empty_sample = tmp_path / "empty_sample"
+    empty_sample.mkdir()
+
+    # Run function (should not exit)
+    CheckFASTQFiles(str(tmp_path), "subdir", str(log_file))
+
+    # Check log file
+    log_content = log_file.read_text()
+    assert "empty_sample has no FASTQ files" in log_content
 
 
 def test_CheckFASTQFiles_subdir_valid_files(tmp_path):
@@ -183,7 +197,7 @@ def test_CheckFASTQFiles_subdir_valid_files(tmp_path):
     assert log_file.exists()
     assert "sampleB has the necessary FASTQ files (R1, R2, I1)" in log_file.read_text()
     
-def test_PrepareSTARGenome_skips_existing_index(tmp_path):
+'''def test_PrepareSTARGenome_skips_existing_index(tmp_path):
     """Should skip STAR index generation if Genome, SA, SAindex exist."""
     # Create fake genome_dir with required files
     genome_dir = tmp_path / "genome"
@@ -264,6 +278,161 @@ def test_PrepareSTARGenome_handles_star_failure(monkeypatch, tmp_path, capsys):
 
     # Check the log also contains the error
     assert "STAR genome generation failed" in log_file.read_text()
+   '''
+def test_PrepareSTARGenome_skips_existing_index(tmp_path):
+    """Should skip STAR index generation if Genome, SA, SAindex exist."""
+    genome_dir = tmp_path / "genome"
+    genome_dir.mkdir()
+    for f in ["Genome", "SA", "SAindex"]:
+        (genome_dir / f).write_text("dummy")
+
+    fasta_file = tmp_path / "genome.fa"
+    fasta_file.write_text(">chr1\nACTG")
+
+    log_file = tmp_path / "log.txt"
+
+    genome_index_params = {
+        "genomeChrBinNbits": 18,
+        "genomeSAindexNbases": 14,
+        "genomeSAsparseD": 1,
+        "genomeSuffixLengthMax": -1,
+        "genomeTransformType": None,
+        "genomeTransformVCF": None
+    }
+    splice_junction_params = {
+        "sjdbFileChrStartEnd": None,
+        "sjdbGTFfile": str(tmp_path / "annotation.gtf"),
+        "sjdbGTFchrPrefix": "",
+        "sjdbGTFfeatureExon": "exon",
+        "sjdbGTFtagExonParentTranscript": "transcript_id",
+        "sjdbGTFtagExonParentGene": "gene_id",
+        "sjdbGTFtagExonParentGeneName": "gene_name",
+        "sjdbGTFtagExonParentGeneType": "gene_biotype",
+        "sjdbOverhang": 99,
+        "sjdbScore": 2,
+        "sjdbInsertSave": "Basic"
+    }
+    (tmp_path / "annotation.gtf").write_text("chr1\tsource\tgene\t1\t10\t.\t+\t.\tgene_id \"g1\";")
+
+    # Call new function
+    PrepareSTARGenome(
+        str(genome_dir),
+        str(fasta_file),
+        genome_index_params,
+        splice_junction_params,
+        str(log_file)
+    )
+
+    assert log_file.exists()
+    assert "STAR genome index already exists" in log_file.read_text()
+    
+def test_PrepareSTARGenome_runs_star_when_missing(monkeypatch, tmp_path):
+    """Should call STAR command when genome index is missing."""
+    genome_dir = tmp_path / "new_index"
+    fasta_file = tmp_path / "genome.fa"
+    fasta_file.write_text(">chr1\nACTG")
+
+    annotation_gtf = tmp_path / "annotation.gtf"
+    annotation_gtf.write_text("chr1\tsource\tgene\t1\t10\t.\t+\t.\tgene_id \"g1\";")
+
+    log_file = tmp_path / "log.txt"
+
+    genome_index_params = {
+        "genomeChrBinNbits": 18,
+        "genomeSAindexNbases": 14,
+        "genomeSAsparseD": 1,
+        "genomeSuffixLengthMax": -1,
+        "genomeTransformType": None,
+        "genomeTransformVCF": None
+    }
+    splice_junction_params = {
+        "sjdbFileChrStartEnd": None,
+        "sjdbGTFfile": str(annotation_gtf),
+        "sjdbGTFchrPrefix": "",
+        "sjdbGTFfeatureExon": "exon",
+        "sjdbGTFtagExonParentTranscript": "transcript_id",
+        "sjdbGTFtagExonParentGene": "gene_id",
+        "sjdbGTFtagExonParentGeneName": "gene_name",
+        "sjdbGTFtagExonParentGeneType": "gene_biotype",
+        "sjdbOverhang": 99,
+        "sjdbScore": 2,
+        "sjdbInsertSave": "Basic"
+    }
+
+    called = {}
+    def fake_run(cmd, check):
+        called["cmd"] = cmd
+        return 0
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    PrepareSTARGenome(
+        str(genome_dir),
+        str(fasta_file),
+        genome_index_params,
+        splice_junction_params,
+        str(log_file)
+    )
+
+    assert "STAR" in called["cmd"][0]
+    assert "--genomeDir" in called["cmd"]
+    assert str(genome_dir) in called["cmd"]
+
+    content = log_file.read_text()
+    assert "Running STAR genomeGenerate command" in content
+    assert "successfully generated" in content
+    
+    
+def test_PrepareSTARGenome_handles_star_failure(monkeypatch, tmp_path, capsys):
+    """Should exit with code 11 and log error if STAR fails."""
+    genome_dir = tmp_path / "bad_index"
+    fasta_file = tmp_path / "genome.fa"
+    fasta_file.write_text(">chr1\nACTG")
+    annotation_gtf = tmp_path / "annotation.gtf"
+    annotation_gtf.write_text("chr1\t.\t.\t1\t10\t.\t+\t.\tgene_id \"g1\";")
+    log_file = tmp_path / "log.txt"
+
+    genome_index_params = {
+        "genomeChrBinNbits": 18,
+        "genomeSAindexNbases": 14,
+        "genomeSAsparseD": 1,
+        "genomeSuffixLengthMax": -1,
+        "genomeTransformType": None,
+        "genomeTransformVCF": None
+    }
+    splice_junction_params = {
+        "sjdbFileChrStartEnd": None,
+        "sjdbGTFfile": str(annotation_gtf),
+        "sjdbGTFchrPrefix": "",
+        "sjdbGTFfeatureExon": "exon",
+        "sjdbGTFtagExonParentTranscript": "transcript_id",
+        "sjdbGTFtagExonParentGene": "gene_id",
+        "sjdbGTFtagExonParentGeneName": "gene_name",
+        "sjdbGTFtagExonParentGeneType": "gene_biotype",
+        "sjdbOverhang": 75,
+        "sjdbScore": 2,
+        "sjdbInsertSave": "Basic"
+    }
+
+    def fake_run_fail(cmd, check):
+        raise subprocess.CalledProcessError(1, cmd, "simulated failure")
+
+    monkeypatch.setattr(subprocess, "run", fake_run_fail)
+
+    with pytest.raises(SystemExit) as e:
+        PrepareSTARGenome(
+            str(genome_dir),
+            str(fasta_file),
+            genome_index_params,
+            splice_junction_params,
+            str(log_file)
+        )
+
+    assert e.value.code == 11
+    out, err = capsys.readouterr()
+    assert "STAR genome generation failed" in (out + err)
+    assert "STAR genome generation failed" in log_file.read_text()
+    
     
 def test_pair_fastqs_merged_basic(tmp_path):
     """Should correctly pair R1, R2, and I1 files in merged layout."""
