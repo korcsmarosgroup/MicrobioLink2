@@ -21,16 +21,13 @@
 #' @keywords internal
 
 pair_fastqs <- function(input_dir, layout) {
-  stop("function not implemented yet")
-
   if (isTRUE(layout == "merged")) {
-    fastq.files <- list.files(input_folder, pattern = "*.fastq$|*.fastq.gz$", full.names = TRUE, recursive = FALSE)
+    fastq.files <- list.files(input_dir, pattern = "*.fastq$|*.fastq.gz$", full.names = TRUE, recursive = FALSE)
   } else if (isTRUE(layout == "subdir")) {
-    subdirs <- list.dirs(input_folder, recursive = FALSE)
+    subdirs <- list.dirs(input_dir, recursive = FALSE)
     fastq.files <- lapply(subdirs, function(sd) list.files(sd, pattern = ".R"))
     fastq.files <- unlist(fastq.files)
   }
-  print(fastq.files)
 
   sample_names <- sub("^([^_]+)_.*$", "\\1", fastq.files)
   samples <- split(fastq.files, sample_names)
@@ -40,5 +37,5 @@ pair_fastqs <- function(input_dir, layout) {
   samples <- lapply(samples, function(files) {
     files[order(match(sub(".*_(R1|R2|I1).*", "\\1", files), read_order))]
   })
-  print(samples)
+  return(samples)
 }

@@ -6,7 +6,7 @@
 #' If any expected file (R1, R2, or I1) is missing, or the folder structure does not match
 #' the specified layout, an error is raised, and execution stops.
 #'
-#' @param input_folder The system-based absolute path to the input directory containing the FASTQ files or pe
+#' @param input_dir The system-based absolute path to the input directory containing the FASTQ files or pe
 #' -sample subdirectories.
 #' @param Fastq_file_format The organization style of the FASTQ data to validate.
 #'    Must be either:
@@ -27,8 +27,7 @@
 #' @export
 
 
-check.fastq.files <- function(input_folder, Fastq_file_format, log_file) {
-  stop("function not implemented yet")
+check_fastq_files <- function(input_dir, Fastq_file_format, log_file) {
 
   # ------------------------------------------------------------
   # Validate Fastq_file_format
@@ -43,18 +42,15 @@ check.fastq.files <- function(input_folder, Fastq_file_format, log_file) {
   #
 
   if (Fastq_file_format == "merged") {
-    fastq.files <- list.files(input_folder, pattern = "fastq|fastq.gz", recursive = FALSE)
+    fastq.files <- list.files(input_dir, pattern = "fastq|fastq.gz", recursive = FALSE)
     if (length(fastq.files) == 0) {
-      stop(paste0("ERROR CODE 6: No FASTQ files found in ", input_folder))
+      stop(paste0("ERROR CODE 6: No FASTQ files found in ", input_dir))
     }
-    print(fastq.files)
 
     tags <- c("R1", "R2", "I1")
 
     group_names <- sub("^([^_]+)_.*$", "\\1", fastq.files)
-    print(group_names)
     group_names <- unique(group_names)
-    print(group_names)
 
     samples <- list()
     for (g in group_names) {
@@ -64,8 +60,6 @@ check.fastq.files <- function(input_folder, Fastq_file_format, log_file) {
         I1 = NULL
       )
     }
-
-    print(samples)
 
     for (sample in names(samples)) {
       pattern <- sample
@@ -77,8 +71,6 @@ check.fastq.files <- function(input_folder, Fastq_file_format, log_file) {
         }
       }
     }
-
-    print(samples)
 
     for (tag in names(samples[[sample]])) {
       value <- samples[[sample]][[tag]]
@@ -100,7 +92,7 @@ check.fastq.files <- function(input_folder, Fastq_file_format, log_file) {
   # ------------------------------------------------------------
 
   else if (Fastq_file_format == "subdir") {
-    subdirs <- list.dirs(input_folder, recursive = FALSE)
+    subdirs <- list.dirs(input_dir, recursive = FALSE)
 
     if (length(subdirs) == 0) {
       error(paste0("ERROR CODE 7: No sample subdirectories found in ", input_folder))
@@ -118,9 +110,7 @@ check.fastq.files <- function(input_folder, Fastq_file_format, log_file) {
       }
 
       group_names <- sub("^([^_]+)_.*$", "\\1", fastqs)
-      print(group_names)
       group_names <- unique(group_names)
-      print(group_names)
 
       samples <- list()
       for (g in group_names) {
@@ -130,8 +120,6 @@ check.fastq.files <- function(input_folder, Fastq_file_format, log_file) {
           I1 = NULL
         )
       }
-
-      print(samples)
 
       for (sample in names(samples)) {
         pattern <- sample
@@ -143,8 +131,6 @@ check.fastq.files <- function(input_folder, Fastq_file_format, log_file) {
           }
         }
       }
-
-      print(samples)
 
       for (tag in names(samples[[sample]])) {
         value <- samples[[sample]][[tag]]

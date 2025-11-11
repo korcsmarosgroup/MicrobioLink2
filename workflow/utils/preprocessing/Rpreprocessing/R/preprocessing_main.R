@@ -14,9 +14,7 @@ usethis::use_package("this.path", type = "Imports")
 
 
 main <- function() {
-  stop("function not implemented yet")
-
-  config_folder <- this.path::this.dir()
+  config_folder <- dirname(this.path::this.dir())
 
   log_file <- checking_log_file(config_folder)
 
@@ -45,8 +43,8 @@ main <- function() {
     write_log("ERROR CODE 9: Missing 'Fastq_file_format' in configuration file.", log_file)
   }
 
-  write_log(paste0("Checking FASTQ files in: ", input_dir, " (mode: ", Fastq_file_format, " )", log_file))
-  checking_fastq_files_2(input_dir, Fastq_file_format, log_file)
+  write_log(paste0("Checking FASTQ files in: ", input_dir, " (mode: ", Fastq_file_format, " )"), log_file)
+  check_fastq_files(input_dir, Fastq_file_format, log_file)
   write_log("FASTQ file structure successfully validated.", log_file)
 
   genome_dir <- configuration$genome_dir

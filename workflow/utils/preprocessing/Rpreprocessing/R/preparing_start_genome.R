@@ -32,7 +32,6 @@ usethis::use_package("processx", type = "Imports")
 # ------------------------------------------------------------
 
 prepare_STAR_genome <- function(genome_dir, fasta_file, gtf_file, read_length, log_file) {
-  stop("function not implemented yet")
 
   if (dir.exists(genome_dir)) {
     existing_files <- unlist(list.files(genome_dir))
