@@ -59,3 +59,9 @@ star_params:
   outFilterMismatchNoverLmax: 0.04
   alignSJoverhangMin: 8
   alignSJDBoverhangMin: 1
+
+# ==============================
+# Normalization parameters
+# ==============================
+HVG_selection: True # or False
+number_top_genes: 2000
