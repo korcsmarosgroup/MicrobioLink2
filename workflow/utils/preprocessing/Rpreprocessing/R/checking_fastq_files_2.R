@@ -95,7 +95,7 @@ check_fastq_files <- function(input_dir, Fastq_file_format, log_file) {
     subdirs <- list.dirs(input_dir, recursive = FALSE)
 
     if (length(subdirs) == 0) {
-      error(paste0("ERROR CODE 7: No sample subdirectories found in ", input_folder))
+      stop(paste0("ERROR CODE 7: No sample subdirectories found in ", subdirs))
     }
 
     write_log("Using per-sample subdirectory layout", log_file)
@@ -105,8 +105,10 @@ check_fastq_files <- function(input_dir, Fastq_file_format, log_file) {
       fastqs <- list.files(folder, pattern = "fastq|fastq.gz", recursive = FALSE)
       if (length(fastqs) == 0) {
         write_log(paste0("WARNING: ", sample_name, " has no FASTQ files"), log_file)
+        # TODO: Check how can we implement a python continue-equivalent method here
+        # Aim: Not stop the whole script, just jump to the next folder in the for loop
       } else {
-        write_log(paste0(sample_name, " has FASTQ files"))
+        write_log(paste0(sample_name, " has FASTQ files"), log_file)
       }
 
       group_names <- sub("^([^_]+)_.*$", "\\1", fastqs)
