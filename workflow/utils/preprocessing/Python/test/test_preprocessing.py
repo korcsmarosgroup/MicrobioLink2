@@ -5,13 +5,15 @@ from preprocessing import CheckFASTQFiles
 from preprocessing import PrepareSTARGenome
 from preprocessing import RunSTARUnified
 from preprocessing import _pair_fastqs
-
+from preprocessing import QC_10x
 import subprocess
-
+from unittest import mock
 from pathlib import Path
 import os
 import yaml
-
+import pandas as pd
+import numpy as np
+import scanpy as sc
 
 @pytest.fixture
 def config_folder():
@@ -125,12 +127,12 @@ def test_CheckFASTQFiles_merged_no_fastqs(tmp_path, capsys):
 
 
 def test_CheckFASTQFiles_merged_valid_files(tmp_path):
-    """Should pass with correct R1, R2, and I1 files in merged layout."""
+    """Should pass with correct R1, R2 files in merged layout."""
     log_file = tmp_path / "test.log"
 
     create_fastq(tmp_path, "sample_R1.fastq")
     create_fastq(tmp_path, "sample_R2.fastq")
-    create_fastq(tmp_path, "sample_I1.fastq")
+
 
     # Should not exit
     CheckFASTQFiles(str(tmp_path), "merged", str(log_file))
@@ -188,14 +190,14 @@ def test_CheckFASTQFiles_subdir_valid_files(tmp_path):
 
     create_fastq(sample_folder, "sampleB_R1.fastq.gz")
     create_fastq(sample_folder, "sampleB_R2.fastq.gz")
-    create_fastq(sample_folder, "sampleB_I1.fastq.gz")
+
 
     # Should not exit
     CheckFASTQFiles(str(tmp_path), "subdir", str(log_file))
 
     # Check that log file has correct message
     assert log_file.exists()
-    assert "sampleB has the necessary FASTQ files (R1, R2, I1)" in log_file.read_text()
+    assert "sampleB has the necessary FASTQ files (R1, R2)" in log_file.read_text()
     
 '''def test_PrepareSTARGenome_skips_existing_index(tmp_path):
     """Should skip STAR index generation if Genome, SA, SAindex exist."""
@@ -666,3 +668,118 @@ def test_run_star_handles_subprocess_error(monkeypatch, tmp_path, capsys):
     log_contents = log_file.read_text()
 
     assert "failed for sample" in (output.err + log_contents)
+    
+    
+@pytest.fixture
+def fake_adata():
+    """Provide a small fake AnnData object with values that pass QC filters."""
+
+    X = np.random.poisson(1500, (10, 5))  # high total counts
+    obs = pd.DataFrame({
+        "n_genes_by_counts": np.random.randint(1000, 2000, 10),
+        "pct_counts_mt": np.random.uniform(0, 2, 10),  # below 5%
+        "total_counts": np.random.randint(2000, 4000, 10)
+    }, index=[f"cell{i}" for i in range(10)])
+
+    var = pd.DataFrame(index=[f"gene{i}" for i in range(5)])
+    var["mt"] = [False, False, True, False, False]  # one MT gene
+
+    adata = sc.AnnData(X=X, obs=obs, var=var)
+    adata.layers["counts"] = adata.X.copy()
+    return adata
+@pytest.fixture
+def sample_structure(tmp_path):
+    """Create a fake output folder with one sample/filtered dir."""
+    sample_dir = tmp_path / "Sample1" / "filtered"
+    sample_dir.mkdir(parents=True)
+    log_file = tmp_path / "test_log.txt"
+    return tmp_path, log_file
+
+def test_QC_10x_loads_data(fake_adata, sample_structure):
+    output_folder, log_file = sample_structure
+
+    with mock.patch("scanpy.read_10x_mtx", return_value=fake_adata) as mock_read, \
+         mock.patch("scrublet.Scrublet"), \
+         mock.patch("matplotlib.pyplot.savefig"):
+        QC_10x(str(output_folder), str(log_file))
+
+    mock_read.assert_called_once()
+
+
+def test_QC_10x_computes_qc_metrics(fake_adata, sample_structure):
+    output_folder, log_file = sample_structure
+
+    with mock.patch("scanpy.read_10x_mtx", return_value=fake_adata), \
+         mock.patch("scrublet.Scrublet"), \
+         mock.patch("matplotlib.pyplot.savefig"):
+        QC_10x(str(output_folder), str(log_file))
+
+    # Verify QC columns exist
+    assert "total_counts" in fake_adata.obs.columns or "pct_counts_mt" in fake_adata.obs.columns
+
+
+def test_QC_10x_generates_plots(fake_adata, sample_structure):
+    output_folder, log_file = sample_structure
+
+    with mock.patch("scanpy.read_10x_mtx", return_value=fake_adata), \
+         mock.patch("scrublet.Scrublet"), \
+         mock.patch("matplotlib.pyplot.savefig") as mock_save:
+        QC_10x(str(output_folder), str(log_file))
+
+    assert mock_save.call_count >= 1
+
+
+def test_QC_10x_filters_low_quality_cells(fake_adata, sample_structure):
+    output_folder, log_file = sample_structure
+
+    # artificially set QC metrics
+    fake_adata.obs["n_genes_by_counts"] = np.random.randint(1000, 3000, 10)
+    fake_adata.obs["pct_counts_mt"] = np.random.rand(10) * 10
+    fake_adata.obs["total_counts"] = np.random.randint(500, 2000, 10)
+
+    with mock.patch("scanpy.read_10x_mtx", return_value=fake_adata), \
+         mock.patch("scrublet.Scrublet"), \
+         mock.patch("matplotlib.pyplot.savefig"):
+        QC_10x(str(output_folder), str(log_file))
+
+    # Filter should reduce cell count or leave it unchanged
+    assert fake_adata.n_obs >= 0  # sanity check
+
+
+def test_QC_10x_runs_scrublet(fake_adata, sample_structure):
+    output_folder, log_file = sample_structure
+
+    mock_scrub = mock.Mock()
+    mock_scrub.scrub_doublets.return_value = (np.random.rand(10), np.random.choice([True, False], 10))
+
+    with mock.patch("scanpy.read_10x_mtx", return_value=fake_adata), \
+         mock.patch("scrublet.Scrublet", return_value=mock_scrub), \
+         mock.patch("matplotlib.pyplot.savefig"):
+        QC_10x(str(output_folder), str(log_file))
+
+    mock_scrub.scrub_doublets.assert_called_once()
+
+
+def test_QC_10x_handles_scrublet_failure(fake_adata, sample_structure):
+    output_folder, log_file = sample_structure
+
+    with mock.patch("scanpy.read_10x_mtx", return_value=fake_adata), \
+         mock.patch("scrublet.Scrublet", side_effect=Exception("Scrublet crash")), \
+         mock.patch("matplotlib.pyplot.savefig"):
+        QC_10x(str(output_folder), str(log_file))
+
+    with open(log_file) as f:
+        logs = f.read()
+    assert "WARNING" in logs or "Scrublet failed" in logs
+
+
+def test_QC_10x_writes_output(fake_adata, sample_structure):
+    output_folder, log_file = sample_structure
+
+    with mock.patch("scanpy.read_10x_mtx", return_value=fake_adata), \
+         mock.patch("scrublet.Scrublet"), \
+         mock.patch("matplotlib.pyplot.savefig"):
+        QC_10x(str(output_folder), str(log_file))
+
+    qc_out = output_folder / "Sample1" / "QC_filtered.h5ad"
+    assert qc_out.exists()

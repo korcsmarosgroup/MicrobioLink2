@@ -12,6 +12,8 @@ import glob
 import scrublet as scr
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
+from scipy.stats import gaussian_kde
 
 def _log(message, log_file):
     """
@@ -111,7 +113,7 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
     Checking the FASTQ input folder: verifies that all expected sequencing files are present
     and correctly structured according to the specified Fastq_file_format ('merged' or 'subdir').
 
-    If any expected file (R1, R2, or I1) is missing, or the folder structure does not match 
+    If any expected file (R1, R2) is missing, or the folder structure does not match 
     the specified layout, an error is raised, and execution stops.
 
     Args:
@@ -128,7 +130,7 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
     Error codes:
         ERROR CODE 5: Invalid Fastq_file_format
         ERROR CODE 6: No FASTQ files found (merged layout)
-        ERROR CODE 7: Subdirectory missing R1/R2/I1 (subdir layout)
+        ERROR CODE 7: Subdirectory missing R1/R2 (subdir layout)
         ERROR CODE 8: Subdirectory has wrong number of files (subdir layout)
 
     Returns:
@@ -163,8 +165,7 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
                 sample = base.split("_R1")[0]
             elif "_R2" in base:
                 sample = base.split("_R2")[0]
-            elif "_I1" in base:
-                sample = base.split("_I1")[0]
+
             else:
                 sys.stderr.write(f"WARNING: Skipping unrecognized FASTQ file name: {base}\n")
                 _log(f"WARNING: Skipping unrecognized FASTQ file name: {base}")
@@ -176,7 +177,7 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
 
         # Validate each sample
         for sample, files in samples.items():
-            found = {"R1": False, "R2": False, "I1": False}
+            found = {"R1": False, "R2": False}
             for f in files:
                 fname = os.path.basename(f)
                 for tag in found:
@@ -190,9 +191,9 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
                 )
                 continue
 
-            if len(files) != 3:
+            if len(files) != 2:
                 _log(
-                    f"WARNING: {sample} should have 3 FASTQ files, but {len(files)} found.", log_file
+                    f"WARNING: {sample} should have 2 FASTQ files, but {len(files)} found.", log_file
                 )
                 continue
 
@@ -221,7 +222,7 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
 
             _log(f"{sample_name} has FASTQ files", log_file)
 
-            found = {"R1": False, "R2": False, "I1": False}
+            found = {"R1": False, "R2": False}
             for f in fastqs:
                 fname = os.path.basename(f)
                 for tag in found:
@@ -235,13 +236,13 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
                 )
                 continue
 
-            if len(fastqs) != 3:
+            if len(fastqs) != 2:
                 _log(
-                    f"WARNING: {sample_name} should have exactly 3 FASTQ files, but {len(fastqs)} found.", log_file
+                    f"WARNING: {sample_name} should have exactly 2 FASTQ files, but {len(fastqs)} found.", log_file
                 )
                 continue
 
-            _log(f"{sample_name} has the necessary FASTQ files (R1, R2, I1)", log_file)
+            _log(f"{sample_name} has the necessary FASTQ files (R1, R2)", log_file)
             
 '''
 def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
@@ -633,7 +634,10 @@ def QC_10x(output_folder, log_file):
         ].copy()
         after = adata.n_obs
         _log(f"{sample}: filtered {before - after} cells; {after} remain.", log_file)
-
+        # handle empty Annadata after filtering
+        if adata.n_obs == 0:
+            _log(f"{sample}: all cells filtered out, skipping save.", log_file)
+            continue
         # --- Doublet detection using Scrublet ---
         _log(f"Running Scrublet for doublet detection on {sample}", log_file)
         try:
@@ -800,6 +804,7 @@ def NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, log_file):
         sys.stderr.write(msg + "\n")
         sys.exit(13)
         
+        
 def main():
     """
     Main function for the script.
@@ -880,6 +885,8 @@ def main():
         # ✅ Normalization step runs for both platforms
     NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, logfile)
     _log("Normalization completed for all samples.", logfile)
+    
+
         
 if __name__ == '__main__':
     main()
