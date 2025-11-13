@@ -1,4 +1,4 @@
-source("C:/Users/bogla/PycharmProjects/MicrobioLink2/workflow/utils/preprocessing/Rpreprocessing/R/loading_config_file.R")
+source("./R/loading_config_file.R")
 
 test_that("check if error is raised if config file is empty", {
   # create temp dir

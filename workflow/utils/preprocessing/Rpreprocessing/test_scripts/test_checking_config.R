@@ -1,4 +1,4 @@
-source("C:/Users/bogla/PycharmProjects/MicrobioLink2/workflow/utils/preprocessing/Rpreprocessing/R/checking_configuration.R")
+source("./R/checking_configuration.R")
 
 test_that("checking if config file path is returned by checking_configuration()", {
   # create temporary directory

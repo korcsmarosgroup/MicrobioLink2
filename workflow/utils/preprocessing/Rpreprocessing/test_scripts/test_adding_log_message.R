@@ -1,4 +1,4 @@
-source("C:/Users/bogla/PycharmProjects/MicrobioLink2/workflow/utils/preprocessing/Rpreprocessing/R/add_log_message.R")
+source("./R/add_log_message.R")
 
 test_that("checking if messages are added to log_file", {
   # create temp dir

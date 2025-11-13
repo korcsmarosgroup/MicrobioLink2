@@ -1,6 +1,4 @@
-library(testthat)
-
-source("C:/Users/bogla/PycharmProjects/MicrobioLink2/workflow/utils/preprocessing/Rpreprocessing/R/checking_log_file.R")
+source("./R/checking_log_file.R")
 
 test_that(
   "checking_log_file creates a log file",
