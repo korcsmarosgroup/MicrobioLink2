@@ -22,20 +22,31 @@
 
 pair_fastqs <- function(input_dir, layout) {
   if (isTRUE(layout == "merged")) {
-    fastq.files <- list.files(input_dir, pattern = "*.fastq$|*.fastq.gz$", full.names = TRUE, recursive = FALSE)
+    fastq.files <- list.files(input_dir, pattern = "\\.fastq(\\.gz)?$", full.names = TRUE, recursive = FALSE)
   } else if (isTRUE(layout == "subdir")) {
     subdirs <- list.dirs(input_dir, recursive = FALSE)
     fastq.files <- lapply(subdirs, function(sd) list.files(sd, pattern = ".R"))
     fastq.files <- unlist(fastq.files)
   }
 
-  sample_names <- sub("^([^_]+)_.*$", "\\1", fastq.files)
-  samples <- split(fastq.files, sample_names)
+  fastq.files.list <- list()
+
+  for (f in fastq.files) {
+    fastq.files.list[[f]] <- basename(f)
+  }
+
+  print(fastq.files)
+
+  sample_names <- sub("^([^_]+)_.*$", "\\1", fastq.files.list)
+  samples <- split(fastq.files.list, sample_names)
   sample_order <- order(as.numeric(gsub("\\D", "", names(samples))))
   samples <- samples[sample_order]
-  read_order <- c("R1", "R2", "I1")
+  read_order <- c("R1", "R2")
   samples <- lapply(samples, function(files) {
-    files[order(match(sub(".*_(R1|R2|I1).*", "\\1", files), read_order))]
+    files[order(match(sub(".*_(R1|R2).*", "\\1", files), read_order))]
   })
-  return(samples)
+  samples <- Filter(function(x) {
+    any(grepl("R1", x)) && any(grepl("R2", x))
+  }, samples)
+  print(samples)
 }
