@@ -830,6 +830,8 @@ def main():
     ERROR CODE 12: Platform is '{platform}'. No processing available for this platform. Exiting
     """
 
+    # TODO: Implement chmod 777 for the input folder to avoid any kind of file permission errors
+
     config_folder = os.path.dirname(os.path.abspath(__file__))
     logfile = CheckingLogFile(config_folder)
     logfile = f"{config_folder}/preprocessing.log"  
