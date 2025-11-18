@@ -9,7 +9,7 @@ Fastq_file_format: "merged"  # or "subdir"
 # ==============================
 # STAR genome build parameters
 # ==============================
-genome_dir: "./genome"
+genome_dir: "./genome" # Output folder for the genome index preparation
 fasta_file: "fasta"
 
 # Genome indexing parameters (17.5)
@@ -39,11 +39,11 @@ splice_junction_params:
 # STARsolo parameters
 # ==============================
 STARsolo_params:
-  solo_type: "CB_UMI_Simple"
-  cb_start: 1
-  cb_length: 16
-  umi_start: 17
-  umi_length: 12
+  soloType: "CB_UMI_Simple"
+  soloCBstart: 1
+  soloCBlen: 16
+  soloUMIstart: 17
+  solorUMIlen: 12
   whitelist: "./whitelist/10x_whitelist.txt"
 
 # ==============================
