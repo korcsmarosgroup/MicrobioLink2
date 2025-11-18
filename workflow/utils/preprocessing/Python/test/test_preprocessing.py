@@ -4,8 +4,8 @@ from preprocessing import CheckingConfiguration
 from preprocessing import CheckFASTQFiles
 from preprocessing import PrepareSTARGenome
 from preprocessing import RunSTARUnified
-from preprocessing import _pair_fastqs
 from preprocessing import QC_10x
+from preprocessing import NormalizeAllSamples
 import subprocess
 from unittest import mock
 from pathlib import Path
@@ -96,10 +96,26 @@ def create_fastq(folder: Path, name: str):
     f.write_text("dummy FASTQ content")
     return f
 
+# -----------------------------
+# Tests for LoadingConfiguration
+# -----------------------------
+def test_LoadingConfiguration_empty_file(tmp_path, capsys):
+    """Should exit with code 3 if YAML file is empty."""
+    config_file = tmp_path / "empty_config.yaml"
+    log_file = tmp_path / "log.txt"
+    config_file.write_text("")  # empty file
 
-# ---------------------------------------------------------
-# TESTS
-# ---------------------------------------------------------
+    with pytest.raises(SystemExit) as e:
+        LoadingConfiguration(str(config_file), str(log_file))
+
+    assert e.value.code == 3
+
+    out, err = capsys.readouterr()
+    assert "configuration file is empty" in (out + err).lower()
+
+# -----------------------------
+# Tests for CheckFASTQFiles
+# -----------------------------
 
 def test_CheckFASTQFiles_invalid_format(tmp_path, capsys):
     """Should exit with code 5 if format is invalid."""
@@ -109,10 +125,8 @@ def test_CheckFASTQFiles_invalid_format(tmp_path, capsys):
         CheckFASTQFiles(str(tmp_path), "invalid_format", str(log_file))
 
     assert e.value.code == 5
-
     out, err = capsys.readouterr()
     assert "Invalid Fastq_file_format" in (out + err)
-
 
 def test_CheckFASTQFiles_merged_no_fastqs(tmp_path, capsys):
     """Should exit with code 6 if merged layout has no FASTQ files."""
@@ -125,7 +139,6 @@ def test_CheckFASTQFiles_merged_no_fastqs(tmp_path, capsys):
     out, err = capsys.readouterr()
     assert "No FASTQ files found" in (out + err)
 
-
 def test_CheckFASTQFiles_merged_valid_files(tmp_path):
     """Should pass with correct R1, R2 files in merged layout."""
     log_file = tmp_path / "test.log"
@@ -133,14 +146,18 @@ def test_CheckFASTQFiles_merged_valid_files(tmp_path):
     create_fastq(tmp_path, "sample_R1.fastq")
     create_fastq(tmp_path, "sample_R2.fastq")
 
-
     # Should not exit
-    CheckFASTQFiles(str(tmp_path), "merged", str(log_file))
+    result = CheckFASTQFiles(str(tmp_path), "merged", str(log_file))
+
+    assert "sample" in result
+    assert "R1" in result["sample"]
+    assert "R2" in result["sample"]
 
     # Log file should exist and contain expected message
     assert log_file.exists()
-    assert "Using flat FASTQ layout" in log_file.read_text()
-
+    content = log_file.read_text()
+    assert "Using flat FASTQ layout" in content
+    assert "sample has the necessary FASTQ files" not in content  # merged case uses WARNING for missing
 
 def test_CheckFASTQFiles_subdir_no_subdirs(tmp_path, capsys):
     """Should exit with code 7 if no sample subdirectories exist."""
@@ -153,34 +170,19 @@ def test_CheckFASTQFiles_subdir_no_subdirs(tmp_path, capsys):
     out, err = capsys.readouterr()
     assert "No sample subdirectories found" in (out + err)
 
-
-# def test_CheckFASTQFiles_subdir_empty_folder(tmp_path, capsys):
-#     """Should exit with code 8 if a sample folder has no FASTQ files."""
-#     log_file = tmp_path / "test.log"
-#     sample_folder = tmp_path / "sampleA"
-#     sample_folder.mkdir()
-
-#     with pytest.raises(SystemExit) as e:
-#         CheckFASTQFiles(str(tmp_path), "subdir", str(log_file))
-
-#     assert e.value.code == 8
-#     out, err = capsys.readouterr()
-#     assert "No FASTQ files found" in (out + err)
 def test_CheckFASTQFiles_subdir_empty_warning(tmp_path):
     """Empty subdirectory logs a warning but does not exit."""
     log_file = tmp_path / "test.log"
-
-    # Create empty subdirectory
     empty_sample = tmp_path / "empty_sample"
     empty_sample.mkdir()
 
-    # Run function (should not exit)
-    CheckFASTQFiles(str(tmp_path), "subdir", str(log_file))
+    result = CheckFASTQFiles(str(tmp_path), "subdir", str(log_file))
 
-    # Check log file
+    # Empty samples should not be returned
+    assert "empty_sample" not in result
+
     log_content = log_file.read_text()
     assert "empty_sample has no FASTQ files" in log_content
-
 
 def test_CheckFASTQFiles_subdir_valid_files(tmp_path):
     """Should pass with correct files inside sample subdirectory."""
@@ -191,96 +193,103 @@ def test_CheckFASTQFiles_subdir_valid_files(tmp_path):
     create_fastq(sample_folder, "sampleB_R1.fastq.gz")
     create_fastq(sample_folder, "sampleB_R2.fastq.gz")
 
+    result = CheckFASTQFiles(str(tmp_path), "subdir", str(log_file))
 
-    # Should not exit
-    CheckFASTQFiles(str(tmp_path), "subdir", str(log_file))
+    assert "sampleB" in result
+    assert "R1" in result["sampleB"]
+    assert "R2" in result["sampleB"]
 
     # Check that log file has correct message
-    assert log_file.exists()
-    assert "sampleB has the necessary FASTQ files (R1, R2)" in log_file.read_text()
-    
-'''def test_PrepareSTARGenome_skips_existing_index(tmp_path):
-    """Should skip STAR index generation if Genome, SA, SAindex exist."""
-    # Create fake genome_dir with required files
-    genome_dir = tmp_path / "genome"
-    genome_dir.mkdir()
-    for f in ["Genome", "SA", "SAindex"]:
-        (genome_dir / f).write_text("dummy")
-
-    fasta_file = tmp_path / "genome.fa"
-    gtf_file = tmp_path / "annotation.gtf"
-    log_file = tmp_path / "log.txt"
-
-    # Run function — should just log and return, not call STAR
-    PrepareSTARGenome(str(genome_dir), str(fasta_file), str(gtf_file), 100, str(log_file))
-
-    # Confirm log file was written
-    assert log_file.exists()
-    log_content = log_file.read_text()
-    assert "STAR genome index already exists" in log_content
-
-
-def test_PrepareSTARGenome_runs_star_when_missing(monkeypatch, tmp_path):
-    """Should call STAR command when genome index is missing."""
-    genome_dir = tmp_path / "new_index"
-    fasta_file = tmp_path / "genome.fa"
-    gtf_file = tmp_path / "annotation.gtf"
-    log_file = tmp_path / "log.txt"
-
-    # Create dummy fasta and gtf
-    fasta_file.write_text(">chr1\nACTG")
-    gtf_file.write_text("chr1\tsource\tgene\t1\t10\t.\t+\t.\tgene_id \"g1\";")
-
-    # Mock subprocess.run to avoid actually running STAR
-    called = {}
-
-    def fake_run(cmd, check):
-        called["cmd"] = cmd
-        return 0
-
-    monkeypatch.setattr(subprocess, "run", fake_run)
-
-    # Run the function
-    PrepareSTARGenome(str(genome_dir), str(fasta_file), str(gtf_file), 100, str(log_file))
-
-    # Check that STAR command was called with expected params
-    assert "STAR" in called["cmd"][0]
-    assert "--genomeDir" in called["cmd"]
-    assert str(genome_dir) in called["cmd"]
-
-    # Log file should confirm generation started and finished
     content = log_file.read_text()
-    assert "Running STAR command" in content
-    assert "successfully generated" in content
+    assert "sampleB has the necessary FASTQ files (R1, R2)" in content
 
+# -----------------------------
+# New tests for updated function
+# -----------------------------
 
-def test_PrepareSTARGenome_handles_star_failure(monkeypatch, tmp_path, capsys):
-    """Should exit with code 11 and log error if STAR fails."""
-    genome_dir = tmp_path / "bad_index"
-    fasta_file = tmp_path / "genome.fa"
-    gtf_file = tmp_path / "annotation.gtf"
+def test_CheckFASTQFiles_returns_only_complete_pairs(tmp_path):
+    """Merged layout returns only complete R1+R2 samples."""
     log_file = tmp_path / "log.txt"
 
-    fasta_file.write_text(">chr1\nACTG")
-    gtf_file.write_text("chr1\t.\t.\t1\t10\t.\t+\t.\tgene_id \"g1\";")
+    create_fastq(tmp_path, "A_R1.fastq")  # missing R2
+    create_fastq(tmp_path, "B_R1.fastq")
+    create_fastq(tmp_path, "B_R2.fastq")  # complete
 
-    def fake_run_fail(cmd, check):
-        raise subprocess.CalledProcessError(1, cmd, "simulated failure")
+    result = CheckFASTQFiles(str(tmp_path), "merged", str(log_file))
 
-    monkeypatch.setattr(subprocess, "run", fake_run_fail)
+    assert "A" not in result
+    assert "B" in result
+    assert "R1" in result["B"]
+    assert "R2" in result["B"]
 
-    with pytest.raises(SystemExit) as e:
-        PrepareSTARGenome(str(genome_dir), str(fasta_file), str(gtf_file), 75, str(log_file))
+def test_CheckFASTQFiles_logs_missing_R2_warning(tmp_path):
+    """Merged layout logs a WARNING for missing R2."""
+    log_file = tmp_path / "log.txt"
 
-    # Ensure exit code 11
-    assert e.value.code == 11
+    create_fastq(tmp_path, "S_R1.fastq")  # incomplete
 
-    out, err = capsys.readouterr()
-    assert "STAR genome generation failed" in (out + err)
+    CheckFASTQFiles(str(tmp_path), "merged", str(log_file))
 
-    # Check the log also contains the error
-    assert "STAR genome generation failed" in log_file.read_text()
-   '''
+    content = log_file.read_text()
+    assert "WARNING: S is missing R2 file(s)" in content
+
+def test_CheckFASTQFiles_subdir_returns_only_complete(tmp_path):
+    """Subdir layout returns only complete samples."""
+    log_file = tmp_path / "log.txt"
+
+    # Complete sample
+    s1 = tmp_path / "X"
+    s1.mkdir()
+    create_fastq(s1, "X_R1.fastq")
+    create_fastq(s1, "X_R2.fastq")
+
+    # Incomplete sample
+    s2 = tmp_path / "Y"
+    s2.mkdir()
+    create_fastq(s2, "Y_R1.fastq")
+
+    result = CheckFASTQFiles(str(tmp_path), "subdir", str(log_file))
+
+    assert "X" in result
+    assert "Y" not in result
+
+def test_CheckFASTQFiles_subdir_multiple_samples(tmp_path):
+    """Subdir layout returns only complete samples; incomplete samples are skipped."""
+    log_file = tmp_path / "log.txt"
+
+    # Complete sample 1
+    s1 = tmp_path / "Sample1"
+    s1.mkdir()
+    create_fastq(s1, "Sample1_R1.fastq")
+    create_fastq(s1, "Sample1_R2.fastq")
+
+    # Complete sample 2
+    s2 = tmp_path / "Sample2"
+    s2.mkdir()
+    create_fastq(s2, "Sample2_R1.fastq")
+    create_fastq(s2, "Sample2_R2.fastq")
+
+    # Incomplete sample 3 (missing R2)
+    s3 = tmp_path / "Sample3"
+    s3.mkdir()
+    create_fastq(s3, "Sample3_R1.fastq")
+
+    result = CheckFASTQFiles(str(tmp_path), "subdir", str(log_file))
+
+    # Only complete samples should be returned
+    assert "Sample1" in result
+    assert "Sample2" in result
+    assert "Sample3" not in result
+
+    # Check that R1 and R2 keys exist for returned samples
+    for sample in ["Sample1", "Sample2"]:
+        assert "R1" in result[sample]
+        assert "R2" in result[sample]
+
+    # Log file should contain a warning for the incomplete sample
+    log_content = log_file.read_text()
+    assert "Sample3 is missing R2 file(s)" in log_content
+
 def test_PrepareSTARGenome_skips_existing_index(tmp_path):
     """Should skip STAR index generation if Genome, SA, SAindex exist."""
     genome_dir = tmp_path / "genome"
@@ -436,119 +445,7 @@ def test_PrepareSTARGenome_handles_star_failure(monkeypatch, tmp_path, capsys):
     assert "STAR genome generation failed" in log_file.read_text()
     
     
-def test_pair_fastqs_merged_basic(tmp_path):
-    """Should correctly pair R1, R2, and I1 files in merged layout."""
-    create_fastq(tmp_path, "sampleA_R1.fastq.gz")
-    create_fastq(tmp_path, "sampleA_R2.fastq.gz")
-    create_fastq(tmp_path, "sampleA_I1.fastq.gz")
-    create_fastq(tmp_path, "sampleB_R1.fastq.gz")
-    create_fastq(tmp_path, "sampleB_R2.fastq.gz")
 
-    result = _pair_fastqs(str(tmp_path), "merged")
-
-    assert set(result.keys()) == {"sampleA", "sampleB"}
-
-    # Check all expected reads exist
-    for sample in result:
-        assert "R1" in result[sample]
-        assert "R2" in result[sample]
-        assert result[sample]["R1"].endswith(f"{sample}_R1.fastq.gz")
-        assert result[sample]["R2"].endswith(f"{sample}_R2.fastq.gz")
-
-    # Optional I1 file should be detected for sampleA only
-    assert "I1" in result["sampleA"]
-    assert "I1" not in result["sampleB"]
-
-
-def test_pair_fastqs_subdir_layout(tmp_path):
-    """Should correctly find and pair files in per-sample subdirectories."""
-    sample1 = tmp_path / "sample1"
-    sample2 = tmp_path / "sample2"
-    sample1.mkdir()
-    sample2.mkdir()
-
-    create_fastq(sample1, "sample1_R1.fastq")
-    create_fastq(sample1, "sample1_R2.fastq")
-    create_fastq(sample2, "sample2_R1.fastq.gz")
-    create_fastq(sample2, "sample2_R2.fastq.gz")
-
-    result = _pair_fastqs(str(tmp_path), "subdir")
-
-    assert set(result.keys()) == {"sample1", "sample2"}
-
-    # Verify both R1 and R2 for each sample
-    for sample in ["sample1", "sample2"]:
-        assert "R1" in result[sample]
-        assert "R2" in result[sample]
-        assert result[sample]["R1"].endswith(f"{sample}_R1.fastq" if sample == "sample1" else f"{sample}_R1.fastq.gz")
-        assert result[sample]["R2"].endswith(f"{sample}_R2.fastq" if sample == "sample1" else f"{sample}_R2.fastq.gz")
-
-
-def test_pair_fastqs_handles_missing_pairs(tmp_path):
-    """Should include samples even if only one read file is present."""
-    create_fastq(tmp_path, "lonely_R1.fastq")
-
-    result = _pair_fastqs(str(tmp_path), "merged")
-
-    assert "lonely" in result
-    assert "R1" in result["lonely"]
-    assert "R2" not in result["lonely"]
-
-
-def test_pair_fastqs_empty_directory(tmp_path):
-    """Should return empty dict if no FASTQ files exist."""
-    result = _pair_fastqs(str(tmp_path), "merged")
-    assert result == {}
-
-
-def test_pair_fastqs_subdir_with_empty_folder(tmp_path):
-    """Should ignore subdirectories with no FASTQ files."""
-    empty = tmp_path / "empty_sample"
-    filled = tmp_path / "filled_sample"
-    empty.mkdir()
-    filled.mkdir()
-
-    create_fastq(filled, "filled_sample_R1.fastq")
-    create_fastq(filled, "filled_sample_R2.fastq")
-
-    result = _pair_fastqs(str(tmp_path), "subdir")
-
-    assert set(result.keys()) == {"filled_sample"}
-    assert "R1" in result["filled_sample"]
-    assert "R2" in result["filled_sample"]
-
-
-def test_pair_fastqs_ignores_non_fastq(tmp_path):
-    """Should ignore files that are not FASTQ format."""
-    (tmp_path / "random.txt").write_text("not a fastq")
-    create_fastq(tmp_path, "valid_R1.fastq")
-
-    result = _pair_fastqs(str(tmp_path), "merged")
-
-    assert set(result.keys()) == {"valid"}
-    for sample, reads in result.items():
-        for read_file in reads.values():
-            assert read_file.endswith(".fastq")
-
-
-def test_pair_fastqs_mixed_layout(tmp_path):
-    """Should respect layout type and not mix merged and subdir results."""
-    # merged-level file
-    create_fastq(tmp_path, "merged_R1.fastq")
-
-    # subdir files
-    sub = tmp_path / "subsample"
-    sub.mkdir()
-    create_fastq(sub, "subsample_R1.fastq")
-    create_fastq(sub, "subsample_R2.fastq")
-
-    # merged layout -> only top-level FASTQs
-    result_merged = _pair_fastqs(str(tmp_path), "merged")
-    assert set(result_merged.keys()) == {"merged"}
-
-    # subdir layout -> only files within subdirectories
-    result_subdir = _pair_fastqs(str(tmp_path), "subdir")
-    assert set(result_subdir.keys()) == {"subsample"}
     
 def test_run_star_microwell_executes_star(monkeypatch, tmp_path):
     """Should build and execute STAR command for microwell samples."""
@@ -604,7 +501,7 @@ def test_run_star_solo_executes_starsolo(monkeypatch, tmp_path):
     assert os.path.exists(config["STARsolo_outdir"])
 
 
-def test_run_star_skips_wrong_platform(monkeypatch, tmp_path, capsys):
+def test_run_star_skips_wrong_platform(monkeypatch, tmp_path):
     """Should skip execution when platform doesn't match mode."""
     config = {
         "platform": "droplet",  # wrong for solo=False
@@ -613,36 +510,14 @@ def test_run_star_skips_wrong_platform(monkeypatch, tmp_path, capsys):
         "Fastq_file_format": "merged",
     }
     log_file = tmp_path / "log.txt"
+    create_fastq(tmp_path, "sample_R1.fastq")
+    create_fastq(tmp_path, "sample_R2.fastq")
 
     RunSTARUnified(config, str(log_file), solo=False)
 
     assert log_file.exists(), "Expected log file to be created"
     log_contents = log_file.read_text()
-
-    # Assert the exact skip message was logged
     assert "Platform 'droplet' is not microwell. Skipping STAR." in log_contents
-
-def test_run_star_skips_incomplete_pairs(monkeypatch, tmp_path):
-    """Should skip samples missing R2 files."""
-    config = {
-        "platform": "microwell",
-        "input_dir": str(tmp_path),
-        "genome_dir": str(tmp_path / "genome"),
-        "Fastq_file_format": "merged",
-    }
-    log_file = tmp_path / "log.txt"
-    create_fastq(tmp_path, "sample_R1.fastq")  # missing R2
-
-    called = {"ran": False}
-    def fake_run(cmd, check):
-        called["ran"] = True
-
-    monkeypatch.setattr(subprocess, "run", fake_run)
-    RunSTARUnified(config, str(log_file), solo=False)
-
-    # STAR shouldn't run
-    assert not called["ran"]
-    assert "missing R1 or R2" in log_file.read_text()
 
 
 def test_run_star_handles_subprocess_error(monkeypatch, tmp_path, capsys):
@@ -666,8 +541,32 @@ def test_run_star_handles_subprocess_error(monkeypatch, tmp_path, capsys):
 
     output = capsys.readouterr()
     log_contents = log_file.read_text()
-
     assert "failed for sample" in (output.err + log_contents)
+
+
+def test_run_star_creates_output_dirs(monkeypatch, tmp_path):
+    """Should create output directories for each sample."""
+    config = {
+        "platform": "microwell",
+        "input_dir": str(tmp_path),
+        "genome_dir": str(tmp_path / "genome"),
+        "Fastq_file_format": "merged",
+        "STAR_outdir": str(tmp_path / "star_out"),
+    }
+    log_file = tmp_path / "log.txt"
+    create_fastq(tmp_path, "sample_R1.fastq")
+    create_fastq(tmp_path, "sample_R2.fastq")
+
+    def fake_run(cmd, check):
+        return 0
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    RunSTARUnified(config, str(log_file), solo=False)
+
+    expected_dir = os.path.join(config["STAR_outdir"], "sample")
+    # Since sample prefix is "sample" from "sample_R1.fastq"
+    assert os.path.isdir(os.path.join(config["STAR_outdir"], "sample"))
     
     
 @pytest.fixture
@@ -783,3 +682,119 @@ def test_QC_10x_writes_output(fake_adata, sample_structure):
 
     qc_out = output_folder / "Sample1" / "QC_filtered.h5ad"
     assert qc_out.exists()
+
+def test_QC_10x_output_file_structure(fake_adata, sample_structure):
+    """
+    Unit test: verify that the QC_filtered.h5ad file has a valid AnnData structure
+    and contains expected QC metrics.
+    """
+    output_folder, log_file = sample_structure
+
+    with mock.patch("scanpy.read_10x_mtx", return_value=fake_adata), \
+         mock.patch("scrublet.Scrublet"), \
+         mock.patch("matplotlib.pyplot.savefig"):
+        QC_10x(str(output_folder), str(log_file))
+
+    qc_out = output_folder / "Sample1" / "QC_filtered.h5ad"
+    assert qc_out.exists(), "QC-filtered output file was not created."
+
+    # Load the QC output file
+    adata_out = sc.read_h5ad(qc_out)
+
+    # --- Check structure ---
+    assert isinstance(adata_out, sc.AnnData), "Output is not a valid AnnData object."
+    assert adata_out.X is not None, "Expression matrix missing."
+    assert adata_out.n_obs > 0, "No cells in output."
+    assert adata_out.n_vars > 0, "No genes in output."
+
+    # --- Check for essential QC columns ---
+    expected_cols = {"total_counts", "n_genes_by_counts", "pct_counts_mt"}
+    assert expected_cols.issubset(adata_out.obs.columns), (
+        f"Missing expected QC columns: {expected_cols - set(adata_out.obs.columns)}"
+    )
+def create_dummy_h5ad(folder: Path, sample_name: str, n_obs=5, n_vars=10):
+    """Create a dummy QC_filtered.h5ad file for testing."""
+    sample_folder = folder / sample_name
+    sample_folder.mkdir(parents=True, exist_ok=True)
+    data = np.random.rand(n_obs, n_vars)
+    adata = sc.AnnData(X=data)
+    adata.obs_names = [f"cell{i}" for i in range(n_obs)]
+    adata.var_names = [f"gene{j}" for j in range(n_vars)]
+    input_file = sample_folder / "QC_filtered.h5ad"
+    adata.write(input_file)
+    return sample_folder, input_file
+
+# -----------------------------
+# TESTS
+# -----------------------------
+
+def test_normalize_all_samples_creates_files(tmp_path):
+    """Should create normalized.h5ad and normalized.tsv for a single sample."""
+    log_file = tmp_path / "log.txt"
+    sample_folder, input_file = create_dummy_h5ad(tmp_path, "Sample1")
+
+    # Run normalization
+    NormalizeAllSamples(str(tmp_path), HVG_selection=False, number_top_genes=0, log_file=str(log_file))
+
+    # Check that normalized files exist
+    assert (sample_folder / "normalized.h5ad").exists()
+    assert (sample_folder / "normalized.tsv").exists()
+
+    # HVG files should not exist
+    assert not (sample_folder / "normalized_hvg.h5ad").exists()
+    assert not (sample_folder / "normalized_hvg.tsv").exists()
+
+def test_normalize_all_samples_with_HVG(tmp_path):
+    """Should create HVG files if HVG_selection is True."""
+    log_file = tmp_path / "log.txt"
+    sample_folder, input_file = create_dummy_h5ad(tmp_path, "Sample2")
+
+    NormalizeAllSamples(str(tmp_path), HVG_selection=True, number_top_genes=5, log_file=str(log_file))
+
+    # Check HVG outputs
+    assert (sample_folder / "normalized_hvg.h5ad").exists()
+    assert (sample_folder / "normalized_hvg.tsv").exists()
+
+    # Also check normal outputs exist
+    assert (sample_folder / "normalized.h5ad").exists()
+    assert (sample_folder / "normalized.tsv").exists()
+
+def test_normalize_all_samples_skips_missing_input(tmp_path):
+    """Should skip sample folders without QC_filtered.h5ad and log a message."""
+    log_file = tmp_path / "log.txt"
+    (tmp_path / "EmptySample").mkdir()
+
+    NormalizeAllSamples(str(tmp_path), HVG_selection=False, number_top_genes=0, log_file=str(log_file))
+
+    log_content = Path(log_file).read_text()
+    assert "Skipping EmptySample: No QC_filtered.h5ad found." in log_content
+
+def test_normalize_all_samples_multiple_samples(tmp_path):
+    """Should normalize multiple samples correctly."""
+    log_file = tmp_path / "log.txt"
+    create_dummy_h5ad(tmp_path, "S1")
+    create_dummy_h5ad(tmp_path, "S2")
+
+    NormalizeAllSamples(str(tmp_path), HVG_selection=False, number_top_genes=0, log_file=str(log_file))
+
+    for s in ["S1", "S2"]:
+        sample_folder = tmp_path / s
+        assert (sample_folder / "normalized.h5ad").exists()
+        assert (sample_folder / "normalized.tsv").exists()
+
+def test_normalize_all_samples_exception_handling(monkeypatch, tmp_path):
+    """Should exit with code 13 if normalization fails."""
+    log_file = tmp_path / "log.txt"
+    sample_folder, input_file = create_dummy_h5ad(tmp_path, "SampleX")
+
+    def fake_read_h5ad(file):
+        raise RuntimeError("Simulated failure")
+
+    monkeypatch.setattr(sc, "read_h5ad", fake_read_h5ad)
+
+    with pytest.raises(SystemExit) as e:
+        NormalizeAllSamples(str(tmp_path), HVG_selection=False, number_top_genes=0, log_file=str(log_file))
+
+    assert e.value.code == 13
+    content = Path(log_file).read_text()
+    assert "ERROR: Normalization failed" in content
