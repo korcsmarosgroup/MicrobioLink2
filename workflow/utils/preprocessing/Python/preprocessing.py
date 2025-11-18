@@ -110,46 +110,112 @@ def LoadingConfiguration(configuration_file_path, log_file):
 
 def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
     """
-    Checking the FASTQ input folder: verifies that all expected sequencing files are present
-    and correctly structured according to the specified Fastq_file_format ('merged' or 'subdir').
+    Validate FASTQ inputs and return only samples with complete paired-end data.
 
-    If any expected file (R1, R2) is missing, or the folder structure does not match 
-    the specified layout, an error is raised, and execution stops.
+    This function scans an input directory that contains either:
+      • A flat collection of FASTQ files ("merged" layout), or
+      • Multiple per-sample subdirectories ("subdir" layout).
+
+    The function:
+        - Identifies FASTQ files for each sample (R1, R2, and optionally I1)
+        - Logs warnings when samples are incomplete (missing R1 or R2)
+        - Logs errors and exits when the folder structure is invalid
+        - Produces a dictionary containing **only samples that have both R1 and R2 FASTQs**
+
+    The returned dictionary is suitable for downstream tools that require
+    complete paired FASTQ inputs (e.g., STAR, trimming tools, quantification).
 
     Args:
         input_folder:
-            The system-based absolute path to the input directory containing the FASTQ files
-            or per-sample subdirectories.
+            Path to the main input directory containing FASTQ files or sample folders.
         Fastq_file_format:
-            The organization style of the FASTQ data to validate. Must be either:
-                - 'merged': all FASTQ files are in a single directory.
-                - 'subdir': each sample has its own subdirectory containing FASTQ files.
+            Expected layout of the FASTQ input. Must be:
+                - "merged": all FASTQs in one folder
+                - "subdir": each sample in its own subdirectory
         log_file:
-            The path of the log file.
+            Path to the log file where warnings and information messages are written.
 
     Error codes:
-        ERROR CODE 5: Invalid Fastq_file_format
-        ERROR CODE 6: No FASTQ files found (merged layout)
-        ERROR CODE 7: Subdirectory missing R1/R2 (subdir layout)
-        ERROR CODE 8: Subdirectory has wrong number of files (subdir layout)
+        ERROR CODE 5: Invalid Fastq_file_format argument.
+        ERROR CODE 6: No FASTQ files found in merged layout.
+        ERROR CODE 7: No sample subdirectories found in subdir layout.
 
     Returns:
-        None
-            The function does not return any value. If all checks pass, execution continues normally.
+        dict:
+            A dictionary mapping sample prefixes to dictionaries of file paths, e.g.:
+
+            {
+                "SampleA": {
+                    "R1": "/path/to/SampleA_R1.fastq.gz",
+                    "R2": "/path/to/SampleA_R2.fastq.gz",
+                    "I1": "/path/to/SampleA_I1.fastq.gz"   # optional
+                },
+                "SampleB": {
+                    "R1": "...",
+                    "R2": "..."
+                }
+            }
+
+            Only samples that contain **both R1 and R2** files are included.
     """
-    # ------------------------------------------------------------
+
     # Validate Fastq_file_format
-    # ------------------------------------------------------------
     if Fastq_file_format not in ("merged", "subdir"):
-        sys.stderr.write(f"ERROR: Invalid Fastq_file_format '{Fastq_file_format}'. Must be 'merged' or 'subdir'.\n")
+        sys.stderr.write(
+            f"ERROR: Invalid Fastq_file_format '{Fastq_file_format}'. "
+            "Must be 'merged' or 'subdir'.\n"
+        )
         sys.exit(5)
 
-    # ------------------------------------------------------------
-    # Case 1: Flat layout — all FASTQs in one directory
-    # ------------------------------------------------------------
+    # ------------------------------------------------------------------
+    # Internal pairing logic (merged version of _pair_fastqs)
+    # ------------------------------------------------------------------
+    def _collect_fastqs(input_dir, layout):
+        fastq_files = []
+
+        if layout == "merged":
+            fastq_files = (
+                glob.glob(os.path.join(input_dir, "*.fastq")) +
+                glob.glob(os.path.join(input_dir, "*.fastq.gz"))
+            )
+
+        elif layout == "subdir":
+            subdirs = [
+                d for d in glob.glob(os.path.join(input_dir, "*"))
+                if os.path.isdir(d)
+            ]
+            for sd in subdirs:
+                fastq_files.extend(
+                    glob.glob(os.path.join(sd, "*.fastq")) +
+                    glob.glob(os.path.join(sd, "*.fastq.gz"))
+                )
+
+        samples = {}
+        for f in fastq_files:
+            base = os.path.basename(f)
+
+            if "_R1" in base:
+                prefix = base.split("_R1")[0]
+                samples.setdefault(prefix, {})["R1"] = f
+
+            elif "_R2" in base:
+                prefix = base.split("_R2")[0]
+                samples.setdefault(prefix, {})["R2"] = f
+
+            elif "_I1" in base:
+                prefix = base.split("_I1")[0]
+                samples.setdefault(prefix, {})["I1"] = f
+
+        return samples
+
+    # ------------------------------------------------------------------
+    # CASE 1: MERGED layout
+    # ------------------------------------------------------------------
     if Fastq_file_format == "merged":
-        fastq_files = glob.glob(os.path.join(input_folder, "*.fastq")) + \
-                      glob.glob(os.path.join(input_folder, "*.fastq.gz"))
+        fastq_files = (
+            glob.glob(os.path.join(input_folder, "*.fastq")) +
+            glob.glob(os.path.join(input_folder, "*.fastq.gz"))
+        )
 
         if len(fastq_files) == 0:
             sys.stderr.write(f"ERROR: No FASTQ files found in {input_folder}\n")
@@ -157,70 +223,58 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
 
         _log("Using flat FASTQ layout", log_file)
 
-        # Group files by sample prefix
-        samples = {}
-        for f in fastq_files:
-            base = os.path.basename(f)
-            if "_R1" in base:
-                sample = base.split("_R1")[0]
-            elif "_R2" in base:
-                sample = base.split("_R2")[0]
+        samples = _collect_fastqs(input_folder, "merged")
 
-            else:
-                sys.stderr.write(f"WARNING: Skipping unrecognized FASTQ file name: {base}\n")
-                _log(f"WARNING: Skipping unrecognized FASTQ file name: {base}")
-                continue
-
-            if sample not in samples:
-                samples[sample] = []
-            samples[sample].append(f)
-
-        # Validate each sample
+        # Validate and log
         for sample, files in samples.items():
-            found = {"R1": False, "R2": False}
-            for f in files:
-                fname = os.path.basename(f)
-                for tag in found:
-                    if tag in fname:
-                        found[tag] = True
-
+            found = {"R1": "R1" in files, "R2": "R2" in files}
             missing = [k for k, v in found.items() if not v]
+
             if missing:
                 _log(
-                    f"WARNING: {sample} is missing {', '.join(missing)} file(s).", log_file
+                    f"WARNING: {sample} is missing {', '.join(missing)} file(s).",
+                    log_file
                 )
                 continue
 
-            if len(files) != 2:
+            if len(files) < 2:
                 _log(
-                    f"WARNING: {sample} should have 2 FASTQ files, but {len(files)} found.", log_file
+                    f"WARNING: {sample} should have at least R1 and R2, "
+                    f"but only {len(files)} FASTQs found.",
+                    log_file
                 )
                 continue
 
-    # ------------------------------------------------------------
-    # Case 2: Subdirectory layout — one folder per sample
-    # ------------------------------------------------------------
+    # ------------------------------------------------------------------
+    # CASE 2: SUBDIR layout
+    # ------------------------------------------------------------------
     elif Fastq_file_format == "subdir":
-        subdirs = [d for d in glob.glob(os.path.join(input_folder, "*")) if os.path.isdir(d)]
+        subdirs = [
+            d for d in glob.glob(os.path.join(input_folder, "*"))
+            if os.path.isdir(d)
+        ]
 
         if len(subdirs) == 0:
-            sys.stderr.write(f"ERROR: No sample subdirectories found in {input_folder}\n")
+            sys.stderr.write(
+                f"ERROR: No sample subdirectories found in {input_folder}\n"
+            )
             sys.exit(7)
 
         _log("Using per-sample subdirectory layout.\n", log_file)
 
+        samples = _collect_fastqs(input_folder, "subdir")
+
+        # Validate and log
         for folder in subdirs:
             sample_name = os.path.basename(folder)
-            fastqs = glob.glob(os.path.join(folder, "*.fastq")) + \
-                     glob.glob(os.path.join(folder, "*.fastq.gz"))
+            fastqs = (
+                glob.glob(os.path.join(folder, "*.fastq")) +
+                glob.glob(os.path.join(folder, "*.fastq.gz"))
+            )
 
             if len(fastqs) == 0:
-                _log(
-                    f"WARNING: {sample_name} has no FASTQ files", log_file
-                )
+                _log(f"WARNING: {sample_name} has no FASTQ files", log_file)
                 continue
-
-            _log(f"{sample_name} has FASTQ files", log_file)
 
             found = {"R1": False, "R2": False}
             for f in fastqs:
@@ -232,18 +286,31 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
             missing = [k for k, v in found.items() if not v]
             if missing:
                 _log(
-                    f"WARNING: {sample_name} is missing the {', '.join(missing)} file(s).", log_file
+                    f"WARNING: {sample_name} is missing {', '.join(missing)} file(s).",
+                    log_file
                 )
                 continue
 
-            if len(fastqs) != 2:
+            if len(fastqs) < 2:
                 _log(
-                    f"WARNING: {sample_name} should have exactly 2 FASTQ files, but {len(fastqs)} found.", log_file
+                    f"WARNING: {sample_name} should have at least 2 FASTQ files, "
+                    f"but {len(fastqs)} found.",
+                    log_file
                 )
                 continue
 
             _log(f"{sample_name} has the necessary FASTQ files (R1, R2)", log_file)
-            
+
+    # ------------------------------------------------------------------
+    # FINAL STEP — RETURN ONLY SAMPLES WITH BOTH R1 & R2
+    # ------------------------------------------------------------------
+    complete_samples = {
+        sample: files
+        for sample, files in samples.items()
+        if "R1" in files and "R2" in files
+    }
+
+    return complete_samples
 '''
 def PrepareSTARGenome(genome_dir, fasta_file, gtf_file, read_length, log_file):
     """
@@ -417,54 +484,6 @@ def PrepareSTARGenome(genome_dir, fasta_file, genome_index_params, splice_juncti
         sys.stderr.write(f"ERROR MESSAGE: STAR genome generation failed: {e}\n")
         sys.exit(11)
         
-def _pair_fastqs(input_dir, layout):
-
-    """
-    Match R1, R2, and optional I1 FASTQ files per sample.
-    
-    This helper function scans the input directory (or per-sample subdirectories)
-    and pairs sequencing files for each sample based on filename prefixes. It works
-    for both 'merged' (all files in one directory) and 'subdir' (one folder per sample) layouts.
-
-    Notes:
-        - Expects FASTQ filenames to contain '_R1', '_R2', and optionally '_I1'.
-        - Does not validate that all paired files exist; just groups them.
-        - Returns a dictionary suitable for feeding into STAR/STARsolo commands.
-        
-    Args:
-            input_dir (str): Absolute or relative path to the input FASTQ folder.
-            layout (str): Organization style of FASTQ files:
-                  - 'merged': all FASTQs in a single directory.
-                  - 'subdir': one subdirectory per sample containing FASTQs.
-
-    Returns:
-        dict: Nested dictionary of samples and their corresponding FASTQ paths:
-    """
-
-    fastq_files = []
-
-    if layout == "merged":
-        fastq_files = glob.glob(os.path.join(input_dir, "*.fastq*"))
-    elif layout == "subdir":
-        subdirs = [d for d in glob.glob(os.path.join(input_dir, "*")) if os.path.isdir(d)]
-        for sd in subdirs:
-            fastq_files.extend(glob.glob(os.path.join(sd, "*.fastq*")))
-
-    samples = {}
-    for f in fastq_files:
-        base = os.path.basename(f)
-        if "_R1" in base:
-            prefix = base.split("_R1")[0]
-            samples.setdefault(prefix, {})["R1"] = f
-        elif "_R2" in base:
-            prefix = base.split("_R2")[0]
-            samples.setdefault(prefix, {})["R2"] = f
-        # Optional: index reads if present
-        elif "_I1" in base:
-            prefix = base.split("_I1")[0]
-            samples.setdefault(prefix, {})["I1"] = f
-
-    return samples
 
 
 def RunSTARUnified(configuration, log_file, solo=False):
@@ -526,13 +545,10 @@ def RunSTARUnified(configuration, log_file, solo=False):
         output_dir = configuration.get("STAR_outdir", os.path.join(input_dir, "STAR_out"))
         params = configuration.get("STAR_params", {})
 
-    samples = _pair_fastqs(input_dir, layout)
+    # Get validated samples (CheckFASTQFiles now ensures proper R1/R2 presence)
+    samples = CheckFASTQFiles(input_dir, layout, log_file)
 
     for sample, files in samples.items():
-        if "R1" not in files or "R2" not in files:
-            _log(f"Skipping {sample}: missing R1 or R2.", log_file)
-            continue
-
         sample_out = os.path.join(output_dir, sample)
         os.makedirs(sample_out, exist_ok=True)
 
@@ -563,7 +579,6 @@ def RunSTARUnified(configuration, log_file, solo=False):
             _log(f"ERROR: {mode} failed for {sample}: {e}", log_file)
             sys.stderr.write(f"ERROR MESSAGE: {mode} failed for {sample}: {e}\n")
             continue
-
 
 def QC_10x(output_folder, log_file):
     """
@@ -762,20 +777,15 @@ def NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, log_file):
             _log(f"Normalizing sample: {sample}", log_file)
             adata = sc.read_h5ad(input_h5ad)
 
-            # Normalization steps
-            sc.pp.normalize_total(adata, target_sum=1e4)
-            sc.pp.log1p(adata)
-            sc.pp.scale(adata, max_value=10)
-
             if HVG_selection:
                 adata_hvg = sc.pp.highly_variable_genes(
                     adata,
                     n_top_genes = number_top_genes,
-                    flavour = 'seurat_v3'
-                )
+                    flavor = 'seurat_v3'
+                    )
                 adata_hvg.write(output_hvg_h5ad)
                 _log(f"Saved normalized HVG data for {sample} to {output_hvg_h5ad}", log_file)
-
+                
                 norm_hvg_count_matix = pd.DataFrame(
                     adata_hvg.X.toarray() if hasattr(adata_hvg.X, "toarray") else adata_hvg.X,
                     index = adata_hvg.obs_names,
@@ -783,6 +793,11 @@ def NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, log_file):
                 )
                 norm_hvg_count_matix.to_csv(output_hvg_tsv, sep = '\t')
                 _log(f"Saved normalized data for {sample} to {output_hvg_tsv}", log_file)
+                
+            # Normalization steps
+            sc.pp.normalize_total(adata, target_sum=1e4)
+            sc.pp.log1p(adata)
+            sc.pp.scale(adata, max_value=10)
 
             # Save normalized file
             adata.write(output_h5ad)
