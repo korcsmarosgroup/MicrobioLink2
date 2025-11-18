@@ -26,9 +26,7 @@
 #'
 #' @export
 
-
 check_fastq_files <- function(input_dir, Fastq_file_format, log_file) {
-
   # ------------------------------------------------------------
   # Validate Fastq_file_format
   # ------------------------------------------------------------
@@ -42,49 +40,51 @@ check_fastq_files <- function(input_dir, Fastq_file_format, log_file) {
   #
 
   if (Fastq_file_format == "merged") {
-    fastq.files <- list.files(input_dir, pattern = "fastq|fastq.gz", recursive = FALSE)
+    fastq.files <- list.files(input_dir, pattern = "fastq(\\.gz)?$", recursive = FALSE)
     if (length(fastq.files) == 0) {
       stop(paste0("ERROR CODE 6: No FASTQ files found in ", input_dir))
     }
 
-    tags <- c("R1", "R2", "I1")
+    write_log("Using flat FASTQ layout", log_file)
 
-    group_names <- sub("^([^_]+)_.*$", "\\1", fastq.files)
+    group_names <- sub("[._-]?R[12]\\.fastq(\\.gz)?$", "", fastq.files, perl = TRUE)
+    group_names <- sub("[._-]$", "", group_names)
     group_names <- unique(group_names)
 
     samples <- list()
-    for (g in group_names) {
-      samples[[g]] <- list(
-        R1 = NULL,
-        R2 = NULL,
-        I1 = NULL
-      )
-    }
 
-    for (sample in names(samples)) {
-      pattern <- sample
-      for (tag in (names(samples[[sample]]))) {
-        for (f in fastq.files) {
-          if (grepl(sample, f) && grepl(tag, f)) {
-            samples[[sample]][[tag]] <- f
-          }
+    for (g in group_names) {
+      for (file in fastq.files) {
+        if (grepl("(^|[._-])R1([._-]|$)", file) && (grepl("(^|[._-])R1([._-]|$)", file))) {
+          samples[[g]][["R1"]] <- file
+        } else if ((grepl("(^|[._-])R2([._-]|$)", file)) && (grepl("(^|[._-])R2([._-]|$)", file))) {
+          samples[[g]][["R2"]] <- file
+        } else {
+          warning(paste0("Skipping unrecognised file name: ", f))
+          write_log(paste0("WARNING: Skipping unrecognised file name", f), log_file)
+          next
         }
       }
     }
 
-    for (tag in names(samples[[sample]])) {
-      value <- samples[[sample]][[tag]]
-      if (is.null(value) || is.na(value)) {
-        message(sample, " ", tag, " file is missing")
+    for (sample in names(samples)) {
+      missing_tags <- c()
+      if (!("R1" %in% names(samples[[sample]]))) {
+        missing_tags <- paste0(sample, "_R1")
+        warning(sample, " R1 file is missing")
+      }
+      if (!"R2" %in% names(samples[[sample]])) {
+        missing_tags <- paste0(sample, "_R2")
+        warning(sample, " R2 file is missing")
+      }
+      if (length(missing_tags) > 0) {
+        warning(paste0(
+          sample, " should have 2 FASTQ files. But only ", 2 - (length(missing_tags)), " files found."
+        ))
       }
     }
 
-    for (sample in names(samples)) {
-      missing_tags <- names(samples[[sample]])[sapply(samples[[sample]], is.null)]
-      if (length(missing_tags) > 0) {
-        message(paste0(sample, " should have 3 FASTQ files. But only ", 3 - (length(missing_tags)), " files found."))
-      }
-    }
+    return(samples)
   }
 
   # ------------------------------------------------------------
@@ -92,66 +92,69 @@ check_fastq_files <- function(input_dir, Fastq_file_format, log_file) {
   # ------------------------------------------------------------
 
   else if (Fastq_file_format == "subdir") {
-    subdirs <- list.dirs(input_dir, recursive = FALSE)
+    subdirs <- list.dirs(input_dir, recursive = FALSE, full.names = TRUE)
 
     if (length(subdirs) == 0) {
-      stop(paste0("ERROR CODE 7: No sample subdirectories found in ", subdirs))
+      stop(paste0("ERROR CODE 7: No sample subdirectories found in ", input_dir))
     }
 
-    write_log("Using per-sample subdirectory layout", log_file)
+    write_log("Using per-sample subdirectory layout.", log_file)
 
+    samples <- list()
     for (folder in subdirs) {
-      sample_name <- basename(folder)
-      fastqs <- list.files(folder, pattern = "fastq|fastq.gz", recursive = FALSE)
+      base_name <- basename(folder)
+      fastqs <- list.files(folder, pattern = "fastq(\\.gz)?$", recursive = FALSE)
       if (length(fastqs) == 0) {
-        write_log(paste0("WARNING: ", sample_name, " has no FASTQ files"), log_file)
-        # TODO: Check how can we implement a python continue-equivalent method here
-        # Aim: Not stop the whole script, just jump to the next folder in the for loop
+        write_log(paste0("WARNING: ", base_name, " has no FASTQ files"), log_file)
+        next
       } else {
-        write_log(paste0(sample_name, " has FASTQ files"), log_file)
-      }
+        write_log(paste0("WARNING: ", base_name, " has FASTQ files"), log_file)
+        group_name <- sub("[._-]?R[12]\\.fastq(\\.gz)?$", "", fastqs, perl = TRUE)
+        group_name <- sub("[._-]$", "", group_name)
+        group_name <- unique(group_name)
 
-      group_names <- sub("^([^_]+)_.*$", "\\1", fastqs)
-      group_names <- unique(group_names)
-
-      samples <- list()
-      for (g in group_names) {
-        samples[[g]] <- list(
-          R1 = NULL,
-          R2 = NULL,
-          I1 = NULL
-        )
-      }
-
-      for (sample in names(samples)) {
-        pattern <- sample
-        for (tag in (names(samples[[sample]]))) {
-          for (f in fastqs) {
-            if (grepl(sample, f) && grepl(tag, f)) {
-              samples[[sample]][[tag]] <- f
+        samples_entry <- list()
+        for (f in fastqs) {
+          if (grepl("(^|[._-])R1([._-]|$)", f)) {
+            if (!("R1" %in% names(samples_entry))) {
+              samples_entry[["R1"]] <- f
+            } else {
+              stop(paste0("ERROR: Multiple R1 files found in folder ", folder))
             }
+          } else if (grepl("(^|[._-])R2([._-]|$)", f)) {
+            if (!("R2" %in% names(samples_entry))) {
+              samples_entry[["R2"]] <- f
+            } else {
+              stop(paste0("ERROR: Multiple R2 files found in folder ", folder))
+            }
+          } else {
+            warning(paste0("Skipping unrecognised file name: ", f))
+            write_log(paste0("WARNING: Skipping unrecognised file name", f), log_file)
+            next
           }
         }
+        samples[[group_name]] <- samples_entry
       }
-
-      for (tag in names(samples[[sample]])) {
-        value <- samples[[sample]][[tag]]
-        if (is.null(value) || is.na(value)) {
-          warning(sample, " ", tag, " file is missing")
-          write_log(paste0("WARNING: ", sample, " is missing", tag, " file"), log_file)
-        }
-      }
-
-      for (sample in names(samples)) {
-        missing_tags <- names(samples[[sample]])[sapply(samples[[sample]], is.null)]
-        if (length(missing_tags) > 0) {
-          message(paste0(
-            sample, " should have 3 FASTQ files. But only ", 3 - (length(missing_tags)),
-            " files found."
-          ))
-        }
-      }
-      write_log(paste0(sample_name, " has the necessary FASTQ files (R1, R2, R3"), log_file)
     }
+
+    for (sample in names(samples)) {
+      missing_tags <- c()
+      if (!("R1" %in% names(samples[[sample]]))) {
+        missing_tags <- paste0(sample, "_R1")
+        warning(sample, " R1 file is missing")
+      }
+      if (!"R2" %in% names(samples[[sample]])) {
+        missing_tags <- paste0(sample, "_R2")
+        warning(sample, " R2 file is missing")
+      }
+      if (length(missing_tags) > 0) {
+        warning(paste0(
+          sample, " should have 2 FASTQ files. But only ", 2 - (length(missing_tags)), " files found."
+        ))
+      } else {
+        write_log(paste0(sample, " has the necessary FASTQ files (R1, R2)"))
+      }
+    }
+    return(samples)
   }
 }
