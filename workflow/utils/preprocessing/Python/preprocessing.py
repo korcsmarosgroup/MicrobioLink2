@@ -543,13 +543,13 @@ def RunSTARUnified(configuration, log_file, solo=False):
         if platform != "droplet":
             _log(f"Platform is not droplet ({platform}). Skipping STARsolo.", log_file)
             return
-        output_dir = configuration.get("STARsolo_outdir", os.path.join(input_dir, "STARsolo_out"))
+        output_dir = os.path.join(output_dir, "STARsolo_out")
         params = configuration.get("STARsolo_params", {})
     else:
         if platform != "microwell":
             _log(f"Platform '{platform}' is not microwell. Skipping STAR.", log_file)
             return
-        output_dir = configuration.get("STAR_outdir", os.path.join(input_dir, "STAR_out"))
+        output_dir = os.path.join(output_dir, "STAR_out")
         params = configuration.get("STAR_params", {})
 
     # Get validated samples (CheckFASTQFiles now ensures proper R1/R2 presence)
@@ -597,10 +597,11 @@ def QC_10x(output_folder, log_file):
       - Detect potential doublets using Scrublet
     """
 
-    for sample in os.listdir(output_folder):
-        sample_path = os.path.join(output_folder, sample)
-        raw_dir = os.path.join(sample_path, "raw")
-        filtered_dir = os.path.join(sample_path, "filtered")
+    checking_directory = os.path.join(output_folder, "STARsolo_out")
+    for sample in os.listdir(checking_directory):
+        sample_path = os.path.join(checking_directory, sample)
+        raw_dir = os.path.join(sample_path, "Solo.out", "Gene", "raw")
+        filtered_dir = os.path.join(sample_path, "Solo.out", "Gene", "filtered")
 
         if not os.path.isdir(filtered_dir):
             _log(f"Skipping {sample}: no filtered directory found.", log_file)
