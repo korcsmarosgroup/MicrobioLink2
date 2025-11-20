@@ -18,7 +18,7 @@ main <- function() {
 
   log_file <- checking_log_file(config_folder)
 
-  print(log_file)
+  log_file <- file.path(config_folder, "preprocessing.log")
 
   write_log("Log file created", log_file)
 
@@ -49,8 +49,11 @@ main <- function() {
 
   genome_dir <- configuration$genome_dir
   fasta_file <- configuration$fasta_file
-  gtf_file <- configuration$gtf_file
-  read_length <- configuration$read_length
+  genome_index_params <- configuration$genome_index_params
+  splice_junction_params <- configuration$splice_junction_params
+  HVG_selection <- configuration$HVG_selection
+  number_top_genes <- configuration$number_top_genes
+
   # Validate config values before running
   if (any(sapply(list(genome_dir, fasta_file, gtf_file, read_length), is.null))) {
     stop("ERROR CODE 10: Missing required genome preparation parameters in configuration file.")
@@ -64,6 +67,7 @@ main <- function() {
 
   if (isTRUE(platform == "droplet")) {
     run_STAR_unified(configuration, log_file, solo = TRUE)
+    QC_10x(output_folder, log_file)
   } else if (isTRUE(platform == "microwell")) {
     run_STAR_unified(configuration, log_file, solo = FALSE)
   } else {
@@ -71,4 +75,6 @@ main <- function() {
     write_log(msg, log_file)
     stop(paste0("ERROR CODE 12: ", msg))
   }
+
+  normalize_all_samples(output_dir, HVG_selection, number_top_genes, log_file)
 }

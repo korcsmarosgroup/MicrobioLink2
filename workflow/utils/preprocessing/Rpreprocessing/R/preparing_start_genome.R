@@ -31,14 +31,13 @@ usethis::use_package("processx", type = "Imports")
 # Check for existing valid STAR index
 # ------------------------------------------------------------
 
-prepare_STAR_genome <- function(genome_dir, fasta_file, gtf_file, read_length, log_file) {
-
+prepare_STAR_genome <- function(genome_dir, fasta_file, genome_index_params, splice_junction_params, log_file) {
   if (dir.exists(genome_dir)) {
     existing_files <- unlist(list.files(genome_dir))
     required_files <- c("Genome", "SA", "SAIndex")
 
     if ((length(required_files %in% existing_files)) == 3) {
-      write_log(paste0("STAR genome index already exists at ", genome_dir, " Skipping generation."), log_file)
+      write_log(paste0("STAR genome index already exists at ", genome_dir, ". Skipping generation."), log_file)
       return(NULL)
     }
   }
@@ -56,7 +55,12 @@ prepare_STAR_genome <- function(genome_dir, fasta_file, gtf_file, read_length, l
   # Build STAR command
   # ------------------------------------------------------------
 
-  sjdbOverhang_value <- as.character(as.integer(read_length) - 1)
+  sjdbGTFfile <- splice_junction_params$sjdbGTFfile
+  sjdbOverhang <- as.character(splice_junction_params$sjdbOverhang)
+  genomeChrBinNbits <- as.character(genome_index_params$genomeChrBinNbits)
+  genomeSAindexNbases <- as.character(genome_index_params$genomeSAindexNbases)
+  genomeSAsparseD <- as.character(genome_index_params$genomeSAsparseD)
+  genomeSuffixLengthMax <- as.character(genome_index_params$genomeSuffixLengthMax)
 
   cmd_base <- "STAR"
   cmd_args <- list(
@@ -64,10 +68,34 @@ prepare_STAR_genome <- function(genome_dir, fasta_file, gtf_file, read_length, l
     paste("--runMode", "genomeGenerate"),
     paste("--genomeDir", shQuote(genome_dir)),
     paste("--genomeFastaFiles", shQuote(fasta_file)),
-    paste("--sjdbGTFfile", shQuote(gtf_file)),
-    paste("--sjdbOverhang", shQuote(sjdbOverhang_value))
+    paste("--sjdbGTFfile", shQuote(sjdbGTFfile)),
+    paste("--sjdbOverhang", shQuote(sjdbOverhang)),
+    paste("--genomeChrBinNbits", shQuote(genomeChrBinNbits)),
+    paste("--genomeSAindexNbases", shQuote(genomeSAindexNbases)),
+    paste("--genomeSAsparseD", shQuote(genomeSAsparseD)),
+    paste("--genomeSuffixLengthMax", shQuote(genomeSuffixLengthMax))
   )
-  cmd <- c(cmd_base, cmd_args)
+
+  sjdbGTFchrPrefix <- splice_junction_params$sjdbGTFchrPrefix
+  sjdbGTFfeatureExon <- splice_junction_params$sjdbGTFfeatureExon
+  sjdbGTFtagExonParentTranscript <- splice_junction_params$sjdbGTFtagExonParentTranscript
+  sjdbGTFtagExonParentGene <- splice_junction_params$sjdbGTFtagExonParentGene
+  sjdbGTFtagExonParentGeneName <- splice_junction_params$sjdbGTFtagExonParentGeneName
+  sjdbGTFtagExonParentGeneType <- splice_junction_params$sjdbGTFtagExonParentGeneType
+  sjdbScore <- as.character(splice_junction_params$sjdbScore)
+
+  cmd_splice_junction_tags <- list(
+    paste("--sjdbGTFchrPrefix", shQuote(sjdbGTFchrPrefix)),
+    paste("--sjdbGTFfeatureExon", shQuote(sjdbGTFfeatureExon)),
+    paste("--sjdbGTFtagExonParentTranscript", shQuote(sjdbGTFtagExonParentTranscript)),
+    paste("--sjdbGTFtagExonParentGene", shQuote(sjdbGTFtagExonParentGene)),
+    paste("--sjdbGTFtagExonParentGeneName", shQuote(sjdbGTFtagExonParentGeneName)),
+    paste("--sjdbGTFtagExonParentGeneType", shQuote(sjdbGTFtagExonParentGeneType)),
+    paste("--sjdbScore", shQuote(sjdbScore)),
+    paste("--sjdbInsertSave", shQuote(splice_junction_params$sjdbInsertSave))
+  )
+
+  cmd <- c(cmd_base, cmd_args, cmd_splice_junction_tags)
 
   pipeline <- paste(cmd, collapse = " ")
 

@@ -19,10 +19,8 @@
 #'    ERROR CODE 5: Invalid Fastq_file_format
 #'    ERROR CODE 6: No FASTQ files found (merged layout)
 #'    ERROR CODE 7: Subdirectory missing R1/R2/I1 (subdir layout)
-#'    ERROR CODE 8: Subdirectory has wrong number of files (subdir layout)
 #'
-#' @return NULL
-#'    The function does not return any value. If all checks pass, execution continues normally.
+#' @return
 #'
 #' @export
 
