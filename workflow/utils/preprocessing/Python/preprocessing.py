@@ -535,6 +535,7 @@ def RunSTARUnified(configuration, log_file, solo=False):
 """
     platform = configuration.get("platform", "").lower()
     input_dir = configuration.get("input_dir")
+    output_dir = configuration.get("output_dir")
     genome_dir = configuration.get("genome_dir")
     threads = configuration.get("threads", 4)
     layout = configuration.get("Fastq_file_format", "merged")
