@@ -5,6 +5,7 @@
 from time import strftime
 import scanpy as sc
 import subprocess
+import shutil
 import sys
 import os
 import yaml
@@ -15,35 +16,22 @@ import pandas as pd
 import numpy as np
 from scipy.stats import gaussian_kde
 
+def get_log_file(config_folder):
+    """
+    Create a timestamped log filename.
+    Example:
+        preprocessing_2025-11-18_14-26-30.log
+    """
+    timestamp = strftime("%Y-%m-%d_%H-%M-%S")
+    return f"{config_folder}/preprocessing_{timestamp}.log"
+
+
 def _log(message, log_file):
     """
     Log a message with a timestamp.
-    
-    Args:
-        message:
-            The actual commit message before push
-        log_file:
-            The path of the log file
     """
-
     with open(log_file, "a") as log:
         log.write(f"[{strftime('%Y-%m-%d %H:%M:%S')}] {message}\n")
-
-
-def CheckingLogFile(config_folder):
-    """
-    Checking the log file and if it exists if will delete it.
-
-    Args:
-        config_folder:
-            The system-based absolute path of this script (because the 
-            configuration file needs to be next to it).
-    """
-
-    log_file = f"{config_folder}/preprocessing.log"
-
-    if os.path.isfile(log_file):
-        os.remove(log_file)
 
 
 def CheckingConfiguration(config_folder):
@@ -107,6 +95,25 @@ def LoadingConfiguration(configuration_file_path, log_file):
         sys.exit(3)
 
     return configuration
+
+def backup_config(config_folder, output_folder):
+    """
+    Copy only YAML configuration files (*.yaml, *.yml)
+    into a timestamped backup folder.
+    """
+    timestamp = strftime("%Y-%m-%d_%H-%M-%S")
+    backup_path = os.path.join(output_folder, f"config_backup_{timestamp}")
+
+    os.makedirs(backup_path, exist_ok=True)
+
+    # Copy only YAML files
+    for filename in os.listdir(config_folder):
+        if filename.endswith(".yaml") or filename.endswith(".yml"):
+            src = os.path.join(config_folder, filename)
+            dst = os.path.join(backup_path, filename)
+            shutil.copy2(src, dst)
+
+    return backup_path
 
 def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
     """
@@ -831,10 +838,11 @@ def main():
     """
 
     config_folder = os.path.dirname(os.path.abspath(__file__))
-    logfile = CheckingLogFile(config_folder)
-    logfile = f"{config_folder}/preprocessing.log"  
+    logfile = get_log_file(config_folder)
 
     _log("Log file created", logfile)
+    
+
 
     configuration_file_path = CheckingConfiguration(config_folder)
 
@@ -842,6 +850,13 @@ def main():
     
     configuration = LoadingConfiguration(configuration_file_path, logfile)
     _log("Configuration file successfully loaded.", logfile)
+    
+    output_dir = configuration.get("output_dir")
+    
+    # Timestamped config backup
+    backup_path = backup_config(config_folder, output_dir)
+    _log(f"Configuration folder backed up to: {backup_path}", logfile)
+
     
     input_dir = configuration.get("input_dir")
     Fastq_file_format = configuration.get("Fastq_file_format")  # must be "merged" or "subdir"
@@ -860,14 +875,14 @@ def main():
     CheckFASTQFiles(input_dir, Fastq_file_format, logfile)
     _log("FASTQ file structure successfully validated.", logfile)
     
-    output_dir = configuration.get("output_dir")
+
     genome_dir = configuration.get("genome_dir")
     fasta_file = configuration.get("fasta_file")
     genome_index_params = configuration.get("genome_index_params", {})
     splice_junction_params = configuration.get("splice_junction_params", {})
     HVG_selection = configuration.get("HVG_selection")
     number_top_genes = configuration.get("number_top_genes")
-
+    
     # Validate required genome parameters
     if not all([genome_dir, fasta_file, genome_index_params, splice_junction_params]):
         sys.stderr.write("ERROR: Missing required genome preparation parameters in configuration file.\n")
