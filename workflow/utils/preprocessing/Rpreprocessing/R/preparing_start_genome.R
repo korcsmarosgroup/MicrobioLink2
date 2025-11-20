@@ -106,7 +106,7 @@ prepare_STAR_genome <- function(genome_dir, fasta_file, genome_index_params, spl
   STAR_result <- tryCatch(
     {
       write_log(paste0("Running STAR command: ", pipeline), log_file)
-      result <- processx::run(cmd_base, unlist(cmd_args), error_on_status = TRUE)
+      result <- processx::run(cmd_base, c(unlist(cmd_args), unlist(cmd_splice_junction_tags)), error_on_status = TRUE)
       write_log(paste0("STAR genome index generated at ", genome_dir), log_file)
       return(result)
     },
