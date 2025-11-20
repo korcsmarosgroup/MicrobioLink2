@@ -35,7 +35,7 @@ check_fastq_files <- function(input_dir, Fastq_file_format, log_file) {
 
   #
   # --------------------------------------------------------
-  #   Case 1: Flat layout - all FASTQs in one directory
+  #   Case 1: Merged layout - all FASTQs in one directory
   # --------------------------------------------------------
   #
 
@@ -45,7 +45,7 @@ check_fastq_files <- function(input_dir, Fastq_file_format, log_file) {
       stop(paste0("ERROR CODE 6: No FASTQ files found in ", input_dir))
     }
 
-    write_log("Using flat FASTQ layout", log_file)
+    write_log("Using merged FASTQ layout", log_file)
 
     group_names <- sub("[._-]?R[12]\\.fastq(\\.gz)?$", "", fastq.files, perl = TRUE)
     group_names <- sub("[._-]$", "", group_names)
