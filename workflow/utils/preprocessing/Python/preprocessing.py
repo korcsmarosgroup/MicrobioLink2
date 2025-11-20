@@ -228,7 +228,7 @@ def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
             sys.stderr.write(f"ERROR: No FASTQ files found in {input_folder}\n")
             sys.exit(6)
 
-        _log("Using flat FASTQ layout", log_file)
+        _log("Using merged FASTQ layout", log_file)
 
         samples = _collect_fastqs(input_folder, "merged")
 
@@ -574,7 +574,7 @@ def RunSTARUnified(configuration, log_file, solo=False):
         # Add STAR/STARsolo parameters
         for param, value in params.items():
             cmd.append(f"--{param}")
-            if str(value).lower() not in ("none", ""):
+            if str(value).lower() not in (""):
                 cmd.append(str(value))
 
         try:
@@ -836,6 +836,8 @@ def main():
     ERROR CODE 10:  Missing required genome preparation parameters in configuration file
     ERROR CODE 12: Platform is '{platform}'. No processing available for this platform. Exiting
     """
+
+    # TODO: Implement chmod 777 for the input folder to avoid any kind of file permission errors
 
     config_folder = os.path.dirname(os.path.abspath(__file__))
     logfile = get_log_file(config_folder)

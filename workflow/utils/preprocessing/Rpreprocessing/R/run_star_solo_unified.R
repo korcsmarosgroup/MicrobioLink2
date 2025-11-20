@@ -56,8 +56,6 @@ run_STAR_unified <- function(configuration, log_file, solo = FALSE) {
     }
   }
 
-  samples <- pair_fastqs(input_dir, layout)
-
   for (sample in names(samples)) {
     files <- samples[[sample]]
     found <- sapply(tags, function(tag) any(grepl(tag, files)))
