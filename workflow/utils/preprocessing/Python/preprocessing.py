@@ -98,23 +98,28 @@ def LoadingConfiguration(configuration_file_path, log_file):
 
 def backup_config(config_folder, output_folder):
     """
-    Copy only YAML configuration files (*.yaml, *.yml)
-    into a timestamped backup folder.
+    Copy YAML files (*.yaml, *.yml) from config_folder into output_folder.
+    Adds a timestamp to each file name instead of creating a backup folder.
+    Example: config.yaml → config_2025-02-10_15-32-18.yaml
     """
     timestamp = strftime("%Y-%m-%d_%H-%M-%S")
-    backup_path = os.path.join(output_folder, f"config_backup_{timestamp}")
 
-    os.makedirs(backup_path, exist_ok=True)
+    os.makedirs(output_folder, exist_ok=True)
 
-    # Copy only YAML files
     for filename in os.listdir(config_folder):
         if filename.endswith(".yaml") or filename.endswith(".yml"):
             src = os.path.join(config_folder, filename)
-            dst = os.path.join(backup_path, filename)
+
+            # Split filename into name + extension
+            name, ext = os.path.splitext(filename)
+
+            # New filename with timestamp
+            new_filename = f"{name}_{timestamp}{ext}"
+            dst = os.path.join(output_folder, new_filename)
+
             shutil.copy2(src, dst)
 
-    return backup_path
-
+    return output_folder
 def CheckFASTQFiles(input_folder, Fastq_file_format, log_file):
     """
     Validate FASTQ inputs and return only samples with complete paired-end data.
@@ -857,9 +862,10 @@ def main():
     
     output_dir = configuration.get("output_dir")
     
-    # Timestamped config backup
-    backup_path = backup_config(config_folder, output_dir)
-    _log(f"Configuration folder backed up to: {backup_path}", logfile)
+    # Run backup
+    result_path = backup_config(config_folder, output_dir)
+
+    print(f"Backup complete! Files saved to: {result_path}")
 
     
     input_dir = configuration.get("input_dir")
