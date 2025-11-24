@@ -604,6 +604,13 @@ def QC_10x(output_folder, log_file):
       - Detect potential doublets using Scrublet
     """
 
+    files_to_gzip = [
+        ("matrix.mtx", "matrix.mtx.gz"),
+        ("barcodes.tsv", "barcodes.tsv.gz"),
+        ("features.tsv", "features.tsv.gz")
+    ]
+
+
     checking_directory = os.path.join(output_folder, "STARsolo_out")
     for sample in os.listdir(checking_directory):
         sample_path = os.path.join(checking_directory, sample)
@@ -614,20 +621,25 @@ def QC_10x(output_folder, log_file):
             _log(f"Skipping {sample}: no filtered directory found.", log_file)
             continue
 
-        mtx = os.path.join(filtered_dir, "matrix.mtx")
-        mtx_gz = os.path.join(filtered_dir, "matrix.mtx.gz")
+        for in_name, out_name in files_to_gzip:
+            in_path = os.path.join(filtered_dir, in_name)
+            out_path = os.path.join(filtered_dir, out_name)
 
-        if not os.path.isfile(mtx_gz):
-            if os.path.isfile(mtx):
-                _log(f"Gzipping matrix.mtx for {sample}", log_file)
+            # If gz file exists already, skip
+            if os.path.isfile(out_path):
+                continue
+
+            # If ungzipped file exists, compress it
+            if os.path.isfile(in_path):
+                _log(f"Gzipping {in_name} for {sample}", log_file)
                 try:
-                    with open(mtx, "rb") as f_in, gzip.open(mtx_gz, "wb") as f_out:
+                    with open(in_path, "rb") as f_in, gzip.open(out_path, "wb") as f_out:
                         shutil.copyfileobj(f_in, f_out)
                 except Exception as e:
-                    _log(f"ERROR gzipping matrix.mtx for {sample}: {e}", log_file)
+                    _log(f"ERROR gzipping {in_name} for {sample}: {e}", log_file)
                     continue
             else:
-                _log(f"ERROR: Neither matrix.mtx.gz nor matrix.mtx found for {sample}", log_file)
+                _log(f"ERROR: {in_name} and {out_name} both missing for {sample}", log_file)
                 continue
 
         # --- Load data ---
