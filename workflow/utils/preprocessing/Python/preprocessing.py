@@ -2,19 +2,20 @@
 # or it will take a raw count matrix from a scRNA-seq analysis
 
 
+from scipy.stats import gaussian_kde
+import matplotlib.pyplot as plt
 from time import strftime
+import scrublet as scr
+import pandas as pd
 import scanpy as sc
+import numpy as np
 import subprocess
 import shutil
-import sys
-import os
+import gzip
 import yaml
 import glob
-import scrublet as scr
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
-from scipy.stats import gaussian_kde
+import sys
+import os
 
 def get_log_file(config_folder):
     """
@@ -612,6 +613,22 @@ def QC_10x(output_folder, log_file):
         if not os.path.isdir(filtered_dir):
             _log(f"Skipping {sample}: no filtered directory found.", log_file)
             continue
+
+        mtx = os.path.join(filtered_dir, "matrix.mtx")
+        mtx_gz = os.path.join(filtered_dir, "matrix.mtx.gz")
+
+        if not os.path.isfile(mtx_gz):
+            if os.path.isfile(mtx):
+                _log(f"Gzipping matrix.mtx for {sample}", log_file)
+                try:
+                    with open(mtx, "rb") as f_in, gzip.open(mtx_gz, "wb") as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+                except Exception as e:
+                    _log(f"ERROR gzipping matrix.mtx for {sample}: {e}", log_file)
+                    continue
+            else:
+                _log(f"ERROR: Neither matrix.mtx.gz nor matrix.mtx found for {sample}", log_file)
+                continue
 
         # --- Load data ---
         try:
