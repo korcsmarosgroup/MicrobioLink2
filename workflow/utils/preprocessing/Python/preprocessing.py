@@ -691,7 +691,7 @@ def QC_10x(output_folder, n_genes_by_counts_thres, pct_counts_mt_thres, total_co
         _log(f"Filtering low-quality cells for {sample}", log_file)
         before = adata.n_obs
         adata = adata[
-            (adata.obs["n_genes_by_counts"] < n_genes_by_counts_thres)
+            (adata.obs["n_genes_by_counts"] > n_genes_by_counts_thres)
             & (adata.obs["pct_counts_mt"] < pct_counts_mt_thres)
             & (adata.obs["total_counts"] > total_counts_thres)
         ].copy()
