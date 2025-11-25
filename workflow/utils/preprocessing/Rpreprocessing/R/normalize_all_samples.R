@@ -1,5 +1,3 @@
-usethis::use_package("readr", type = "Imports")
-
 #'  normalize_all_samples
 #'
 #'  Normalize all QC-filtered .h5ad files from each sample directory.

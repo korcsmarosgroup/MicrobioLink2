@@ -14,16 +14,17 @@ usethis::use_package("Seurat", type = "Imports")
 # output folder = sample1_Solo.out
 
 QC_10x <- function(output_folder, log_file) {
+  checking_directory <- file.path(output_folder, "STARSolo_out")
   # sample1, sample2, sample3, ...
-  dir_list <- list.dirs(output_folder, recursive = FALSE, full.names = FALSE)
+  dir_list <- list.dirs(checking_directory, recursive = FALSE, full.names = FALSE)
   # sample1
   for (sample in dir_list) {
     # output_folder/sample1
-    sample_path <- file.path(ouput_folder, sample)
+    sample_path <- file.path(checking_directory, sample)
     # output_folder/sampl1/raw
-    raw_dir <- file.path(sample_path, "raw")
+    raw_dir <- file.path(sample_path, "Solo.out", "Gene", "raw")
     # output_folder/sample_1/filtered
-    filtered_dir <- file.path(sample_path, "filtered")
+    filtered_dir <- file.path(sample_path, "Solo.out", "Gene", "filtered")
 
     if (!dir.exists(filtered_dir)) {
       write_log(paste0("Skipping ", sample, " : no filtered directory found."), log_file)

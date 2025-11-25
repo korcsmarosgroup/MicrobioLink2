@@ -10,7 +10,8 @@
 #' @export
 
 checking_log_file <- function(config_folder) {
-  log_file <- file.path(config_folder, "preprocessing.log")
+  timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+  log_file <- file.path(config_folder, paste0("preprocessing_", timestamp, ".log"))
   if (file.exists(log_file)) {
     file.remove(log_file)
   }

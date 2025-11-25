@@ -19,6 +19,7 @@ Roxygen: list(markdown = TRUE)
 Imports: 
     Matrix,
     processx,
+    readr,
     Seurat,
     this.path,
     yaml

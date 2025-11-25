@@ -52,7 +52,7 @@ prepare_STAR_genome <- function(genome_dir, fasta_file, genome_index_params, spl
   }
 
   # ------------------------------------------------------------
-  # Build STAR command
+  # Build STAR genomeGenerate command
   # ------------------------------------------------------------
 
   sjdbGTFfile <- splice_junction_params$sjdbGTFfile
@@ -76,6 +76,30 @@ prepare_STAR_genome <- function(genome_dir, fasta_file, genome_index_params, spl
     paste("--genomeSuffixLengthMax", shQuote(genomeSuffixLengthMax))
   )
 
+  # Optional genome transform
+  genome_transform_type <- genome_index_params$genomeTransformType
+  genome_transform_VCF <- genome_index_params$genomeTransformVCF
+  if (!is.null(genome_transform_type)) {
+    cmd_transform <- list(
+      paste("--genomeTransformType", shQuote(genome_transform_type))
+    )
+    cmd_args <- c(cmd_args, cmd_transform)
+    if (file.exists(genome_transform_VCF)) {
+      cmd_VCF <- list(
+        paste("--genomeTransformVCF", shQuote(genome_transform_VCF))
+      )
+      cmd_args <- c(cmd_args, cmd_VCF)
+    }
+  }
+
+  # Optional splice junction file
+  sjdb_file_chr_start_end <- splice_junction_params$sjdbFileChrStartEnd
+  if (file.exists(sjdb_file_chr_start_end)) {
+    cmd_sjdb_file <- paste("--sjdbFileChrStartEnd", shQuote(sjdb_file_chr_start_end))
+    cmd_args <- c(cmd_args, cmd_sjdb_file)
+  }
+
+  # Splice junction tags
   sjdbGTFchrPrefix <- splice_junction_params$sjdbGTFchrPrefix
   sjdbGTFfeatureExon <- splice_junction_params$sjdbGTFfeatureExon
   sjdbGTFtagExonParentTranscript <- splice_junction_params$sjdbGTFtagExonParentTranscript
@@ -111,11 +135,11 @@ prepare_STAR_genome <- function(genome_dir, fasta_file, genome_index_params, spl
       return(result)
     },
     error = function(e) {
-      cat("ERROR CODE 11: STAR genome generation failed", e$message)
+      cat("ERROR CODE 11: STAR genome generation failed", conditionMessage(e))
       return(NULL)
     },
     warning = function(w) {
-      cat("WARNING:", w$message)
+      cat("WARNING:", conditionMessage(w))
       return(NULL)
     }
   )
