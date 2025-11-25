@@ -703,23 +703,31 @@ def QC_10x(output_folder, n_genes_by_counts_thres, pct_counts_mt_thres, total_co
             continue
         # --- Doublet detection using Scrublet ---
         _log(f"Running Scrublet for doublet detection on {sample}", log_file)
-        try:
-            scrub = scr.Scrublet(adata.X)
-            doublet_scores, predicted_doublets = scrub.scrub_doublets()
+        if adata.n_obs <= 50:
+            _log(
+                f"Skipping Scrublet for {sample}: too few cells after filtering (n={adata.n_obs})",
+                log_file,
+            )
 
-            adata.obs["doublet_score"] = doublet_scores
-            adata.obs["predicted_doublet"] = predicted_doublets
+        else:
 
-            scrub.plot_histogram()
-            scrub_hist = os.path.join(qc_plot_dir, f"{sample}_scrublet_hist.png")
-            plt.savefig(scrub_hist)
-            plt.close()
-            _log(f"Scrublet histogram saved to {scrub_hist}", log_file)
+            try:
+                scrub = scr.Scrublet(adata.X)
+                doublet_scores, predicted_doublets = scrub.scrub_doublets()
 
-            doublet_rate = (predicted_doublets.sum() / len(predicted_doublets)) * 100
-            _log(f"{sample}: estimated doublet rate = {doublet_rate:.2f}%", log_file)
-        except Exception as e:
-            _log(f"WARNING: Scrublet failed for {sample}: {e}", log_file)
+                adata.obs["doublet_score"] = doublet_scores
+                adata.obs["predicted_doublet"] = predicted_doublets
+
+                scrub.plot_histogram()
+                scrub_hist = os.path.join(qc_plot_dir, f"{sample}_scrublet_hist.png")
+                plt.savefig(scrub_hist)
+                plt.close()
+                _log(f"Scrublet histogram saved to {scrub_hist}", log_file)
+
+                doublet_rate = (predicted_doublets.sum() / len(predicted_doublets)) * 100
+                _log(f"{sample}: estimated doublet rate = {doublet_rate:.2f}%", log_file)
+            except Exception as e:
+                _log(f"WARNING: Scrublet failed for {sample}: {e}", log_file)
 
         # --- Save QC results ---
         qc_out = os.path.join(sample_path, "QC_filtered.h5ad")
