@@ -14,18 +14,19 @@ main <- function() {
   config_folder <- dirname(this.path::this.dir())
 
   log_file <- checking_log_file(config_folder)
-
   log_file <- file.path(config_folder, "preprocessing.log")
-
   write_log("Log file created", log_file)
 
   configuration_file_path <- checking_configuration(config_folder)
-
   write_log("Configuration file is good, ready to start", log_file)
 
   configuration <- loading_config_file(configuration_file_path, log_file)
-
   write_log("Configuration file is successfully loaded", log_file)
+  output_dir <- configuration$output_dir
+
+  # Run backup
+  result_path <- backup_config(config_folder, output_dir)
+  cat("Backup complete! Files saved to:", result_path)
 
   input_dir <- configuration$input_dir
   Fastq_file_format <- configuration$Fastq_file_format # must be "merged" or "subdir"
