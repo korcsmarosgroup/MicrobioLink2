@@ -36,15 +36,26 @@ splice_junction_params:
   sjdbInsertSave: "Basic"         # "Basic" or "All"
 
 # ==============================
-# STARsolo parameters
+# STARsolo parameters for 10x
 # ==============================
-STARsolo_params:
+STARsolo_params_10x:
   soloType: "CB_UMI_Simple"
   soloCBstart: 1
   soloCBlen: 16
   soloUMIstart: 17
-  solorUMIlen: 12
+  soloUMIlen: 12
   whitelist: "./whitelist/10x_whitelist.txt"
+
+# ==============================
+# STARsolo parameters for DropSeq
+# ==============================
+STARsolo_params_DropSeq:
+  soloType: "CB_UMI_Simple"
+  soloCBstart: 1
+  soloCBlen: 12        # DropSeq CB default is shorter (adjust if needed)
+  soloUMIstart: 13
+  soloUMIlen: 8
+  whitelist: "None"    # DropSeq has no whitelist
 
 # ==============================
 # STAR parameters
