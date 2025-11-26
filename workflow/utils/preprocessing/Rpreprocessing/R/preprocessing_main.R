@@ -1,6 +1,5 @@
 usethis::use_package("this.path", type = "Imports")
-
-#' preprocessing_main
+#' main
 #'
 #' Main function for the script.
 #'
@@ -11,8 +10,6 @@ usethis::use_package("this.path", type = "Imports")
 #' ERROR CODE 12: Platform is '{platform}'. No processing available for this platform. Exiting
 #'
 #' @export
-
-
 main <- function() {
   config_folder <- dirname(this.path::this.dir())
 
@@ -66,7 +63,7 @@ main <- function() {
   platform <- tolower(configuration$platform)
 
   if (isTRUE(platform == "droplet")) {
-    run_STAR_unified(configuration, log_file, solo = TRUE)
+    run_STAR_solo_unified(configuration, log_file, solo = TRUE)
     QC_10x(output_folder, log_file)
   } else if (isTRUE(platform == "microwell")) {
     run_STAR_unified(configuration, log_file, solo = FALSE)

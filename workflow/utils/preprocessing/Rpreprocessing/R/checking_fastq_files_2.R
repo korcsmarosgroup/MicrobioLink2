@@ -1,4 +1,4 @@
-#' checking_fastq_files_2.R
+#' checking_fastq_files
 #'
 #' Checking the FASTQ input folder: verifies that all expected sequencing files are present
 #' and correctly structured according to the specified Fastq_file_format ('merged' or 'subdir').
@@ -6,8 +6,8 @@
 #' If any expected file (R1, R2, or I1) is missing, or the folder structure does not match
 #' the specified layout, an error is raised, and execution stops.
 #'
-#' @param input_dir The system-based absolute path to the input directory containing the FASTQ files or pe
-#' -sample subdirectories.
+#' @param input_dir The system-based absolute path to the input directory containing the FASTQ files or per
+#'        sample subdirectories.
 #' @param Fastq_file_format The organization style of the FASTQ data to validate.
 #'    Must be either:
 #'        - 'merged': all FASTQ files are in a single directory.
@@ -20,10 +20,7 @@
 #'    ERROR CODE 6: No FASTQ files found (merged layout)
 #'    ERROR CODE 7: Subdirectory missing R1/R2/I1 (subdir layout)
 #'
-#' @return
-#'
 #' @export
-
 check_fastq_files <- function(input_dir, Fastq_file_format, log_file) {
   # ------------------------------------------------------------
   # Validate Fastq_file_format

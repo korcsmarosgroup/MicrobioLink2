@@ -2,7 +2,7 @@
 % Please edit documentation in R/preprocessing_main.R
 \name{main}
 \alias{main}
-\title{preprocessing_main}
+\title{main}
 \usage{
 main()
 }

@@ -1,19 +1,19 @@
-#'  normalize_all_samples
+#' normalize_all_samples
 #'
-#'  Normalize all QC-filtered .h5ad files from each sample directory.
-#'  For each sample in the output_dir:
+#' Normalize all QC-filtered .h5ad files from each sample directory.
+#' For each sample in the output_dir:
 #'    - Loads its 'QC_filtered.h5ad' file
 #'    - Performs total-count normalization (counts per 10,000)
 #'    - Applies log1p transformation
 #'    - Saves the normalized file as 'normalized.h5ad' in the same folder
 #'
-#'  @details
-#'  ERROR CODE 13: Normalization failed.
+#' @details
+#' ERROR CODE 13: Normalization failed.
 #'
-#'  @param output_dir (str) Path to the main output directory containing per-sample subfolders.
-#'  @param log_file (str): Path to the central log file.
+#' @param output_dir (str) Path to the main output directory containing per-sample subfolders.
+#' @param log_file (str): Path to the central log file.
 #'
-#'  @export
+#' @export
 
 normalize_all_samples <- function(output_dir, HVG_selection, number_top_genes, log_file) {
   write_log(paste0("Starting normalisation of all samples in ", output_dir), log_file)
