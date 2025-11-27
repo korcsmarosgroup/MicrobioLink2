@@ -879,6 +879,7 @@ def NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, log_file):
             # Normalization steps
             sc.pp.normalize_total(adata, target_sum=1e4)
             sc.pp.log1p(adata)
+            sc.pp.filter_genes(adata, min_variance=1e-8)
             sc.pp.scale(adata, max_value=10)
 
             # Save normalized file
