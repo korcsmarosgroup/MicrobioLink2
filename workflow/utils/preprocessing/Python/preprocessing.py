@@ -865,6 +865,7 @@ def NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, log_file):
                 )
 
                 adata_hvg = adata[:, adata.var['highly_variable']].copy()
+                adata = adata[:, adata.var['highly_variable']]
                 adata_hvg.write(output_hvg_h5ad)
                 _log(f"Saved normalized HVG data for {sample} to {output_hvg_h5ad}", log_file)
                 
