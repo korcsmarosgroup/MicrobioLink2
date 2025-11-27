@@ -836,11 +836,13 @@ def NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, log_file):
             adata = sc.read_h5ad(input_h5ad)
 
             if HVG_selection:
-                adata_hvg = sc.pp.highly_variable_genes(
+                sc.pp.highly_variable_genes(
                     adata,
-                    n_top_genes = number_top_genes,
-                    flavor = 'seurat_v3'
-                    )
+                    n_top_genes=number_top_genes,
+                    flavor='seurat_v3'
+                )
+
+                adata_hvg = adata[:, adata.var['highly_variable']].copy()
                 adata_hvg.write(output_hvg_h5ad)
                 _log(f"Saved normalized HVG data for {sample} to {output_hvg_h5ad}", log_file)
                 
