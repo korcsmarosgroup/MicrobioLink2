@@ -607,7 +607,7 @@ def RunSTARUnified(configuration, log_file):
         for param, value in params.items():
             cmd.append(f"--{param}")
             # Only append non-empty values
-            if value not in (""):
+            if value != "":
                 cmd.append(str(value))
 
         # Log and run
