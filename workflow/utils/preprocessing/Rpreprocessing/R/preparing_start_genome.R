@@ -1,5 +1,6 @@
-usethis::use_package("processx", type = "Imports")
-
+usethis::use_package("processx", type = "Import")
+#' prepare_STAR_genome
+#'
 #' Preparing the STAR genome index directory.
 #'
 #' Checks whether a valid STAR genome index already exists in the specified
@@ -21,17 +22,18 @@ usethis::use_package("processx", type = "Imports")
 #'    ERROR CODE 8: STAR genome generation failed.
 #'
 #' Behavior:
-#'  - If genome_dir exists and contains valid STAR index files (Genome, SA, and SAindex), the generation step is
+#'  - If genome_dir exists and contains valid STAR index files (Genome, SA, and SAindex), the generation
+#'    step is
 #'  skipped.
 #'  - If the index is missing, a new one is created with STAR.
 #'
-#'  @return None The function logs progress and errors but returns no value.
-
-# ------------------------------------------------------------
-# Check for existing valid STAR index
-# ------------------------------------------------------------
-
+#' @return None The function logs progress and errors but returns no value.
+#'
+#' @export
 prepare_STAR_genome <- function(genome_dir, fasta_file, genome_index_params, splice_junction_params, log_file) {
+  # ------------------------------------------------------------
+  # Check for existing valid STAR index
+  # ------------------------------------------------------------
   if (dir.exists(genome_dir)) {
     existing_files <- unlist(list.files(genome_dir))
     required_files <- c("Genome", "SA", "SAIndex")

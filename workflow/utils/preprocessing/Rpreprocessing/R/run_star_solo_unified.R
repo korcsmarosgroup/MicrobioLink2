@@ -1,5 +1,4 @@
 usethis::use_package("processx", type = "Import")
-
 #' run_star_solo_unified
 #'
 #' Run STAR or STARsolo depending on the experimental platform and configuration settings.
@@ -20,14 +19,14 @@ usethis::use_package("processx", type = "Import")
 #'  - "STARsolo_outdir" (str, optional): Output directory for STARsolo.
 #'  - "STARsolo_params" (dict, optional): Additional STARsolo command-line parameters.
 #'
-#'  @param log_file (str): Path to a log file for recording messages and errors.
+#' @param log_file (str): Path to a log file for recording messages and errors.
 #'
-#'  @param solo (bool, optional):
+#' @param solo (bool, optional):
 #'  - If True: Runs STARsolo (droplet-based single-cell data).
 #'  - If False: Runs standard STAR alignment (microwell-based data).
 #'  Defaults to False.
 #'
-#'  @return Returns:
+#' @return Returns:
 #'
 #'  Notes:
 #'  - Requires STAR to be installed and accessible in the system PATH.
@@ -35,9 +34,8 @@ usethis::use_package("processx", type = "Import")
 #'  - Skips samples missing either R1 or R2.
 #'  - Use
 #'
-#'  @export
-
-run_STAR_unified <- function(configuration, log_file, solo = FALSE) {
+#' @export
+run_STAR_solo_unified <- function(configuration, log_file, solo = FALSE) {
   platform <- tolower(file$platform)
   input_dir <- file$input_dir
   genome_dir <- file$genome_dir
@@ -55,7 +53,6 @@ run_STAR_unified <- function(configuration, log_file, solo = FALSE) {
       params <- file$STAR_params
     }
   }
-
   for (sample in names(samples)) {
     files <- samples[[sample]]
     found <- sapply(tags, function(tag) any(grepl(tag, files)))

@@ -504,69 +504,90 @@ def PrepareSTARGenome(genome_dir, fasta_file, genome_index_params, splice_juncti
         sys.exit(11)
         
 
-def RunSTARUnified(configuration, log_file, solo=False):
+def RunSTARUnified(configuration, log_file):
     """
         Run STAR or STARsolo depending on the experimental platform and configuration settings.
 
-        This function executes the STAR aligner for microwell-based experiments or STARsolo
-        for droplet-based single-cell RNA-seq data. It automatically detects input FASTQ pairs,
-        constructs appropriate STAR command-line arguments, and logs progress and errors.
+    This function executes the STAR aligner for microwell-based experiments or STARsolo
+    for droplet-based single-cell RNA-seq data. It automatically detects input FASTQ pairs,
+    constructs appropriate STAR command-line arguments, and logs progress and errors.
 
-        The function supports both gzipped and uncompressed FASTQ files, and dynamically
-        includes custom STAR/STARsolo parameters defined in the configuration.
+    The function supports both gzipped and uncompressed FASTQ files, and dynamically
+    includes custom STAR/STARsolo parameters defined in the configuration.
 
-        Args:
-            configuration (dict): Dictionary containing run parameters and paths. Expected keys:
-                - "platform" (str): Sequencing platform ("microwell" or "droplet").
-                - "input_dir" (str): Directory containing FASTQ files.
-                - "genome_dir" (str): Directory of the STAR genome index.
-                - "threads" (int, optional): Number of CPU threads for STAR. Defaults to 8.
-                - "Fastq_file_format" (str, optional): Layout of FASTQ files ("merged" or "subdir").
-                - "STAR_outdir" (str, optional): Output directory for STAR alignments.
-                - "STAR_params" (dict, optional): Additional STAR command-line parameters.
-                - "STARsolo_outdir" (str, optional): Output directory for STARsolo.
-                - "STARsolo_params" (dict, optional): Additional STARsolo command-line parameters.
+    Args:
+        configuration (dict): Dictionary containing run parameters and paths. Expected keys:
+            - "platform" (str): Sequencing platform ("10x", "SmartSeq" or "DropSeq").
+            - "input_dir" (str): Directory containing FASTQ files.
+            - "genome_dir" (str): Directory of the STAR genome index.
+            - "threads" (int, optional): Number of CPU threads for STAR. Defaults to 8.
+            - "Fastq_file_format" (str, optional): Layout of FASTQ files ("merged" or "subdir").
+            - "STAR_outdir" (str, optional): Output directory for STAR alignments.
+            - "STAR_params" (dict, optional): Additional STAR command-line parameters.
+            - "STARsolo_outdir" (str, optional): Output directory for STARsolo.
+            - "STARsolo_params" (dict, optional): Additional STARsolo command-line parameters.
 
-            log_file (str): Path to a log file for recording messages and errors.
+        log_file (str): Path to a log file for recording messages and errors.
+        
+        solo (bool, optional): 
+            - If True: Runs STARsolo (droplet-based single-cell data).
+            - If False: Runs standard STAR alignment (microwell-based data).
+            Defaults to False.
             
-            solo (bool, optional): 
-                - If True: Runs STARsolo (droplet-based single-cell data).
-                - If False: Runs standard STAR alignment (microwell-based data).
-                Defaults to False.
+            Returns:
                 
-                Returns:
-                    
 
-        Notes:
-            - Requires STAR to be installed and accessible in the system PATH.
-            - FASTQ files must contain '_R1' and '_R2' in their filenames.
-            - Skips samples missing either R1 or R2.
-            - Use   
+    Notes:
+        - Requires STAR to be installed and accessible in the system PATH.
+        - FASTQ files must contain '_R1' and '_R2' in their filenames.
+        - Skips samples missing either R1 or R2.
+        - Use   
+
     """
-    platform = configuration.get("platform", "").lower()
+
+    platform = configuration.get("platform", "").strip()
     input_dir = configuration.get("input_dir")
     output_dir = configuration.get("output_dir")
     genome_dir = configuration.get("genome_dir")
     threads = configuration.get("threads", 4)
     layout = configuration.get("Fastq_file_format", "merged")
 
-    if solo:
-        if platform != "droplet":
-            _log(f"Platform is not droplet ({platform}). Skipping STARsolo.", log_file)
-            return
-        output_dir = os.path.join(output_dir, "STARsolo_out")
-        params = configuration.get("STARsolo_params", {})
-    else:
-        if platform != "microwell":
-            _log(f"Platform '{platform}' is not microwell. Skipping STAR.", log_file)
-            return
-        output_dir = os.path.join(output_dir, "STAR_out")
-        params = configuration.get("STAR_params", {})
+    # ============================================================
+    # Determine STAR mode based on platform
+    # ============================================================
 
-    # Get validated samples (CheckFASTQFiles now ensures proper R1/R2 presence)
+    if platform == "SmartSeq":
+        mode = "STAR"
+        params = configuration.get("star_params", {})
+        output_dir = os.path.join(output_dir, "STAR_out")
+
+    elif platform == "10x":
+        mode = "STARsolo"
+        params = configuration.get("STARsolo_params_10x", {})
+        output_dir = os.path.join(output_dir, "STARsolo_10x_out")
+
+    elif platform == "DropSeq":
+        mode = "STARsolo"
+        params = configuration.get("STARsolo_params_DropSeq", {})
+        output_dir = os.path.join(output_dir, "STARsolo_DropSeq_out")
+
+    else:
+        _log(f"ERROR: Platform '{platform}' not recognized. Use SmartSeq, 10x, or DropSeq.", log_file)
+        return
+
+    _log(f"Selected mode: {mode} for platform: {platform}", log_file)
+
+    # ============================================================
+    # Validate FASTQ files
+    # ============================================================
     samples = CheckFASTQFiles(input_dir, layout, log_file)
 
+    # ============================================================
+    # Run STAR/STARsolo
+    # ============================================================
+
     for sample, files in samples.items():
+
         sample_out = os.path.join(output_dir, sample)
         os.makedirs(sample_out, exist_ok=True)
 
@@ -578,26 +599,27 @@ def RunSTARUnified(configuration, log_file, solo=False):
             "--outFileNamePrefix", os.path.join(sample_out, "")
         ]
 
-        # gzipped FASTQs
+        # Gzipped reads
         if files["R1"].endswith(".gz") or files["R2"].endswith(".gz"):
             cmd += ["--readFilesCommand", "zcat"]
 
-        # Add STAR/STARsolo parameters
+        # Append STAR or STARsolo parameters
         for param, value in params.items():
             cmd.append(f"--{param}")
-            if str(value).lower() not in (""):
+            # Only append non-empty values
+            if value not in (None, "", "None"):
                 cmd.append(str(value))
 
+        # Log and run
         try:
-            mode = "STARsolo" if solo else "STAR"
             _log(f"Running {mode} for {sample}: {' '.join(cmd)}", log_file)
             subprocess.run(cmd, check=True)
             _log(f"{mode} completed for {sample}. Output: {sample_out}", log_file)
+
         except subprocess.CalledProcessError as e:
             _log(f"ERROR: {mode} failed for {sample}: {e}", log_file)
             sys.stderr.write(f"ERROR MESSAGE: {mode} failed for {sample}: {e}\n")
             continue
-
 
 def QC_10x(output_folder, n_genes_by_counts_thres, pct_counts_mt_thres, total_counts_thres, log_file):
     """
@@ -887,7 +909,7 @@ def main():
         ERROR CODE 4: Invalid or missing 'input_dir' in configuration file
         ERROR CODE 9:  Missing 'Fastq_file_format' in configuration file.
         ERROR CODE 10:  Missing required genome preparation parameters in configuration file
-        ERROR CODE 12: Platform is '{platform}'. No processing available for this platform. Exiting
+        ERROR CODE 12: Platform '{platform}' not recognized. Use: SmartSeq, 10x, or DropSeq. Exiting
     """
 
     # TODO: Implement chmod 777 for the input folder to avoid any kind of file permission errors
@@ -949,17 +971,20 @@ def main():
         splice_junction_params=splice_junction_params,
         log_file=logfile
     )
-    #check platform and run star and qc after    
-    platform = configuration.get("platform", "").lower()
+    platform = configuration.get("platform", "").strip()
 
-    if platform == "droplet":
-        RunSTARUnified(configuration, logfile, solo=True)
+    if platform in ("10x", "DropSeq"):
+        # STARsolo for both
+        RunSTARUnified(configuration, logfile)
         QC_10x(output_dir, n_genes_by_counts_thres, pct_counts_mt_thres, total_counts_thres, logfile)
-    elif platform == "microwell":
-        RunSTARUnified(configuration, logfile, solo=False)
-        QC_smartseq2(output_dir, logfile)  # placeholder for Smart-seq QC
+
+    elif platform == "SmartSeq":
+        # Standard STAR
+        RunSTARUnified(configuration, logfile)
+        QC_smartseq2(output_dir, logfile)
+
     else:
-        msg = f"Platform is '{platform}'. No processing available for this platform. Exiting."
+        msg = f"Platform '{platform}' not recognized. Use: SmartSeq, 10x, or DropSeq."
         _log(msg, logfile)
         sys.stderr.write(msg + "\n")
         sys.exit(12)

@@ -1,6 +1,5 @@
 usethis::use_package("this.path", type = "Imports")
-
-#' preprocessing_main
+#' main
 #'
 #' Main function for the script.
 #'
@@ -11,24 +10,23 @@ usethis::use_package("this.path", type = "Imports")
 #' ERROR CODE 12: Platform is '{platform}'. No processing available for this platform. Exiting
 #'
 #' @export
-
-
 main <- function() {
   config_folder <- dirname(this.path::this.dir())
 
   log_file <- checking_log_file(config_folder)
-
   log_file <- file.path(config_folder, "preprocessing.log")
-
   write_log("Log file created", log_file)
 
   configuration_file_path <- checking_configuration(config_folder)
-
   write_log("Configuration file is good, ready to start", log_file)
 
   configuration <- loading_config_file(configuration_file_path, log_file)
-
   write_log("Configuration file is successfully loaded", log_file)
+  output_dir <- configuration$output_dir
+
+  # Run backup
+  result_path <- backup_config(config_folder, output_dir)
+  cat("Backup complete! Files saved to:", result_path)
 
   input_dir <- configuration$input_dir
   Fastq_file_format <- configuration$Fastq_file_format # must be "merged" or "subdir"
@@ -66,7 +64,7 @@ main <- function() {
   platform <- tolower(configuration$platform)
 
   if (isTRUE(platform == "droplet")) {
-    run_STAR_unified(configuration, log_file, solo = TRUE)
+    run_STAR_solo_unified(configuration, log_file, solo = TRUE)
     QC_10x(output_folder, log_file)
   } else if (isTRUE(platform == "microwell")) {
     run_STAR_unified(configuration, log_file, solo = FALSE)

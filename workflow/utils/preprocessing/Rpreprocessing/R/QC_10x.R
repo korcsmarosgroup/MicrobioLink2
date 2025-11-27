@@ -1,15 +1,15 @@
 usethis::use_package("Matrix", type = "Imports")
 usethis::use_package("Seurat", type = "Imports")
-#'  QC_10x
+#' QC_10x
 #'
-#'  Perform comprehensive QC on 10x Genomics data:
+#' Perform comprehensive QC on 10x Genomics data:
 #'    - Load raw & filtered matrices
 #'    - Compute QC metrics
 #'    - Visualize QC (violin & bar plots)
 #'    - Filter poor-quality cells
 #'    - Detect potential doublets using Scrublet
 #'
-#'  @export
+#' @export
 
 # output folder = sample1_Solo.out
 
