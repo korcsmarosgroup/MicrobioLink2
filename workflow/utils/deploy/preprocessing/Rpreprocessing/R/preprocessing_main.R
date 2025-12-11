@@ -66,8 +66,10 @@ main <- function() {
   if (isTRUE(platform == "droplet")) {
     run_STAR_solo_unified(configuration, log_file, solo = TRUE)
     QC_10x(output_folder, log_file)
-  } else if (isTRUE(platform == "microwell")) {
-    run_STAR_unified(configuration, log_file, solo = FALSE)
+  } else if (isTRUE(platform == "SmartSeq")) {
+    # Standard STAR
+    run_STAR_unified(configuration, log_file)
+    QC_smartseq2(output_dir, log_file)
   } else {
     msg <- paste0("Platform is ", platform, " No processing available for this platform. Exiting.")
     write_log(msg, log_file)
