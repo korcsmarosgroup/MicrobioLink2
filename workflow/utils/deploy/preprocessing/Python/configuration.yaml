@@ -44,7 +44,7 @@ STARsolo_params_10x:
   soloCBlen: 16
   soloUMIstart: 17
   soloUMIlen: 12
-  whitelist: "./whitelist/10x_whitelist.txt"
+  soloCBwhitelist: "None"
 
 # ==============================
 # STARsolo parameters for DropSeq
@@ -55,7 +55,7 @@ STARsolo_params_DropSeq:
   soloCBlen: 12        # DropSeq CB default is shorter (adjust if needed)
   soloUMIstart: 13
   soloUMIlen: 8
-  whitelist: "None"    # DropSeq has no whitelist
+  soloCBwhitelist: "None"    # DropSeq has no whitelist
 
 # ==============================
 # STAR parameters
