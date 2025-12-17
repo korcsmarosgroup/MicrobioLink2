@@ -559,7 +559,7 @@ def RunSTARUnified(configuration, log_file):
     if platform == "SmartSeq":
         mode = "STAR"
         params = configuration.get("star_params", {})
-        output_dir = os.path.join(output_dir, "STAR_out")
+        output_dir = os.path.join(output_dir, "SmartSeq")
 
     elif platform == "10x":
         mode = "STARsolo"
@@ -621,7 +621,7 @@ def RunSTARUnified(configuration, log_file):
             sys.stderr.write(f"ERROR MESSAGE: {mode} failed for {sample}: {e}\n")
             continue
 
-def QC_10x(output_folder, n_genes_by_counts_thres, pct_counts_mt_thres, total_counts_thres, log_file):
+def QC_10x(output_folder, platform, n_genes_by_counts_thres, pct_counts_mt_thres, total_counts_thres, log_file):
     """
         Perform comprehensive QC on 10x Genomics data:
         - Load raw & filtered matrices
@@ -637,10 +637,14 @@ def QC_10x(output_folder, n_genes_by_counts_thres, pct_counts_mt_thres, total_co
         ("features.tsv", "features.tsv.gz")
     ]
 
-    checking_directory = os.path.join(output_folder, "STARsolo_out")
+    if platform == "10x":
+        checking_directory = os.path.join(output_folder, "STARsolo_10x_out")
+
+    elif platform == "DropSeq":
+        checking_directory = os.path.join(output_folder, "STARsolo_DropSeq_out")
+
     for sample in os.listdir(checking_directory):
         sample_path = os.path.join(checking_directory, sample)
-        raw_dir = os.path.join(sample_path, "Solo.out", "Gene", "raw")
         filtered_dir = os.path.join(sample_path, "Solo.out", "Gene", "filtered")
 
         if not os.path.isdir(filtered_dir):
@@ -764,8 +768,9 @@ def QC_smartseq2(output_folder, log_file, platform="smartseq2"):
 
     _log(f"Running QC for {platform} samples...", log_file)
 
-    for sample in os.listdir(output_folder):
-        sample_path = os.path.join(output_folder, sample)
+    checking_directory = os.path.join(output_folder, "SmartSeq")
+    for sample in os.listdir(checking_directory):
+        sample_path = os.path.join(checking_directory, sample)
         count_file = os.path.join(sample_path, "counts.tsv")
 
         # --- Detect matrix type ---
@@ -816,7 +821,7 @@ def QC_smartseq2(output_folder, log_file, platform="smartseq2"):
         _log(f"QC results saved for {sample}", log_file)
         
         
-def NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, log_file):
+def NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, platform, log_file):
     """
         Normalize all QC-filtered .h5ad files from each sample directory.
 
@@ -834,7 +839,16 @@ def NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, log_file):
             ERROR CODE 13: Normalization failed.
     """
 
-    output_dir = os.path.join(output_dir, "STARsolo_out")
+
+    if platform == "DropSeq":
+        output_dir = os.path.join(output_dir, "STARsolo_DropSeq_out")
+
+    elif platform == "10x":
+        output_dir = os.path.join(output_dir, "STARsolo_10x_out")
+
+    elif platform == "DropSeq":
+        output_dir = os.path.join(output_dir, "STARsolo_DropSeq_out")
+
     _log(f"Starting normalization of all samples in {output_dir}", log_file)
 
     try:
@@ -978,7 +992,7 @@ def main():
     if platform in ("10x", "DropSeq"):
         # STARsolo for both
         RunSTARUnified(configuration, logfile)
-        QC_10x(output_dir, n_genes_by_counts_thres, pct_counts_mt_thres, total_counts_thres, logfile)
+        QC_10x(output_dir, platform, n_genes_by_counts_thres, pct_counts_mt_thres, total_counts_thres, logfile)
 
     elif platform == "SmartSeq":
         # Standard STAR
@@ -992,7 +1006,7 @@ def main():
         sys.exit(12)
         
     # ✅ Normalization step runs for both platforms
-    NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, logfile)
+    NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, platform, logfile)
     _log("Normalization completed for all samples.", logfile)
     
 
