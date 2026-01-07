@@ -715,6 +715,17 @@ def QC_10x(output_folder, platform, n_genes_by_counts_thres, pct_counts_mt_thres
 
         # --- Filtering poor-quality cells ---
         _log(f"Filtering low-quality cells for {sample}", log_file)
+        # Log how many cells fail each criterion to guide threshold tuning
+        try:
+            fail_genes = int((adata.obs["n_genes_by_counts"] <= n_genes_by_counts_thres).sum())
+            fail_mt = int((adata.obs["pct_counts_mt"] >= pct_counts_mt_thres).sum())
+            fail_counts = int((adata.obs["total_counts"] <= total_counts_thres).sum())
+            _log(
+                f"{sample}: threshold failures — genes<=thres: {fail_genes}; mt%>=thres: {fail_mt}; counts<=thres: {fail_counts}",
+                log_file,
+            )
+        except Exception as e:
+            _log(f"WARNING: could not compute failure breakdown for {sample}: {e}", log_file)
         before = adata.n_obs
         adata = adata[
             (adata.obs["n_genes_by_counts"] > n_genes_by_counts_thres)
@@ -890,7 +901,7 @@ def NormalizeAllSamples(output_dir, HVG_selection, number_top_genes, platform, l
                 )
                 norm_hvg_count_matix.to_csv(output_hvg_tsv, sep = '\t')
                 _log(f"Saved normalized data for {sample} to {output_hvg_tsv}", log_file)
-                
+
             # Normalization steps
             sc.pp.normalize_total(adata, target_sum=1e4)
             sc.pp.log1p(adata)
