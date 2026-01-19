@@ -245,8 +245,8 @@ def predict_tracks(folder, seq_dict, device, gpu_num, force_cpu):
         folder, 'binding',  device=device, gpu_num=gpu_num, force_cpu=force_cpu)
 
     disorder_profiles, binding_profiles = {}, {}
-    print(seq_dict.items())
-    print(len(seq_dict.items()))
+    #print(seq_dict.items())
+    #print(len(seq_dict.items()))
     for pid, seq in seq_dict.items():
         disorder_profiles[pid] = aiupred_lib.predict_disorder(
             seq, dis_e, dis_d, device, smoothing=True)
@@ -265,9 +265,16 @@ def keep_high_confidence(motif_dict, disorder, binding, thr=THRESHOLD):
         d_prof = disorder[pid]
         b_prof = binding[pid]
         for mseq, start, end in motifs:
+
             s, e = int(start), int(end)  # inclusive indices
+            length = len(d_prof[s:e+1])
+            disordered_average = sum(d_prof[s:e+1]) / length
+            binding_average = sum(b_prof[s:e+1]) / length
+            combined_score = (binding_average + disordered_average) / 2
+
             if (d_prof[s:e+1] >= thr).all() and (b_prof[s:e+1] >= thr).all():
-                kept.append((pid, mseq, s, e))
+                kept.append((pid, mseq, s, e, length,disordered_average, binding_average, combined_score))
+
     return kept
 
 
@@ -284,15 +291,19 @@ def write_output(folder, idr_motifs, hmi, output):
     written_entries = set()
 
     with open(output_file, 'w') as output_file:
-        output_file.write("# Human Protein" + "\t" + "Motif" + "\t" +  "Start" + "\t" +  "End" +
-                          "\t" +"Bacterial domain" + "\t" + "Bacterial protein" "\n")
+        output_file.write("Bacterial protein" + "\t" + "Bacterial domain" + "\t"
+        + "Human Protein" + "\t" + "Motif" + "\t" +  "Start" + "\t" +  "End" +
+        "\t" + "Motif length" + '\t' + 'Avg IUPred score'+ '\t' + 'Avg Binding score' + "\t" +'Combined score' + "\n")
 
         idr_motifs = list(set(idr_motifs))
+        print(idr_motifs)
 
         for motif in idr_motifs:
             for interaction in hmi:
                 if motif[0] in interaction and motif[1] in interaction and str(motif[2]) in interaction and str(motif[3]) in interaction:
-                    entry = "\t".join(interaction)
+                    #entry = "\t".join(interaction) + "\t" + str(motif[4]) + "\t" + str(motif[5]) + "\t" + str(motif[6]) + "\t" + str(motif[7])
+                    entry = interaction[5] + "\t" + interaction[4] + "\t" + interaction[0] + "\t" + interaction[1] + "\t" + interaction[2] + "\t" + interaction[3] + "\t" + str(motif[4]) + "\t" + str(motif[5]) + "\t" + str(motif[6]) + "\t" + str(motif[7])
+
                     if entry not in written_entries:
                         output_file.write(entry + "\n")
                         written_entries.add(entry)
@@ -335,7 +346,7 @@ def main(argv=None):
 
     seqs = {f[:-6]: read_seq(os.path.join(seq_dir, f))
             for f in os.listdir(seq_dir) if f.endswith('.fasta')}
-    print(len(seqs))
+
 
     # 3) device selection
     device = torch.device('cpu') if args.force_cpu or not torch.cuda.is_available() \
@@ -345,6 +356,7 @@ def main(argv=None):
     # 4) predict tracks
     logging.info('Running AIUPred on %d proteins', len(seqs))
     disorder, binding = predict_tracks(args.resources, seqs, device, gpu_num=0, force_cpu=False)
+    print(disorder)
 
     # 5) filter motifs
     logging.info('Filtering motifs with score ≥%.2f in both tracks', THRESHOLD)
