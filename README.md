@@ -86,6 +86,6 @@ pip install -r workflow/requirements.txt</code></pre>
 <h2>Citation</h2>
 <p>If you use MicrobioLink in your research, please cite:</p>
 <ul>
-  <li>Poletti et al., 2022 and Gul et al., 2022.</li>
+  <li>Gul et al., 2025 (STAR Protocol) and Gul et al., 2022 (Journal of Extracellular Vesicles)</li>
 </ul>
 

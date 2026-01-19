@@ -5,7 +5,6 @@ from iupred2a import read_seq, iupred, anchor2
 from Bio import SeqIO
 
 
-
 def parse_args(argv):
     """ Command line interface for the the module """
     parser = argparse.ArgumentParser()
@@ -129,12 +128,18 @@ def motif_selection(aa_scores, motif_dictionary):
                 motif = range(int(list_[1]), int(list_[2])+1)
                 motif_size = len(motif)
                 dis_aa_count = 0
+                iupred_total = 0
+                anchor_total = 0
                 for details in aa_scores[protein]:
                     if int(details[0]) in motif:
+                        iupred_total += float(details[2])
                         if (float(details[2]) > 0.5) and (float(details[3]) > 0.5):
                             dis_aa_count += 1
+                iupred_average = iupred_total / motif_size
+                anchor_average = anchor_total / motif_size
+                combined_score = (iupred_average + anchor_average) / 2
                 if (dis_aa_count == motif_size) or (dis_aa_count == motif_size - 1) or (dis_aa_count == motif_size + 1):
-                    disordered_motifs.append((protein, list_[0], list_[1], list_[2]))
+                    disordered_motifs.append((protein, list_[0], list_[1], list_[2], motif_size, iupred_average, anchor_average, combined_score))
     return disordered_motifs
 
 
@@ -145,11 +150,12 @@ def write_output(folder, idr_motifs, hmi, output, anchor=True):
 
     with open(output_file, 'w') as output_file:
         output_file.write("# Human Protein" + "\t" + "Motif" + "\t" +  "Start" + "\t" +  "End" +
-                          "\t" +"Bacterial domain" + "\t" + "Bacterial protein" "\n")
+                          "\t" +"Bacterial domain" + "\t" + "Bacterial protein"
+                          + "\t" + "Motif length" + '\t' + 'Avg IUPred score'
+                          + '\t' + 'Avg Anchor score' + "\t" +'Combined score' + "\n")
         idr_motifs = list(set(idr_motifs))
 
         for motif in idr_motifs:
-
             for interaction in hmi:
                 if motif[0] in interaction and motif[1] in interaction and motif[2] in interaction and motif[3] in interaction:
                     entry = "\t".join(interaction)
@@ -182,8 +188,10 @@ def main(argv):
     human_proteins = process_hmi(args.hmi_prediction)
     hmi = get_interaction(args.hmi_prediction)
 
+
     # Get interacting motif information
     motif_dict = get_motif(args.hmi_prediction)
+
 
     # Download fasta files - 1 protein/file
     split_large_fasta_file(args.fasta_file, human_proteins, args.resources)
@@ -191,8 +199,10 @@ def main(argv):
     # Assign IUPred and ANCHOR scores to AAs
     scores = run_iupred(args.resources, 'short')
 
+
     # Select disordered motifs
     idr_motifs = motif_selection(scores, motif_dict)
+    print(idr_motifs)
 
     # Write the output file
     write_output(args.results, idr_motifs, hmi, args.output)
