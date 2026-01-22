@@ -2,7 +2,12 @@
 % Please edit documentation in R/preparing_start_genome.R
 \name{prepare_STAR_genome}
 \alias{prepare_STAR_genome}
-\title{prepare_STAR_genome}
+\title{prepare_STAR_genome
+Preparing the STAR genome index directory using full genome indexing and splice junction parameters.
+Checks whether a valid STAR genome index already exists in the specified
+genome directory. If all required index files are present, it skips index generation.
+Otherwise, it generates a new STAR genome index using the provided FASTA, genome indexing
+parameters, and splice junction parameters.}
 \usage{
 prepare_STAR_genome(
   genome_dir,
@@ -13,38 +18,29 @@ prepare_STAR_genome(
 )
 }
 \arguments{
-\item{genome_dir}{The system-based absolute path of the directory where the STAR
+\item{genome_dir}{(str): The system-based absolute path of the directory where the STAR
 genome index will be stored.}
 
-\item{fasta_file}{The absolute path to the reference genome FASTA file.}
+\item{fasta_file}{(str): Path to the reference genome FASTA file.}
 
-\item{log_file}{The path of the log file to record events and errors.}
+\item{genome_index_params}{(named list) Genome indexing parameters from YAML (17.5).}
 
-\item{gtf_file}{The absolute path to the GTF annotation file.}
+\item{splice_junction_params}{(named list): Splice junction parameters from YAML (17.6)}
 
-\item{read_length}{Integer, the sequencing read length. STAR will use (read_length - 1)
-as the sjdbOverhang value.}
+\item{log_file}{(str) The path of the log file to record events and errors.}
 }
 \value{
 None The function logs progress and errors but returns no value.
 }
 \description{
-Preparing the STAR genome index directory.
+prepare_STAR_genome
+Preparing the STAR genome index directory using full genome indexing and splice junction parameters.
+Checks whether a valid STAR genome index already exists in the specified
+genome directory. If all required index files are present, it skips index generation.
+Otherwise, it generates a new STAR genome index using the provided FASTA, genome indexing
+parameters, and splice junction parameters.
 }
 \details{
-Checks whether a valid STAR genome index already exists in the specified
-genome directory. If all required index files are present, the function
-logs this and skips index generation. If not, it generates a new STAR
-genome index using the provided FASTA and GTF annotation files.
-
 Error codes:
-ERROR CODE 8: STAR genome generation failed.
-
-Behavior:
-\itemize{
-\item If genome_dir exists and contains valid STAR index files (Genome, SA, and SAindex), the generation
-step is
-skipped.
-\item If the index is missing, a new one is created with STAR.
-}
+ERROR CODE 11: STAR genome generation failed.
 }

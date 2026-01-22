@@ -1,51 +1,9 @@
-pkg_wd <- getwd()
-script_path <- file.path(pkg_wd, "R", "run_star_solo_unified.R")
-if (!file.exists(script_path)) {
-  pkg_wd <- normalizePath(file.path(pkg_wd, "..", "..", "..", "..", ".."), mustWork = TRUE)
-  script_path <- file.path(pkg_wd, "R", "run_star_solo_unified.R")
-}
-
-source(file.path(pkg_wd, "R", "add_log_message.R"))
-source(script_path)
-
-create_temp_log <- function() {
-  log_file <- tempfile("preprocessing_", fileext = ".log")
-  file.create(log_file)
-  log_file
-}
-
-define_configuration <- function(mode, platform = "microwell", params = list()) {
-  temp_root <- tempdir()
-  list(
-    platform = platform,
-    input_dir = "inputs",
-    genome_dir = file.path(temp_root, "genome_index"),
-    threads = 2,
-    Fastq_file_format = "merged",
-    STAR_outdir = file.path(temp_root, "star"),
-    STAR_out = "output",
-    STAR_params = params,
-    STARsolo_outdir = file.path(temp_root, "starsolo"),
-    STARsolo_out = "solo_output",
-    STARsolo_params = params,
-    mode = mode
-  )
-}
-
-setup_globals <- function(configuration, samples_list, tag_values) {
-  assign("file", configuration, envir = globalenv())
-  assign("samples", samples_list, envir = globalenv())
-  assign("tags", tag_values, envir = globalenv())
-  assign("mode", configuration$mode, envir = globalenv())
-}
-
-build_output_dir <- function(base_dir, input_dir, suffix) {
-  output_dir <- paste0(base_dir, input_dir, suffix, sep = "/")
-  dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-  output_dir
-}
+source("./R/preparing_start_genome.R")
+source("./R/add_log_message.R")
 
 test_that("run_STAR_unified builds STAR command for microwell data", {
+  testthat::skip_if_not_installed("mockery")
+
   configuration <- define_configuration(
     mode = "STAR",
     platform = "microwell",
@@ -57,32 +15,57 @@ test_that("run_STAR_unified builds STAR command for microwell data", {
 
   output_dir <- build_output_dir(configuration$STAR_outdir, configuration$input_dir, configuration$STAR_out)
   log_file <- create_temp_log()
+
   on.exit(unlink(c(log_file, output_dir), recursive = TRUE, force = TRUE), add = TRUE)
 
+  # Function relies on globals: file, samples, tags, mode, AND (when solo=FALSE) output_dir + params
   setup_globals(configuration, samples_list, tag_values)
+  assign("output_dir", output_dir, envir = globalenv())
+  assign("params", configuration$STAR_params, envir = globalenv())
+
+  # Clean up globals so tests don't leak into each other
+  on.exit(
+    rm(
+      list = intersect(
+        c("file", "samples", "tags", "mode", "output_dir", "params"),
+        ls(envir = globalenv())
+      ),
+      envir = globalenv()
+    ),
+    add = TRUE
+  )
 
   calls <- list()
+  mocked_result <- list(status = 0, stdout = "", stderr = "")
 
   mock_run <- function(command, args, error_on_status) {
-    calls <<- append(calls, list(list(command = command, args = args)))
+    calls <<- append(calls, list(list(command = command, args = args, error_on_status = error_on_status)))
     mocked_result
   }
 
-  stub(run_STAR_solo_unified, "processx::run", mock_run)
+  mockery::stub(run_STAR_solo_unified, "processx::run", mock_run)
 
   result <- run_STAR_solo_unified(configuration, log_file, solo = FALSE)
 
   expect_equal(length(calls), 1)
   expect_identical(calls[[1]]$command, "STAR")
   expect_true(any(grepl("--runThreadN", calls[[1]]$args)))
-  expect_true(any(grepl(configuration$genome_dir, calls[[1]]$args)))
+  expect_true(any(grepl(configuration$genome_dir, calls[[1]]$args, fixed = TRUE)))
   expect_true(any(grepl("Sample1_R1.fastq", calls[[1]]$args)))
-  expect_true(any(grepl("--outSAMtype", calls[[1]]$args)))
+  expect_true(any(grepl("Sample1_R2.fastq", calls[[1]]$args)))
+
+  # Params are currently reflected in the *logged pipeline* (not in processx::run args)
+  log_entries <- readLines(log_file, warn = FALSE)
+  expect_true(any(grepl("--outSAMtype", log_entries)))
+
   expect_equal(result, mocked_result)
   expect_true(dir.exists(file.path(output_dir, "Sample1")))
 })
 
+
 test_that("run_STAR_unified logs and uses droplet settings when solo is requested", {
+  testthat::skip_if_not_installed("mockery")
+
   configuration <- define_configuration(
     mode = "STARsolo",
     platform = "droplet",
@@ -98,20 +81,37 @@ test_that("run_STAR_unified logs and uses droplet settings when solo is requeste
 
   setup_globals(configuration, samples_list, tag_values)
 
+  on.exit(
+    rm(
+      list = intersect(
+        c("file", "samples", "tags", "mode"),
+        ls(envir = globalenv())
+      ),
+      envir = globalenv()
+    ),
+    add = TRUE
+  )
+
   calls <- list()
   mocked_result <- list(status = 0, stdout = "", stderr = "")
 
-  result <- with_mocked_bindings(
-    run_STAR_solo_unified(configuration, log_file, solo = TRUE),
-    `processx::run` = function(command, args, error_on_status) {
-      calls <<- append(calls, list(list(command = command, args = args, error_on_status = error_on_status)))
-      mocked_result
-    }
-  )
+  mock_run <- function(command, args, error_on_status) {
+    calls <<- append(calls, list(list(command = command, args = args, error_on_status = error_on_status)))
+    mocked_result
+  }
 
-  log_entries <- readLines(log_file)
+  mockery::stub(run_STAR_solo_unified, "processx::run", mock_run)
+
+  result <- run_STAR_solo_unified(configuration, log_file, solo = TRUE)
+
+  log_entries <- readLines(log_file, warn = FALSE)
   expect_true(any(grepl("Skipping STAR", log_entries)))
+
   expect_equal(length(calls), 1)
-  expect_true(any(grepl("soloType", calls[[1]]$args)))
+  expect_identical(calls[[1]]$command, "STAR")
+
+  # Params currently show up in the logged pipeline
+  expect_true(any(grepl("--soloType", log_entries)))
+
   expect_equal(result, mocked_result)
 })

@@ -17,6 +17,7 @@ LazyData: true
 RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 Imports: 
+    ggplot2,
     Matrix,
     processx,
     readr,

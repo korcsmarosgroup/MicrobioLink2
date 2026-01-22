@@ -15,10 +15,10 @@ normalize_all_samples(output_dir, HVG_selection, number_top_genes, log_file)
 Normalize all QC-filtered .h5ad files from each sample directory.
 For each sample in the output_dir:
 \itemize{
-\item Loads its 'QC_filtered.h5ad' file
+\item Loads its 'QC_filtered.rds' file
 \item Performs total-count normalization (counts per 10,000)
 \item Applies log1p transformation
-\item Saves the normalized file as 'normalized.h5ad' in the same folder
+\item Saves the normalized file as 'normalized.rds' in the same folder
 }
 }
 \details{

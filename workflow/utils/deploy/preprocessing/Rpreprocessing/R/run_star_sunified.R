@@ -1,5 +1,5 @@
 usethis::use_package("processx", type = "Import")
-#' run_star_solo_unified
+#' run_star_unified
 #'
 #' Run STAR or STARsolo depending on the experimental platform and configuration settings.
 #' This function executes the STAR aligner for microwell-based experiments or STARsolo
@@ -15,9 +15,9 @@ usethis::use_package("processx", type = "Import")
 #'  - "threads" (int, optional): Number of CPU threads for STAR. Defaults to 8.
 #'  - "Fastq_file_format" (str, optional): Layout of FASTQ files ("merged" or "subdir").
 #'  - "STAR_outdir" (str, optional): Output directory for STAR alignments.
-#'  - "STAR_params" (dict, optional): Additional STAR command-line parameters.
+#'  - "STAR_params" (named list, optional): Additional STAR command-line parameters.
 #'  - "STARsolo_outdir" (str, optional): Output directory for STARsolo.
-#'  - "STARsolo_params" (dict, optional): Additional STARsolo command-line parameters.
+#'  - "STARsolo_params" (named list, optional): Additional STARsolo command-line parameters.
 #'
 #' @param log_file (str): Path to a log file for recording messages and errors.
 #'
@@ -35,31 +35,62 @@ usethis::use_package("processx", type = "Import")
 #'  - Use
 #'
 #' @export
-run_STAR_solo_unified <- function(configuration, log_file, solo = FALSE) {
+run_STAR_unified <- function(configuration, log_file) {
   platform <- tolower(file$platform)
   input_dir <- file$input_dir
+  output_dir <- file$output_dir
   genome_dir <- file$genome_dir
   threads <- as.character(file$threads)
   layout <- file$Fastq_file_format
 
-  if (isTRUE(solo == TRUE)) {
-    if (platform != "droplet") {
-      write_log(paste0("Platform is not droplet: ", platform, ". Skipping STARsolo"), log_file)
-      output_dir <- paste0(file$STARsolo_outdir, input_dir, file$STARsolo_out, sep = "/")
-      params <- file$STARsolo_params
-    } else {
-      write_log(paste0("Platform is not droplet: ", platform, ". Skipping STAR"), log_file)
-      output_dir <- paste0(file$STAR_outdir, input_dir, file$STAR_out, sep = "/")
-      params <- file$STAR_params
-    }
+  # ====================================================
+  # Determine STAR mode based on platform
+  # ====================================================
+
+  if (isTRUE(platform == "SmartSeq")) {
+    mode <- "STAR"
+    params <- file$star_params
+    output_dir <- file.path(output_dir, "STAR_out")
+  } else if (isTRUE(platform == "10x")) {
+    mode <- "STARsolo"
+    params <- file$STARsolo_params_10x
+    output_dir <- file.path(output_dir, "STARsolo_10x_out")
+  } else if (isTRUE(platform == "DropSeq")) {
+    mode <- "STARsolo"
+    params <- file$STARsolo_params_DropSeq
+    output_dir <- file.path(output_dir, "STARsolo_DropSeq_out")
+  } else {
+    write_log(paste0("ERROR: Platform ", platform, " not recognised. Use SmartSeq, 10x or DropSeq."), log_file)
   }
+
+  # ==================================
+  # Validate FASTQ files
+  # ==================================
+  samples <- check_fastq_files(input_dir, layout, log_file)
+
+  # ==================================
+  # Run STAR/STARsolo
+  # ==================================
+
+  # if (isTRUE(solo == TRUE)) {
+  #   if (platform != "droplet") {
+  #     write_log(paste0("Platform is not droplet: ", platform, ". Skipping STARsolo"), log_file)
+  #     output_dir <- paste0(file$STARsolo_outdir, input_dir, file$STARsolo_out, sep = "/")
+  #     params <- file$STARsolo_params
+  #   } else {
+  #     write_log(paste0("Platform is not droplet: ", platform, ". Skipping STAR"), log_file)
+  #     output_dir <- paste0(file$STAR_outdir, input_dir, file$STAR_out, sep = "/")
+  #     params <- file$STAR_params
+  #   }
+  # }
+
   for (sample in names(samples)) {
-    files <- samples[[sample]]
-    found <- sapply(tags, function(tag) any(grepl(tag, files)))
-    if (!(all(found))) {
-      missing_tags <- tags[!found]
-      write_log(paste0("Skipping ", sample, " missing R1 or R2"), log_file)
-    }
+    # files <- samples[[sample]]
+    # found <- sapply(tags, function(tag) any(grepl(tag, files)))
+    # if (!(all(found))) {
+    #   missing_tags <- tags[!found]
+    #   write_log(paste0("Skipping ", sample, " missing R1 or R2"), log_file)
+    # }
 
     sample_out <- file.path(output_dir, sample)
     dir.create(sample_out)
@@ -79,7 +110,6 @@ run_STAR_solo_unified <- function(configuration, log_file, solo = FALSE) {
     pipeline <- paste(cmd, collapse = " ")
 
     # gzipped FASTQs
-
     gzipped <- FALSE
     zcat <- NULL
     cmd_unzip <- NULL
@@ -94,6 +124,7 @@ run_STAR_solo_unified <- function(configuration, log_file, solo = FALSE) {
       pipeline <- paste(cmd, collapse = " ")
     }
 
+    # Append STAR or STARsolo parameters
     for (param in names(params)) {
       value <- params[[param]]
       if (!is.null(value)) {
@@ -103,6 +134,7 @@ run_STAR_solo_unified <- function(configuration, log_file, solo = FALSE) {
       }
     }
 
+    # Log and run
     STARUnified_result <- tryCatch(
       {
         if (isTRUE(all(any(grepl(".gz$", files))) && any(grepl("R[12]", files)))) {

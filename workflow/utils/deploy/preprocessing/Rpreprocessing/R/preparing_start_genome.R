@@ -1,31 +1,21 @@
 usethis::use_package("processx", type = "Import")
 #' prepare_STAR_genome
-#'
-#' Preparing the STAR genome index directory.
-#'
+#' Preparing the STAR genome index directory using full genome indexing and splice junction parameters.
 #' Checks whether a valid STAR genome index already exists in the specified
-#' genome directory. If all required index files are present, the function
-#' logs this and skips index generation. If not, it generates a new STAR
-#' genome index using the provided FASTA and GTF annotation files.
+#' genome directory. If all required index files are present, it skips index generation.
+#' Otherwise, it generates a new STAR genome index using the provided FASTA, genome indexing
+#' parameters, and splice junction parameters.
 #'
-#' @param genome_dir The system-based absolute path of the directory where the STAR
+#' @param genome_dir (str): The system-based absolute path of the directory where the STAR
 #' genome index will be stored.
-#'
-#' @param fasta_file The absolute path to the reference genome FASTA file.
-#' @param gtf_file The absolute path to the GTF annotation file.
-#' @param read_length Integer, the sequencing read length. STAR will use (read_length - 1)
-#' as the sjdbOverhang value.
-#' @param log_file The path of the log file to record events and errors.
+#' @param fasta_file (str): Path to the reference genome FASTA file.
+#' @param genome_index_params (named list) Genome indexing parameters from YAML (17.5).
+#' @param splice_junction_params (named list): Splice junction parameters from YAML (17.6)
+#' @param log_file (str) The path of the log file to record events and errors.
 #'
 #' @details
 #' Error codes:
-#'    ERROR CODE 8: STAR genome generation failed.
-#'
-#' Behavior:
-#'  - If genome_dir exists and contains valid STAR index files (Genome, SA, and SAindex), the generation
-#'    step is
-#'  skipped.
-#'  - If the index is missing, a new one is created with STAR.
+#'    ERROR CODE 11: STAR genome generation failed.
 #'
 #' @return None The function logs progress and errors but returns no value.
 #'
@@ -38,7 +28,7 @@ prepare_STAR_genome <- function(genome_dir, fasta_file, genome_index_params, spl
     existing_files <- unlist(list.files(genome_dir))
     required_files <- c("Genome", "SA", "SAIndex")
 
-    if ((length(required_files %in% existing_files)) == 3) {
+    if (all(required_files %in% existing_files)) {
       write_log(paste0("STAR genome index already exists at ", genome_dir, ". Skipping generation."), log_file)
       return(NULL)
     }

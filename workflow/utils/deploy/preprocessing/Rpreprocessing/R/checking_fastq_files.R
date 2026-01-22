@@ -1,24 +1,44 @@
 #' checking_fastq_files
 #'
-#' Checking the FASTQ input folder: verifies that all expected sequencing files are present
-#' and correctly structured according to the specified Fastq_file_format ('merged' or 'subdir').
+#' Validate FASTQ inputs and return only samples with complete paired-end data.
+#' The function scans the inpu directory that contains either:
+#' -  A flat collection of FASTQ files ("merged" layout), or
+#' -  Multiple per-sample subdirectories ("subdir" layout).
 #'
-#' If any expected file (R1, R2, or I1) is missing, or the folder structure does not match
-#' the specified layout, an error is raised, and execution stops.
+#' The function:
+#' -  Identifies FASTQ files for each sample (R1, R2, and optionally I1).
+#' -  Logs warnings when samples are incomplete (missing R1 or R2)
+#' -  Logs errors and exits when the folder structure is invalid.
+#' -  Produces a named list containing **only samples that have both R1 and R2 FASTQs**
 #'
-#' @param input_dir The system-based absolute path to the input directory containing the FASTQ files or per
-#'        sample subdirectories.
-#' @param Fastq_file_format The organization style of the FASTQ data to validate.
-#'    Must be either:
+#' The returns named list is suitable for downstream tools that require complete paired FASTQ inputs (e.g. STAR, trimming tools, quantification).
+#'
+#' @param input_dir The system-based absolute path to the input directory containing the FASTQ files or sample folders.
+#' @param Fastq_file_format Expected layout of the FASTQ input. Must be:
 #'        - 'merged': all FASTQ files are in a single directory.
 #'        - 'subdir': each sample has its own subdirectory containing FASTQ files.
-#' @param log_file The path of the log file.
+#' @param log_file Path to the log file where warnings and information messages are written.
 #'
 #' @details
 #' Error codes:
-#'    ERROR CODE 5: Invalid Fastq_file_format
-#'    ERROR CODE 6: No FASTQ files found (merged layout)
-#'    ERROR CODE 7: Subdirectory missing R1/R2/I1 (subdir layout)
+#'    ERROR CODE 5: Invalid Fastq_file_format argument.
+#'    ERROR CODE 6: No FASTQ files found in merged layout.
+#'    ERROR CODE 7: No sample subdirectories found in subdir layout.
+#'
+#' @return named list: A named list mapping sample prefixes to nested lists of file paths, e.g.:
+#' $sample1
+#' $R1
+#' $"/path/to/SampleA_R1.fastq.gz"
+#' $R2
+#' $"/path/to/SampleA_R2.fastq.gz"
+#'
+#' $sample2
+#' $R1
+#' $...
+#' $R2
+#' $...
+#'
+#' Only samples that contain **both R1 and R2** files are included.
 #'
 #' @export
 check_fastq_files <- function(input_dir, Fastq_file_format, log_file) {
@@ -26,11 +46,11 @@ check_fastq_files <- function(input_dir, Fastq_file_format, log_file) {
   # Validate Fastq_file_format
   # ------------------------------------------------------------
 
-  if (!(Fastq_file_format %in% c("merged", "subdir"))) stop("ERROR CODE 5: Invalid Fastq_file_format. Must be      merged or subdir.")
+  if (!(Fastq_file_format %in% c("merged", "subdir"))) stop("ERROR CODE 5: Invalid Fastq_file_format. Must be merged or subdir.")
 
   #
   # --------------------------------------------------------
-  #   Case 1: Merged layout - all FASTQs in one directory
+  #   Case 1: MERGED layout - all FASTQs in one directory
   # --------------------------------------------------------
   #
 
@@ -83,7 +103,7 @@ check_fastq_files <- function(input_dir, Fastq_file_format, log_file) {
   }
 
   # ------------------------------------------------------------
-  # Case 2: Subdirectory layout — one folder per sample
+  # Case 2: SUBDIR layout — one folder per sample
   # ------------------------------------------------------------
 
   else if (Fastq_file_format == "subdir") {
@@ -152,4 +172,25 @@ check_fastq_files <- function(input_dir, Fastq_file_format, log_file) {
     }
     return(samples)
   }
+  # ------------------------------------------------------------
+  # FINAL STEP - RETURN ONLY SAMPLES WITH BOTH R1 AND R2
+  # ------------------------------------------------------------
+
+  required <- c("R1", "R2")
+  missing <- c()
+
+  for (s in names(samples)) {
+    sample <- samples[[s]]
+    if (!(required %in% names(sample))) {
+      missing <- c(missing, s)
+    } else {
+      next
+    }
+  }
+
+  complete_samples <- samples[!names(samples) %in% missing]
+  print(complete_samples)
+
+  return(complete_samples)
 }
+

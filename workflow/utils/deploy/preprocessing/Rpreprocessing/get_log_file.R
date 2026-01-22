@@ -1,6 +1,6 @@
-#' checking_log_file
+#' get_log_file
 #'
-#' Checking the log file and if it exists, it will delete it.
+#' Create a timestamped log filename.
 #'
 #' @param config_folder The system-based absolute path of this script (because the configuration file needs to be
 #' next to it.)
@@ -9,12 +9,8 @@
 #'
 #' @export
 
-checking_log_file <- function(config_folder) {
+get_log_file <- function(config_folder) {
   timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
   log_file <- file.path(config_folder, paste0("preprocessing_", timestamp, ".log"))
-  if (file.exists(log_file)) {
-    file.remove(log_file)
-  }
-  file.create(log_file)
   return(log_file)
 }

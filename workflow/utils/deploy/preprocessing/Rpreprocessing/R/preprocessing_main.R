@@ -12,8 +12,7 @@ usethis::use_package("this.path", type = "Imports")
 #' @export
 main <- function() {
   config_folder <- dirname(this.path::this.dir())
-
-  log_file <- checking_log_file(config_folder)
+  log_file <- get_log_file(config_folder)
   log_file <- file.path(config_folder, "preprocessing.log")
   write_log("Log file created", log_file)
 
@@ -26,6 +25,7 @@ main <- function() {
 
   # Run backup
   result_path <- backup_config(config_folder, output_dir)
+
   cat("Backup complete! Files saved to:", result_path)
 
   input_dir <- configuration$input_dir
@@ -53,19 +53,20 @@ main <- function() {
   number_top_genes <- configuration$number_top_genes
 
   # Validate config values before running
-  if (any(sapply(list(genome_dir, fasta_file, gtf_file, read_length), is.null))) {
+  if (any(sapply(list(genome_dir, fasta_file, genome_index_params, splice_junction_params), is.null))) {
     stop("ERROR CODE 10: Missing required genome preparation parameters in configuration file.")
     write_log("ERROR CODE 10: Missing required genome preparation parameters in configuration file.", log_file)
   }
 
   # Prepare STAR genome index
-  prepare_STAR_genome(genome_dir, fasta_file, gtf_file, read_length, log_file)
+  prepare_STAR_genome(genome_dir, fasta_file, genome_index_params, splice_junction_params, log_file)
   # check platform and run star
   platform <- tolower(configuration$platform)
 
-  if (isTRUE(platform == "droplet")) {
-    run_STAR_solo_unified(configuration, log_file, solo = TRUE)
-    QC_10x(output_folder, log_file)
+  if (platform %in% c("10x", "DropSeq")) {
+    # STARsolo for both
+    run_STAR_unified(configuration, log_file)
+    QC_10x(output_dir, n_genes_by_counts_thres, pct_counts_mt_thres, total_counts_thres, log_file)
   } else if (isTRUE(platform == "SmartSeq")) {
     # Standard STAR
     run_STAR_unified(configuration, log_file)
@@ -77,4 +78,5 @@ main <- function() {
   }
 
   normalize_all_samples(output_dir, HVG_selection, number_top_genes, log_file)
+  write_log("Normalization completed for all samples", log_file)
 }

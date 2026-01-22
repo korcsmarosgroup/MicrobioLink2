@@ -8,7 +8,7 @@ usethis::use_package("tools", type = "Imports")
 #' @export
 
 backup_config <- function(config_folder, output_folder) {
-  timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+  timestamp <- format(Sys.time(), "%Y-%m-%d_%H-%M-%S")
 
   dir.create(output_folder)
 
