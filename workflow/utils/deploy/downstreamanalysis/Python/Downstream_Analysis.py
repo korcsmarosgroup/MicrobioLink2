@@ -8,6 +8,8 @@ import os
 from time import strftime
 from scipy import sparse
 import matplotlib.pyplot as plt
+import shutil
+
 
 
 ############################################################
@@ -96,6 +98,31 @@ def LoadingConfiguration(config_path, log_file):
         sys.stderr.write(f"ERROR MESSAGE: Cannot read configuration: {e}\n")
         sys.exit(2)
     return config
+
+def backup_config(config_folder, output_folder):
+    """
+        Copy YAML files (*.yaml, *.yml) from config_folder into output_folder.
+        Adds a timestamp to each file name instead of creating a backup folder.
+        Example: config.yaml → config_2025-02-10_15-32-18.yaml
+    """
+    timestamp = strftime("%Y-%m-%d_%H-%M-%S")
+
+    os.makedirs(output_folder, exist_ok=True)
+
+    for filename in os.listdir(config_folder):
+        if filename.endswith(".yaml") or filename.endswith(".yml"):
+            src = os.path.join(config_folder, filename)
+
+            # Split filename into name + extension
+            name, ext = os.path.splitext(filename)
+
+            # New filename with timestamp
+            new_filename = f"{name}_{timestamp}{ext}"
+            dst = os.path.join(output_folder, new_filename)
+
+            shutil.copy2(src, dst)
+
+    return output_folder
 
 ############################################################
 # LOAD NORMALIZED OUTPUTS
@@ -481,7 +508,13 @@ def main():
 
     cfg_path = CheckingConfiguration(config_folder)
     config = LoadingConfiguration(cfg_path, log_file)
+    output_dir = config.get("output_dir")
 
+    # Run backup
+    result_path = backup_config(config_folder, output_dir)
+
+    print(f"Backup complete! Files saved to: {result_path}")
+    
     input_dir = config.get("input_dir")
     output_file = config.get("output_adata", "analysis_output.h5ad")
 

@@ -3,6 +3,7 @@
 # ================================
 input_dir: ""     #  where each sample folder contains normalized.h5ad
 output_adata: "analysis_output.h5ad"           # Name of final merged AnnData output file
+output_dir: ".config backup"
 
 # ================================
 # PCA Settings
