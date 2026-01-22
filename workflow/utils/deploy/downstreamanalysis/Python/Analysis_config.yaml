@@ -1,7 +1,7 @@
 # ================================
 # Input / Output
 # ================================
-input_dir: "/path/to/preprocessed_samples"     # Folder where each sample folder contains normalized.h5ad
+input_dir: "/mnt/c/Users/matte/MicrobioLink2/workflow/utils/deploy/downstreamanalysis/Python/Data/"     #  where each sample folder contains normalized.h5ad
 output_adata: "analysis_output.h5ad"           # Name of final merged AnnData output file
 
 # ================================
@@ -12,10 +12,13 @@ pca_components: 50                              # Number of principal components
 # ================================
 # Batch Correction
 # ================================
+                           # Column in adata.obs representing the batch source
 batch_correction:
-  use_harmony: true                              # true/false — if true, Harmony will run
-  batch_key: "sample"                            # Column in adata.obs representing the batch source
-
+  use_scvi: false          # or false
+  use_harmony: true      # or true
+  batch_key: "sample"       # column in .obs for batch
+  n_latent: 30            # only for scVI
+  max_epochs: 400         # only for scVI
 # (In future you could add:)
 # use_scanorama: false
 # use_scvi: false
@@ -27,7 +30,10 @@ batch_correction:
 embedding:
   umap: true                                     # Run UMAP
   tsne: false                                    # Optional: run t-SNE
-
+plots:
+  umap:
+    run: true
+    output_dir: "umap_plots"
 # ================================
 # Clustering Settings
 # ================================
@@ -41,3 +47,9 @@ clustering:
 marker_genes:
   run: true                                       # Run sc.tl.rank_genes_groups
   groupby: "leiden"                               # Grouping var (defaults to cluster labels used)
+
+# ================================
+# Cell Annotation
+# ================================
+cell_annotation_file: "/mnt/c/Users/matte/MicrobioLink2/workflow/utils/deploy/downstreamanalysis/Python/epithelial.h5ad"
+celltype_col: "Prelim_annotation"
