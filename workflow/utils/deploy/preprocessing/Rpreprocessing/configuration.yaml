@@ -1,0 +1,67 @@
+# ==============================
+# Base directories
+# ==============================
+input_dir: "input_dir"
+output_dir: "./results"
+platform: "droplet"  # micro well
+Fastq_file_format: "merged"  # or "subdir"
+
+# ==============================
+# STAR genome build parameters
+# ==============================
+genome_dir: "./genome" # Output folder for the genome index preparation
+fasta_file: "fasta"
+
+# Genome indexing parameters (17.5)
+genome_index_params:
+  genomeChrBinNbits: 18
+  genomeSAindexNbases: 14
+  genomeSAsparseD: 1
+  genomeSuffixLengthMax: -1
+  genomeTransformType: None       # None | Haploid | Diploid
+  genomeTransformVCF: null        # Path to VCF if genomeTransformType is Haploid/Diploid
+
+# Splice junction parameters (17.6)
+splice_junction_params:
+  sjdbFileChrStartEnd: null       # Optional path(s) to files with genomic coordinates of introns
+  sjdbGTFfile: ".gtf"
+  sjdbGTFchrPrefix: ""
+  sjdbGTFfeatureExon: "exon"
+  sjdbGTFtagExonParentTranscript: "transcript_id"
+  sjdbGTFtagExonParentGene: "gene_id"
+  sjdbGTFtagExonParentGeneName: "gene_name"
+  sjdbGTFtagExonParentGeneType: "gene_biotype"
+  sjdbOverhang: 99                
+  sjdbScore: 2
+  sjdbInsertSave: "Basic"         # "Basic" or "All"
+
+# ==============================
+# STARsolo parameters
+# ==============================
+STARsolo_params:
+  soloType: "CB_UMI_Simple"
+  soloCBstart: 1
+  soloCBlen: 16
+  soloUMIstart: 17
+  solorUMIlen: 12
+  whitelist: "./whitelist/10x_whitelist.txt"
+
+# ==============================
+# STAR parameters
+# ==============================
+star_params:
+  outSAMtype: "BAM SortedByCoordinate"
+  outFilterMultimapNmax: 1
+  twopassMode: "Basic"
+  outSAMattributes: "NH HI AS nM MD"
+  outSAMunmapped: "Within"
+  outSAMmapqUnique: 60
+  outFilterMismatchNoverLmax: 0.04
+  alignSJoverhangMin: 8
+  alignSJDBoverhangMin: 1
+
+# ==============================
+# Normalization parameters
+# ==============================
+HVG_selection: True # or False
+number_top_genes: 2000

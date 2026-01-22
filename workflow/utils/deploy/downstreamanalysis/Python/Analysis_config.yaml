@@ -1,0 +1,43 @@
+# ================================
+# Input / Output
+# ================================
+input_dir: "/path/to/preprocessed_samples"     # Folder where each sample folder contains normalized.h5ad
+output_adata: "analysis_output.h5ad"           # Name of final merged AnnData output file
+
+# ================================
+# PCA Settings
+# ================================
+pca_components: 50                              # Number of principal components
+
+# ================================
+# Batch Correction
+# ================================
+batch_correction:
+  use_harmony: true                              # true/false — if true, Harmony will run
+  batch_key: "sample"                            # Column in adata.obs representing the batch source
+
+# (In future you could add:)
+# use_scanorama: false
+# use_scvi: false
+# etc.
+
+# ================================
+# Embedding (UMAP / t-SNE)
+# ================================
+embedding:
+  umap: true                                     # Run UMAP
+  tsne: false                                    # Optional: run t-SNE
+
+# ================================
+# Clustering Settings
+# ================================
+clustering:
+  method: "leiden"                               # "leiden" or "louvain"
+  resolution: 1.0                                 # Higher = more clusters
+
+# ================================
+# Marker Gene Identification
+# ================================
+marker_genes:
+  run: true                                       # Run sc.tl.rank_genes_groups
+  groupby: "leiden"                               # Grouping var (defaults to cluster labels used)
