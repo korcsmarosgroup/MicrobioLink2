@@ -53,3 +53,5 @@ marker_genes:
 # ================================
 cell_annotation_file: ""
 celltype_col: ""
+cell_annotation:
+  max_epochs: 50         # only for scVI
