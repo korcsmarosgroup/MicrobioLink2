@@ -20,7 +20,7 @@ dependencies = [
     "iupred @ git+https://github.com/saezlab/iupred.git",
 ]
 description = "Prediction of microbe-host protein interactions using domain-motif interactions and intrinsically disordered regions"
-license = "BSD-2-Clause"
+license = "BSD-3-Clause"
 maintainers = [
     {name="Leila Potari-Gul", email="l.potari-gul@imperial.ac.uk"},
 ]

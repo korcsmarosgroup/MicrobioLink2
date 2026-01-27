@@ -8,7 +8,7 @@
 #
 # File author(s): Leila Potari-Gul (l.potari-gul@imperial.ac.uk)
 #
-# Distributed under the BSD-2-Clause license
+# Distributed under the BSD-3-Clause license
 # See the file `LICENSE` or read a copy at
 # https://opensource.org/license/bsd-2-clause
 #
