@@ -16,6 +16,8 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Bio-Informatics"
 ]
 dependencies = [
+    "tiedie @ git+https://github.com/saezlab/tiedie.git",
+    "iupred @ git+https://github.com/saezlab/iupred.git",
 ]
 description = "Prediction of microbe-host protein interactions using domain-motif interactions and intrinsically disordered regions"
 license = "BSD-2-Clause"
