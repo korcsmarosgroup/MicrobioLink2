@@ -1,0 +1,72 @@
+{
+  "template": "git@github.com:saezlab/python-project.git",
+  "commit": "4713b199398b024d97880e172b4d147331b50b5b",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "MicrobioLink",
+      "project_slug": "microbiolink",
+      "package_name": "microbiolink",
+      "short_description": "Prediction of microbe-host protein interactions using domain-motif interactions and intrinsically disordered regions",
+      "readme": "Prediction of microbe-host protein interactions using domain-motif interactions and intrinsically disordered regions",
+      "author_full_name": "Leila Potari-Gul",
+      "author_email": "l.potari-gul@imperial.ac.uk",
+      "github_organization": "korcsmarosgroup",
+      "project_repo": "https://github.com/korcsmarosgroup/microbiolink",
+      "license": "BSD 2-Clause License",
+      "_license": {
+        "MIT License": {
+          "license_short": "MIT",
+          "license_classifiers": "MIT License",
+          "license_spdx": "MIT"
+        },
+        "BSD 2-Clause License": {
+          "license_short": "BSD-2-Clause",
+          "license_classifiers": "BSD License",
+          "license_spdx": "BSD-2-Clause"
+        },
+        "BSD 3-Clause License": {
+          "license_short": "BSD-3-Clause",
+          "license_classifiers": "BSD License",
+          "license_spdx": "BSD-3-Clause"
+        },
+        "Apache License Version 2.0": {
+          "license_short": "Apache-2.0",
+          "license_classifiers": "Apache Software License",
+          "license_spdx": "Apache-2.0"
+        },
+        "GNU General Public License Version 3": {
+          "license_short": "GPL-3.0-or-later",
+          "license_classifiers": "GNU General Public License v3 (GPLv3)",
+          "license_spdx": "GPL-3.0-or-later"
+        },
+        "GNU Lesser General Public License Version 3": {
+          "license_short": "LGPL-3.0-or-later",
+          "license_classifiers": "GNU Lesser General Public License v3 (LGPLv3)",
+          "license_spdx": "LGPL-3.0-or-later"
+        },
+        "ISC License": {
+          "license_short": "ISC",
+          "license_classifiers": "ISC License (ISCL)",
+          "license_spdx": "ISC"
+        },
+        "Unlicense": {
+          "license_short": "Unlicense",
+          "license_classifiers": "The Unlicense (Unlicense)",
+          "license_spdx": "Unlicense"
+        }
+      },
+      "python_version": "3.9",
+      "copyright_holder": "Korcsmaros Group, Imperial College London",
+      "include_security_workflow": "no",
+      "include_multiversion_testing": "yes",
+      "__year": "2026",
+      "_extensions": [
+        "cookiecutter.extensions.TimeExtension"
+      ],
+      "_template": "git@github.com:saezlab/python-project.git",
+      "_commit": "4713b199398b024d97880e172b4d147331b50b5b"
+    }
+  },
+  "directory": null
+}
