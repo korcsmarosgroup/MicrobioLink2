@@ -17,18 +17,14 @@
 import argparse, logging, os, sys, warnings
 
 # ── third‑party ───────────────────────────────────────────────────────────────
-import numpy as np
 from Bio import SeqIO
-import torch
-from scipy.signal import savgol_filter
-from torch.nn.functional import pad  # needed by custom binding()
-
-# ── local ────────────────────────────────────────────────────────────────────
-import aiupred_lib
+from iupred import (
+    init_aiupred_models,
+    predict_aiupred_binding,
+    predict_aiupred_disorder,
+)
 
 warnings.filterwarnings("ignore")
-AA_CODE = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y', 'X']
-WINDOW = 100
 THRESHOLD = 0.60  # score cutoff for both tracks
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -140,93 +136,7 @@ def read_seq(fasta_path):
     with open(fasta_path) as fh:
         return ''.join(line.strip() for line in fh if not line.startswith('>'))
 
-# def binding_transform_v2(folder, prediction, smoothing=True):
-#     transform = {}
-#     iupred_data_folder = os.path.join(folder, "aiupred_data")
-#     with open(f'{iupred_data_folder}/binding_transform') as fn:
-#         for line in fn:
-#             key, value = line.strip().split()
-#             transform[int(float(key) * 1000)] = float(value)
-#     rounded_pred = np.rint(prediction * 1000)
-#     transformed_pred = np.vectorize(transform.get)(rounded_pred)
-#     if not smoothing:
-#         return transformed_pred
-#     pred = savgol_filter(transformed_pred, 11, 5)
-#     pred[pred > 1] = 1
-#     return pred
 
-# ═════════════════════════════════════════════════════════════════════════════
-# AIUPred wrappers
-# ═════════════════════════════════════════════════════════════════════════════
-
-
-# @torch.no_grad()
-# def tokenize(sequence, device):
-#     """
-#     Tokenize an amino acid sequence. Non-standard amino acids are treated as X
-#     :param sequence: Amino acid sequence in string
-#     :param device: Device to run on. CUDA{x} or CPU
-#     :return: Tokenized tensors
-#     """
-#     return torch.tensor([AA_CODE.index(aa) if aa in AA_CODE else 20 for aa in sequence], device=device)
-
-def initialise_models(resources_folder, which, device, gpu_num, force_cpu):
-    data_dir = os.path.join(resources_folder, 'aiupred_data')
-    if which == 'disorder':
-        emb = aiupred_lib.TransformerModel()
-        emb.load_state_dict(torch.load(os.path.join(data_dir, 'embedding_disorder.pt'),
-                                       map_location=device))
-        dec = aiupred_lib.DecoderModel()
-        dec.load_state_dict(torch.load(os.path.join(data_dir, 'disorder_decoder.pt'),
-                                       map_location=device))
-    else:
-        emb = aiupred_lib.BindingTransformerModel()
-        emb.load_state_dict(torch.load(os.path.join(data_dir, 'embedding_binding.pt'),
-                                       map_location=device))
-        dec = aiupred_lib.BindingDecoderModel()
-        dec.load_state_dict(torch.load(os.path.join(data_dir, 'binding_decoder.pt'),
-                                       map_location=device))
-
-    emb.to(device).eval()
-    dec.to(device).eval()
-    return emb, dec
-
-def binding_transform_v2(resources_folder, prediction, smoothing=True):
-    tf_path = os.path.join(resources_folder, 'aiupred_data', 'binding_transform')
-    table = {}
-    with open(tf_path) as fh:
-        for line in fh:
-            k, v = line.strip().split()
-            table[int(float(k) * 1000)] = float(v)
-
-    rounded = np.rint(prediction * 1000)
-    transformed = np.vectorize(table.get)(rounded)
-    if not smoothing:
-        return transformed
-    pred = savgol_filter(transformed, 11, 5)
-    pred[pred > 1] = 1
-    return pred
-
-def predict_binding_v2(resources_folder, seq, embed_model, dec_model, device,
-                    smoothing=True, binding=True):
-    """AIUPred‑binding per‑residue profile (0‑1).
-    Re‑implements library call so we can inject our own transform path."""
-    tokens = aiupred_lib.tokenize(seq, device)
-    padded = pad(tokens, (WINDOW//2, WINDOW//2), value=0)
-    unfold = padded.unfold(0, WINDOW+1, 1)
-
-    emb = embed_model(unfold, embed_only=True)
-    emb_pad = pad(emb, (0, 0, 0, 0, WINDOW//2, WINDOW//2), value=0)
-    emb_unf = emb_pad.unfold(0, WINDOW+1, 1)
-    decoder_in = emb_unf.permute(0, 2, 1, 3)
-    pred = dec_model(decoder_in).detach().cpu().numpy()
-
-    if binding:
-        print(binding_transform_v2(resources_folder, pred, smoothing=smoothing))
-        return binding_transform_v2(resources_folder, pred, smoothing=smoothing)
-    if smoothing and len(seq) > 10:
-        return savgol_filter(pred, 11, 5)
-    return pred
 
 
 
@@ -235,25 +145,22 @@ def predict_binding_v2(resources_folder, seq, embed_model, dec_model, device,
 # Motif filtering
 # ═════════════════════════════════════════════════════════════════════════════
 
-def predict_tracks(folder, seq_dict, device, gpu_num, force_cpu):
+def predict_tracks(seq_dict, force_cpu, gpu_num):
     """Return two dicts: disorder[pid], binding[pid]  (NumPy 1-D arrays)."""
-    dis_e, dis_d = initialise_models(
-        folder, 'disorder', device=device, gpu_num=gpu_num, force_cpu=force_cpu)
+    dis_e, dis_d, device = init_aiupred_models(
+        'disorder', force_cpu=force_cpu, gpu_num=gpu_num)
 
-    # binding models
-    bin_e, bin_d = initialise_models(
-        folder, 'binding',  device=device, gpu_num=gpu_num, force_cpu=force_cpu)
+    bin_e, bin_d, _ = init_aiupred_models(
+        'binding', force_cpu=force_cpu, gpu_num=gpu_num)
 
     disorder_profiles, binding_profiles = {}, {}
-    #print(seq_dict.items())
-    #print(len(seq_dict.items()))
     for pid, seq in seq_dict.items():
-        disorder_profiles[pid] = aiupred_lib.predict_disorder(
+        disorder_profiles[pid] = predict_aiupred_disorder(
             seq, dis_e, dis_d, device, smoothing=True)
 
-        binding_profiles[pid] = predict_binding_v2(
-            folder, seq, bin_e, bin_d, device,
-            smoothing=True, binding=True)      # 0–1 range
+        binding_profiles[pid] = predict_aiupred_binding(
+            seq, bin_e, bin_d, device,
+            smoothing=True, binding=True)
 
     return disorder_profiles, binding_profiles
 
@@ -348,15 +255,9 @@ def main(argv=None):
             for f in os.listdir(seq_dir) if f.endswith('.fasta')}
 
 
-    # 3) device selection
-    device = torch.device('cpu') if args.force_cpu or not torch.cuda.is_available() \
-             else torch.device(f'cuda:{args.gpu}')
-    logging.info('Using device %s', device)
-
-    # 4) predict tracks
+    # 3) predict tracks
     logging.info('Running AIUPred on %d proteins', len(seqs))
-    disorder, binding = predict_tracks(args.resources, seqs, device, gpu_num=0, force_cpu=False)
-    print(disorder)
+    disorder, binding = predict_tracks(seqs, force_cpu=args.force_cpu, gpu_num=args.gpu)
 
     # 5) filter motifs
     logging.info('Filtering motifs with score ≥%.2f in both tracks', THRESHOLD)

@@ -1,8 +1,8 @@
 import argparse
 import os
 import sys
-from iupred2a import read_seq, iupred, anchor2
 from Bio import SeqIO
+from iupred import iupred, anchor2
 
 
 def parse_args(argv):
@@ -76,6 +76,11 @@ def get_motif(file):
 
     return motif
 
+def read_seq(fasta_path):
+    """Read the sequence from a single-sequence FASTA file."""
+    with open(fasta_path) as fh:
+        return ''.join(line.strip() for line in fh if not line.startswith('>'))
+
 def split_large_fasta_file(fasta_file, protein_list, folder):
     """Creating small fasta files from a large one - not downloading one by one"""
     sequence_folder = os.path.join(folder, "protein_sequences")
@@ -92,19 +97,16 @@ def run_iupred(folder, method_type='short', anchor=True):
     motif_score = {}
     sequence_folder = os.path.join(folder, "protein_sequences")
     os.makedirs(sequence_folder, exist_ok=True)
-    iupred_data_folder = os.path.join(folder, "iupred_data")
-    os.makedirs(iupred_data_folder, exist_ok=True)
-    #iupred_data_folder = os.path.dirname(iupred_data_folder)
 
     for sequence in os.listdir(sequence_folder):
         protein_name = str(sequence).split(".")[0]
         sequence = read_seq(os.path.join(sequence_folder, sequence))
-        iupred2_result = iupred(iupred_data_folder, sequence, method_type)
+        iupred2_result = iupred(sequence, method_type)
         if anchor:
             if method_type == 'long':
-                anchor2_res = anchor2(iupred_data_folder, sequence, iupred2_result[0])
+                anchor2_res = anchor2(sequence, iupred2_result[0])
             else:
-                anchor2_res = anchor2(iupred_data_folder, sequence, iupred(iupred_data_folder, sequence, 'long')[0])
+                anchor2_res = anchor2(sequence, iupred(sequence, 'long')[0])
         if method_type == 'glob':
             motif_score[protein_name] = iupred2_result[1]
         for pos, residue in enumerate(sequence):
