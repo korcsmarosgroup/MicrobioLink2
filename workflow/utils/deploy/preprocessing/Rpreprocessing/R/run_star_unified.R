@@ -50,7 +50,7 @@ run_STAR_unified <- function(configuration, log_file) {
   if (isTRUE(platform == "SmartSeq")) {
     mode <- "STAR"
     params <- file$star_params
-    output_dir <- file.path(output_dir, "STAR_out")
+    output_dir <- file.path(output_dir, "SmartSeq")
   } else if (isTRUE(platform == "10x")) {
     mode <- "STARsolo"
     params <- file$STARsolo_params_10x
@@ -62,6 +62,8 @@ run_STAR_unified <- function(configuration, log_file) {
   } else {
     write_log(paste0("ERROR: Platform ", platform, " not recognised. Use SmartSeq, 10x or DropSeq."), log_file)
   }
+
+  write_log(paste0("Selected mode: ", mode, " for platform: ", platform), write_log)
 
   # ==================================
   # Validate FASTQ files
@@ -109,7 +111,7 @@ run_STAR_unified <- function(configuration, log_file) {
     cmd <- c(cmd_base, cmd_args)
     pipeline <- paste(cmd, collapse = " ")
 
-    # gzipped FASTQs
+    # Gzipped reads
     gzipped <- FALSE
     zcat <- NULL
     cmd_unzip <- NULL

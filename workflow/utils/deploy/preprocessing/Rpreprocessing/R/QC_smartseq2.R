@@ -7,10 +7,10 @@ usethis::use_package("ggplot2", type = "Imports")
 #' @export
 
 QC_smartseq2 <- function(output_folder, log_file, platform = "smartseq2") {
-
   write_log(paste0("Running QC for ", platform, " samples..."), log_file)
 
-  dir_list <- list.dirs(output_folder, recursive = FALSE, full.names = FALSE)
+  checking_directory <- file.path(output_folder, "SmartSeq")
+  dir_list <- list.dirs(checking_directory, recursive = FALSE, full.names = FALSE)
   for (sample in dir_list) {
     sample_path <- file.path(output_folder, sample)
     count_file <- file.path(sample_path, "counts.tsv")
@@ -43,10 +43,6 @@ QC_smartseq2 <- function(output_folder, log_file, platform = "smartseq2") {
   smartseq2_vlnplot <- VlnPlot(smartseq2_data, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
   smartseq2_VlnPlot_name <- paste0(sample, "_smartseq2_VlnPlot.png")
   ggplot2::ggsave(filename = smartseq2_VlnPlot_name, plot = smartseq2_vlnplot, path = qc_dir, width = 12, height = 8, dpi = 300)
-
-  # --- Bar plot: total counts ---
-
-
 
   # --- Filtering ---
   smartseq2_filtered <- subset(smartseq2_data, subset = nFeature_RNA < 10000 & percent.mt < 15)

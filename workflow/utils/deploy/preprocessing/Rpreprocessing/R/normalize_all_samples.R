@@ -16,8 +16,14 @@
 #' @export
 
 normalize_all_samples <- function(output_dir, HVG_selection, number_top_genes, log_file) {
+  if (platform == "DropSeq") {
+    output_dir <- file.path(output_dir, "STARsolo_DropSeq_out")
+  } else if (platform == "10x") {
+    output_dir <- file.path(output_dir, "STARsolo_10x_out")
+  } else if (platform == "SmartSeq") {
+    output_dir <- file.path(output_dir, "SmartSeq")
+  }
 
-  output_dir <- file.path(output_dir, "STARsolo_out")
   write_log(paste0("Starting normalisation of all samples in ", output_dir), log_file)
 
   tryCatch(
@@ -84,9 +90,7 @@ normalize_all_samples <- function(output_dir, HVG_selection, number_top_genes, l
             col.names = NA
           )
           write_log(paste0("Saved normalized and scaled HVG data for ", sample, " to ", output_hvg_tsv), log_file)
-
         } else {
-
           # Scale data
           sc_normalized_scaled <- ScaleData(sc_normalized, features = all_genes)
 
