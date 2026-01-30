@@ -13,18 +13,16 @@ pca_components: 50                              # Number of principal components
 # ================================
 # Batch Correction
 # ================================
-                           # Column in adata.obs representing the batch source
 batch_correction:
-  use_scvi: false          # or false
-  use_harmony: true      # or true
-  batch_key: "sample"       # column in .obs for batch
-  n_latent: 30            # only for scVI
-  max_epochs: 400         # only for scVI
-# (In future you could add:)
-# use_scanorama: false
-# use_scvi: false
-# etc.
-
+  use_scvi: true
+  use_harmony: false
+  batch_key: "sample"
+  n_latent: 30
+  max_epochs: 400
+  early_stopping:
+    patience: 20                # Stop if no improvement for 20 epochs
+    threshold: 0.001            # Minimum improvement to count as progress
+    check_val_every_n_epoch: 1  # How often to check for improvement
 # ================================
 # Embedding (UMAP / t-SNE)
 # ================================
@@ -52,7 +50,13 @@ marker_genes:
 # ================================
 # Cell Annotation
 # ================================
-cell_annotation_file: ""
-celltype_col: ""
 cell_annotation:
-  max_epochs: 50         # only for scVI
+  method: "knn"           # "scanvi" or "knn"
+  max_epochs: 50          # only used for scANVI
+  knn_k: 5                # only used for KNN
+  early_stopping:
+    patience: 10
+    threshold: 0.001
+    check_val_every_n_epoch: 1
+cell_annotation_column: "celltype"
+cell_annotation_file: "reference.h5ad"

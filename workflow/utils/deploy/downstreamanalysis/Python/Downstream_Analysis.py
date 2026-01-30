@@ -179,35 +179,50 @@ def load_all_samples(input_dir, log_file):
 # SCVI
 ############################################################
 
-def batch_scvi(adata, batch_key, n_latent, max_epochs, log_file):
+def batch_scvi(adata, batch_key, n_latent, max_epochs, log_file, early_stopping_cfg=None):
     try:
         import scvi
     except ImportError:
         sys.stderr.write("ERROR MESSAGE: scvi-tools is required for scVI.\n")
         sys.exit(6)
 
-    _log(f"Running scVI with batch key '{batch_key}', n_latent={n_latent}, max_epochs={max_epochs}", log_file)
+    # ------------------ Early stopping parameters ------------------
+    patience = 20
+    threshold = 0.001
+    check_every = 1
 
-    # Setup AnnData for SCVI
+    if early_stopping_cfg:
+        patience = early_stopping_cfg.get("patience", patience)
+        threshold = early_stopping_cfg.get("threshold", threshold)
+        check_every = early_stopping_cfg.get("check_val_every_n_epoch", check_every)
+
+    _log(f"Running scVI with batch_key='{batch_key}', n_latent={n_latent}, "
+         f"max_epochs={max_epochs}, early_stopping (patience={patience}, threshold={threshold})", log_file)
+
+    # ------------------ Setup AnnData for scVI ------------------
     if "counts" in adata.layers:
         scvi.model.SCVI.setup_anndata(adata, layer="counts", batch_key=batch_key)
     else:
         _log("WARNING: No 'counts' layer found; using adata.X as counts (not ideal).", log_file)
         scvi.model.SCVI.setup_anndata(adata, batch_key=batch_key)
 
+    # ------------------ Initialize and train scVI ------------------
     model = scvi.model.SCVI(adata, n_latent=n_latent)
-    model.train(max_epochs=max_epochs)
-    
-    # Latent space for clustering / UMAP
-    adata.obsm["X_scVI"] = model.get_latent_representation()
+    model.train(
+        max_epochs=max_epochs,
+        early_stopping=True,
+        early_stopping_kwargs={
+            "patience": patience,
+            "threshold": threshold,
+            "check_val_every_n_epoch": check_every
+        }
+    )
 
-    # scVI-normalized expression
-    adata.layers["scvi_norm"] = model.get_normalized_expression(
-        library_size=1e4
-        )
-    
+    # ------------------ Store latent space and normalized layers ------------------
+    adata.obsm["X_scVI"] = model.get_latent_representation()
+    adata.layers["scvi_norm"] = model.get_normalized_expression(library_size=1e4)
     adata.layers["scvi_log"] = np.log1p(adata.layers["scvi_norm"])
-   
+
     return adata
 ############################################################
 # PCA
@@ -384,6 +399,13 @@ def annotate_cells(adata, config, log_file, batch_method="pca"):
     celltype_col = config.get("cell_annotation_column", "celltype")
     batch_col = config.get("batch_correction", {}).get("batch_key", None)
     max_epochs = config.get("cell_annotation", {}).get("max_epochs", 50)
+    method = config.get("cell_annotation", {}).get("method", "scanvi")  # 'scanvi' or 'knn'
+    k_neighbors = config.get("cell_annotation", {}).get("knn_k", 5)
+    early_stop_cfg = config.get("cell_annotation", {}).get("early_stopping", {})
+    patience = early_stop_cfg.get("patience", 10)
+    threshold = early_stop_cfg.get("threshold", 0.001)
+    check_every = early_stop_cfg.get("check_val_every_n_epoch", 1)
+
 
     # ------------------ No annotation file ------------------
     if not annotation_file:
@@ -417,40 +439,63 @@ def annotate_cells(adata, config, log_file, batch_method="pca"):
             return adata
 
         elif batch_method == "scvi":
-            # ------------------ Use scANVI ------------------
-            _log("Using scANVI for label transfer (scVI batch correction).", log_file)
-            import scvi
+            rep = "X_scVI"
+            if method.lower() == "scanvi":
+                _log("Using scANVI for label transfer (scVI batch correction).", log_file)
+                import scvi
+                if batch_col not in ref.obs.columns:
+                    batch_col = None
+                    _log("Reference has no batch column; scANVI will run without batch info.", log_file)
+                scvi.model.SCANVI.setup_anndata(ref, labels_key=celltype_col, batch_key=batch_col)
+                scanvi_model = scvi.model.SCANVI.load_query_data(ref, adata, labels_key=celltype_col)
+                _log(f"Training scANVI for {max_epochs} epochs with early stopping "
+                     f"(patience={patience}, threshold={threshold})", log_file)
+                scanvi_model.train(
+                    max_epochs=max_epochs,
+                    plan_kwargs={"weight_decay": 0.0},
+                    early_stopping=True,
+                    early_stopping_kwargs={
+                        "patience": patience,
+                        "threshold": threshold,
+                        "check_val_every_n_epoch": check_every
+                    }
+                )
+                pred_labels, pred_probs = scanvi_model.predict(adata, return_proba=True)
+                adata.obs[celltype_col] = pred_labels
+                adata.obs["prediction_confidence"] = pred_probs.max(axis=1)
+                _log("Label transfer complete with scANVI.", log_file)
+                return adata
 
-            # If reference has only one batch, batch_key can be None
-            if batch_col not in ref.obs.columns:
-                batch_col = None
-                _log("Reference has no batch column; scANVI will run without batch info.", log_file)
+            elif method.lower() == "knn":
+                _log(f"Using KNN label transfer on {rep} latent space (scVI batch correction).", log_file)
+                from sklearn.neighbors import NearestNeighbors
 
-            # Setup scANVI on reference
-            scvi.model.SCANVI.setup_anndata(ref, labels_key=celltype_col, batch_key=batch_col)
+                knn = NearestNeighbors(n_neighbors=k_neighbors)
+                knn.fit(ref.obsm[rep])
+                distances, indices = knn.kneighbors(adata.obsm[rep])
 
-            # Load query into scANVI
-            scanvi_model = scvi.model.SCANVI.load_query_data(ref, adata, labels_key=celltype_col)
+                pred_labels = []
+                pred_conf = []
+                labels_ref = ref.obs[celltype_col].values
+                for neighbors in indices:
+                    neighbor_labels = labels_ref[neighbors]
+                    counts = pd.Series(neighbor_labels).value_counts()
+                    pred_labels.append(counts.idxmax())
+                    pred_conf.append(counts.max() / k_neighbors)
 
-            # Train scANVI
-            _log(f"Training scANVI for {max_epochs} epochs.", log_file)
-            scanvi_model.train(max_epochs=max_epochs, plan_kwargs={"weight_decay": 0.0})
+                adata.obs[celltype_col] = pred_labels
+                adata.obs["prediction_confidence"] = pred_conf
+                _log("Label transfer complete with KNN.", log_file)
+                return adata
 
-            # Predict labels
-            pred_labels, pred_probs = scanvi_model.predict(adata, return_proba=True)
-            adata.obs[celltype_col] = pred_labels
-            adata.obs["prediction_confidence"] = pred_probs.max(axis=1)
-
-            _log("Label transfer complete with scANVI.", log_file)
-            return adata
-
-        else:
-            _log(f"Unknown batch_method '{batch_method}'. Using Leiden clusters as fallback.", log_file)
-            adata.obs[celltype_col] = adata.obs.get(
-                config.get("marker_genes", {}).get("groupby", "leiden")
-            )
-            return adata
-
+                
+    else:
+        # ------------------ Fallback to Leiden ------------------
+        _log(f"Unknown batch_method '{batch_method}'. Using Leiden clusters as fallback.", log_file)
+        adata.obs[celltype_col] = adata.obs.get(
+        config.get("marker_genes", {}).get("groupby", "leiden")
+    )
+    return adata
     # ------------------ Marker gene list fallback ------------------
     if os.path.isfile(annotation_file):
         _log(f"Using marker gene list for annotation: {annotation_file}", log_file)
@@ -535,13 +580,18 @@ def main():
     use_harmony = batch_cfg.get("use_harmony", False)
 
     if use_scvi:
-        # scVI does NOT use PCA
-        if "batch_key" not in batch_cfg:
-            sys.stderr.write("ERROR: batch_key must be provided for scVI.\n")
-            sys.exit(1)
         n_latent = batch_cfg.get("n_latent", 30)
         max_epochs = batch_cfg.get("max_epochs", 400)
-        adata = batch_scvi(adata, batch_cfg["batch_key"], n_latent, max_epochs, log_file)
+        early_stop_cfg = batch_cfg.get("early_stopping", {})  # Read early stopping config from YAML
+        
+        adata = batch_scvi(
+            adata,
+            batch_cfg["batch_key"],
+            n_latent,
+            max_epochs,
+            log_file,
+            early_stopping_cfg=early_stop_cfg
+            )
         rep_for_downstream = "X_scVI"
 
     elif use_harmony:
