@@ -1,104 +1,211 @@
-import re
+#!/usr/bin/env python
+
+"""Predict host-microbe interactions from domain-motif matches."""
+
+from __future__ import annotations
+
 import argparse
-from pyfasta import Fasta
-from collections.abc import Mapping
+import re
+from pathlib import Path
 
-def rename(fasta_key):
-    """Extract UniProt ID from FASTA header."""
-    fasta_key = fasta_key.split("|")
-    fasta_key = fasta_key[1]
-    return fasta_key
 
-def parse_elm_regex(filename):
-    """Parse the ELM regex from a file."""
-    elm_regex = {}
-    with open(filename, "r") as motif_table:
-        motif_table.readline()
+def extract_uniprot_id(fasta_header: str) -> str:
+    """Extract the UniProt identifier from a FASTA header."""
+
+    fields = fasta_header.split('|')
+    if len(fields) < 2:
+        raise ValueError(
+            f'FASTA header does not contain a UniProt identifier: {fasta_header}',
+        )
+    return fields[1]
+
+
+def read_fasta_sequences(filename: str | Path) -> dict[str, str]:
+    """Read a FASTA file into a header-to-sequence mapping."""
+
+    sequences: dict[str, str] = {}
+    current_header: str | None = None
+    current_fragments: list[str] = []
+
+    with open(filename, encoding='utf-8') as fasta_file:
+        for raw_line in fasta_file:
+            line = raw_line.strip()
+
+            if not line:
+                continue
+
+            if line.startswith('>'):
+                if current_header is not None:
+                    sequences[current_header] = ''.join(current_fragments)
+
+                current_header = line[1:]
+                current_fragments = []
+                continue
+
+            current_fragments.append(line)
+
+    if current_header is not None:
+        sequences[current_header] = ''.join(current_fragments)
+
+    return sequences
+
+
+def parse_elm_regex(filename: str | Path) -> dict[str, str]:
+    """Parse ELM motif definitions from a tab-separated file."""
+
+    elm_regex: dict[str, str] = {}
+
+    with open(filename, encoding='utf-8') as motif_table:
+        next(motif_table, None)
+
         for line in motif_table:
-            if line[0] != '#':
-                line = line.replace("\"", "")
-                line = line.strip().split("\t")
-                elm_regex[line[1]] = line[4]
+            if not line or line.startswith('#'):
+                continue
+
+            fields = line.replace('"', '').strip().split('\t')
+            if len(fields) > 4:
+                elm_regex[fields[1]] = fields[4]
+
     return elm_regex
 
-def parse_motif_domain(filename):
-    """Parse motif-domain interactions from a file."""
-    motif_domain = {}
-    with open(filename, "r") as motif_domain_table:
-        motif_domain_table.readline()
+
+def parse_motif_domain(filename: str | Path) -> dict[str, list[str]]:
+    """Parse motif-to-domain mappings."""
+
+    motif_domain: dict[str, list[str]] = {}
+
+    with open(filename, encoding='utf-8') as motif_domain_table:
+        next(motif_domain_table, None)
+
         for line in motif_domain_table:
-            line = line.replace("\"", "")
-            line = line.strip("\n").split("\t")
-            if len(line) > 1:
-                if line[0] not in motif_domain:
-                    motif_domain[line[0]] = []
-                motif_domain[line[0]].append(line[1])
+            fields = line.replace('"', '').strip().split('\t')
+            if len(fields) <= 1:
+                continue
+
+            motif_domain.setdefault(fields[0], []).append(fields[1])
+
     return motif_domain
 
 
-def parse_protein_domain(filename):
-    """Parse protein-domain information from a file."""
-    pfam_uniprot = {}
-    with open(filename, "r") as protein_domain:
-        protein_domain.readline()
+def parse_protein_domain(filename: str | Path) -> dict[str, list[str]]:
+    """Parse bacterial proteins indexed by Pfam domain."""
+
+    pfam_uniprot: dict[str, list[str]] = {}
+
+    with open(filename, encoding='utf-8') as protein_domain:
+        next(protein_domain, None)
+
         for line in protein_domain:
-            line = line.strip().split("\t")
-            if len(line) > 1:
-                pfams = line[1].split(";")
-                for pfam in pfams:
-                    if pfam not in pfam_uniprot:
-                        pfam_uniprot[pfam] = []
-                    pfam_uniprot[pfam].append(line[0])
+            fields = line.strip().split('\t')
+            if len(fields) <= 1:
+                continue
+
+            for pfam in fields[1].split(';'):
+                pfam_uniprot.setdefault(pfam, []).append(fields[0])
+
     return pfam_uniprot
 
-def create_uniprot_motif_dict(human, elm_regex):
-    """Create a dictionary mapping UniProt keys to motifs."""
-    uniprot_motif = {}
-    for key in human.keys():
-        if rename(key) not in uniprot_motif:
-            uniprot_motif[rename(key)] = []
-        for motif in elm_regex:
-            match = re.finditer(str(elm_regex[motif]), str(human[key]))
-            for m in match:
-                uniprot_motif[rename(key)].append((motif, str(m.start()), str(m.end())))
+
+def create_uniprot_motif_dict(
+    human_sequences: dict[str, str],
+    elm_regex: dict[str, str],
+) -> dict[str, list[tuple[str, str, str]]]:
+    """Create a mapping of UniProt IDs to matched motifs."""
+
+    uniprot_motif: dict[str, list[tuple[str, str, str]]] = {}
+
+    for header, sequence in human_sequences.items():
+        uniprot_id = extract_uniprot_id(header)
+        matches: list[tuple[str, str, str]] = []
+
+        for motif_name, motif_pattern in elm_regex.items():
+            for match in re.finditer(motif_pattern, sequence):
+                matches.append(
+                    (
+                        motif_name,
+                        str(match.start()),
+                        str(match.end()),
+                    ),
+                )
+
+        if matches:
+            uniprot_motif[uniprot_id] = matches
+
     return uniprot_motif
 
-def main(args):
 
-    # Load the human protein FASTA file
-    human = Fasta(args.fasta_file)
+def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments for standalone execution."""
 
-    # Parse ELM regex
+    parser = argparse.ArgumentParser(
+        description=(
+            'Predict interactions between human and microbial proteins based '
+            'on domain-motif interactions.'
+        ),
+    )
+    parser.add_argument(
+        '-fasta',
+        '--fasta_file',
+        required=True,
+        help='Path to the human protein FASTA file.',
+    )
+    parser.add_argument(
+        '-motif',
+        '--elm_regex_file',
+        required=True,
+        help='Path to the ELM regex file.',
+    )
+    parser.add_argument(
+        '-interaction',
+        '--motif_domain_file',
+        required=True,
+        help='Path to the motif-domain interaction file.',
+    )
+    parser.add_argument(
+        '-domain',
+        '--bacterial_domain_file',
+        required=True,
+        help='Path to the bacterial protein domain file.',
+    )
+    parser.add_argument(
+        '-o',
+        '--output_file',
+        required=True,
+        help='Path to the output file.',
+    )
+    return parser.parse_args()
+
+
+def main(args: argparse.Namespace) -> None:
+    """Run the domain-motif interaction workflow."""
+
+    human_sequences = read_fasta_sequences(args.fasta_file)
     elm_regex = parse_elm_regex(args.elm_regex_file)
-
-    # Parse motif-domain interactions
     motif_domain = parse_motif_domain(args.motif_domain_file)
-
-    # Parse protein domains
     pfam_uniprot = parse_protein_domain(args.bacterial_domain_file)
+    uniprot_motif = create_uniprot_motif_dict(human_sequences, elm_regex)
 
-    # Create the uniprot_motif dictionary
-    uniprot_motif = create_uniprot_motif_dict(human, elm_regex)
+    with open(args.output_file, 'w', encoding='utf-8') as output_file:
+        output_file.write(
+            '# Human Protein;Motif;Start;End;Bacterial domain;Bacteria Protein\n',
+        )
+
+        for motif_name, motif_domains in motif_domain.items():
+            motif_hits = [
+                (uniprot_id, start, end)
+                for uniprot_id, matches in uniprot_motif.items()
+                for match_name, start, end in matches
+                if match_name == motif_name
+            ]
+
+            for domain in motif_domains:
+                for bacterial_protein in pfam_uniprot.get(domain, []):
+                    for uniprot_id, start, end in motif_hits:
+                        output_file.write(
+                            f'{uniprot_id};{motif_name};{start};{end};'
+                            f'{domain};{bacterial_protein}\n',
+                        )
 
 
-    # Create output file and write header
-    with open(args.output_file, "w") as output:
-        output.write('# Human Protein;Motif;Start;End;Bacterial domain;Bacteria Protein\n')
-        for pfam, uniprot_list in pfam_uniprot.items():
-            for uniprot in uniprot_list:
-                for motif in motif_domain:
-                    if pfam in motif_domain[motif]:
-                        for uni, motif_list in uniprot_motif.items():
-                            for motif_2 in motif_list:
-                                if motif_2[0] == motif:
-                                    output.write(f"{uni};{';'.join(motif_2)};{pfam};{uniprot}\n")
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Predict interaction between human and microbial proteins based on domain-motif interactions.")
-    parser.add_argument("-fasta", "--fasta_file", help="Path to human protein FASTA file")
-    parser.add_argument("-motif", "--elm_regex_file", help="Path to ELM regex file")
-    parser.add_argument("-interaction", "--motif_domain_file", help="Path to motif-domain interaction file")
-    parser.add_argument("-domain", "--bacterial_domain_file", help="Path to bacterial protein domain file")
-    parser.add_argument("-o", "--output_file", help="Path to output file")
-    args = parser.parse_args()
-    main(args)
+if __name__ == '__main__':
+    main(parse_args())
