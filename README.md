@@ -8,12 +8,11 @@ It contains only:
 - the runtime Python packages `microbiolink` and `microbiolink_api`,
 - the packaged ELM resource files used by `microbiolink_api`,
 - the package metadata needed for `pip install`,
+- a small `tutorials/mock_data` folder with runnable mock-data notebooks,
 - the license file.
 
 It does not contain:
 
-- notebooks,
-- tutorials,
 - documentation site files,
 - tests,
 - generated example inputs,
@@ -118,5 +117,6 @@ Typical user-provided inputs are:
 ├── README.md
 ├── pyproject.toml
 ├── microbiolink/
-└── microbiolink_api/
+├── microbiolink_api/
+└── tutorials/
 ```
