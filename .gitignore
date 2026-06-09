@@ -1,0 +1,22 @@
+# MacOS specific files
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Virtual Environments
+venv/
+env/
+.venv
+
+# Testing and Coverage
+.pytest_cache/
+.coverage
+htmlcov/
