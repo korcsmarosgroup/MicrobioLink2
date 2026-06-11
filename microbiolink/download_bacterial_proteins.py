@@ -4,123 +4,70 @@
 
 from __future__ import annotations
 
-import argparse
 import sys
-from pathlib import Path
 
-import requests
+from microbiolink.download_protein_domains import (
+    DEFAULT_UNIPROT_FIELDS,
+    UNIPROT_BATCH_SIZE,
+    build_uniprot_accession_query,
+    build_uniprot_stream_url,
+    download_protein_list_with_fields,
+    download_proteome_with_fields,
+    read_ids,
+)
 
-
-UNIPROT_STREAM_BASE_URL = 'https://rest.uniprot.org/uniprotkb/stream?'
-DEFAULT_UNIPROT_FIELDS = [
-    'accession',
-    'xref_pfam',
-    'gene_names',
+# Re-exported for backward compatibility so existing imports from this module
+# continue to work after the core functions moved to download_protein_domains.
+__all__ = [
+    'DEFAULT_UNIPROT_FIELDS',
+    'UNIPROT_BATCH_SIZE',
+    'build_uniprot_accession_query',
+    'build_uniprot_stream_url',
+    'download_protein_list_with_fields',
+    'download_proteome_with_fields',
+    'read_ids',
+    'download_proteome',
+    'download_protein_list',
+    'parse_args',
+    'main',
 ]
-UNIPROT_BATCH_SIZE = 1000
 
-
-def read_ids(
-    filename: str | Path,
-    separator: str,
-    id_column: int,
-) -> list[str]:
-    """Read UniProt or proteome identifiers from a delimited file."""
-
-    ids: list[str] = []
-    column_index = id_column - 1
-
-    with open(filename, encoding='utf-8-sig') as id_list:
-        next(id_list, None)
-
-        for line_number, line in enumerate(id_list, start=2):
-            fields = line.strip().split(separator)
-
-            if column_index >= len(fields):
-                raise ValueError(
-                    f'Column {id_column} is out of range on line {line_number}.',
-                )
-
-            ids.append(fields[column_index])
-
-    return ids
-
-
-def build_uniprot_accession_query(uniprot_ids: list[str]) -> str:
-    """Build a UniProt query for a list of accessions."""
-
-    clauses = [f'%28accession%3A{uniprot_id}%29' for uniprot_id in uniprot_ids]
-    return '%28' + '+OR+'.join(clauses) + '%29'
-
-
-def build_uniprot_stream_url(
-    query: str,
-    fields: list[str] | None = None,
-) -> str:
-    """Build a UniProt stream endpoint URL.
-
-    Args:
-        query: Encoded UniProt query string.
-        fields: Optional return fields. Defaults to the standard bacterial
-            domain workflow fields.
-
-    Returns:
-        A complete UniProt stream URL.
-    """
-
-    selected_fields = fields or DEFAULT_UNIPROT_FIELDS
-    encoded_fields = '%2C'.join(selected_fields)
-    return (
-        f'{UNIPROT_STREAM_BASE_URL}'
-        f'fields={encoded_fields}&format=tsv&query={query}'
-    )
-
-
-def download_proteome_with_fields(
-    proteome_id: str,
-    fields: list[str] | None = None,
-) -> str:
-    """Download a full proteome table from UniProt with selected fields."""
-
-    url = build_uniprot_stream_url(
-        f'%28%28proteome%3A{proteome_id}%29%29',
-        fields = fields,
-    )
-    response = requests.get(url, timeout=60)
-    response.raise_for_status()
-    return response.text
-
-
-def download_protein_list_with_fields(
-    uniprot_ids: list[str],
-    fields: list[str] | None = None,
-) -> str:
-    """Download a table for a list of UniProt accessions with selected fields."""
-
-    url = build_uniprot_stream_url(
-        build_uniprot_accession_query(uniprot_ids),
-        fields = fields,
-    )
-    response = requests.get(url, timeout=60)
-    response.raise_for_status()
-    return response.text
+import argparse  # noqa: E402  (after re-export block for clarity)
 
 
 def download_proteome(proteome_id: str) -> str:
-    """Download a full proteome table from UniProt."""
+    """Download a full proteome table from UniProt.
 
+    Args:
+        proteome_id: UniProt proteome identifier.
+
+    Returns:
+        TSV response text from UniProt.
+    """
     return download_proteome_with_fields(proteome_id)
 
 
 def download_protein_list(uniprot_ids: list[str]) -> str:
-    """Download a table for a list of UniProt accessions."""
+    """Download a table for a list of UniProt accessions.
 
+    Args:
+        uniprot_ids: List of UniProt accession strings.
+
+    Returns:
+        TSV response text from UniProt.
+    """
     return download_protein_list_with_fields(uniprot_ids)
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
-    """Parse command-line arguments."""
+    """Parse command-line arguments.
 
+    Args:
+        argv: Argument list (typically sys.argv[1:]).
+
+    Returns:
+        Parsed argument namespace.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--id_list',
@@ -153,8 +100,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def main(argv: list[str]) -> int:
-    """Run the UniProt download workflow."""
+    """Run the UniProt download workflow.
 
+    Args:
+        argv: Argument list (typically sys.argv[1:]).
+
+    Returns:
+        Exit code.
+    """
     args = parse_args(argv)
     ids = read_ids(args.id_list, args.sep, args.id_column)
     header_written = False

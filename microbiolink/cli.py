@@ -182,3 +182,34 @@ def z_score_filter_terminal() -> int:
 
     module.cli_main()
     return 0
+
+
+def download_protein_domains() -> int:
+    module = _import_module('.download_protein_domains')
+
+    return _as_exit_code(module.main(sys.argv[1:]))
+
+
+def get_protein_fasta() -> int:
+    module = _import_module('.get_protein_fasta')
+
+    return _as_exit_code(module.main(sys.argv[1:]))
+
+
+def download_human_domains() -> int:
+    module = _import_module('.download_human_domains')
+
+    return _as_exit_code(module.main(sys.argv[1:]))
+
+
+def get_bacterial_fasta() -> int:
+    module = _import_module('.get_bacterial_fasta')
+
+    return _as_exit_code(module.main(sys.argv[1:]))
+
+
+def reverse_dmi() -> int:
+    module = _import_module('.reverse_DMI')
+
+    module.main(module.parse_args())
+    return 0

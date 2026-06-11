@@ -46,8 +46,16 @@ microbiolink-idr-prediction-score = "microbiolink.cli:idr_prediction_score"
 microbiolink-processing-tiedie-output = "microbiolink.cli:processing_tiedie_output"
 microbiolink-tiedie-input-processing = "microbiolink.cli:tiedie_input_processing"
 microbiolink-zscore-filter = "microbiolink.cli:z_score_filter_terminal"
+microbiolink-download-protein-domains = "microbiolink.cli:download_protein_domains"
+microbiolink-get-protein-fasta = "microbiolink.cli:get_protein_fasta"
+microbiolink-download-human-domains = "microbiolink.cli:download_human_domains"
+microbiolink-get-bacterial-fasta = "microbiolink.cli:get_bacterial_fasta"
+microbiolink-reverse-dmi = "microbiolink.cli:reverse_dmi"
 
 [project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
 idr = [
   "numpy>=1.26.4,<2",
   "biopython>=1.84",
