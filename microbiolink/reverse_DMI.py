@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import argparse
-import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 from microbiolink.DMI import (
@@ -15,6 +15,18 @@ from microbiolink.DMI import (
     parse_protein_domain,
     read_fasta_sequences,
 )
+
+
+@dataclass(frozen=True)
+class ReverseDomainMotifInteraction:
+    """Represent one predicted reverse domain-motif interaction."""
+
+    bacterial_protein: str
+    motif: str
+    start: int
+    end: int
+    human_domain: str
+    human_protein: str
 
 
 def filter_cleavage_motifs(elm_regex: dict[str, str]) -> dict[str, str]:
@@ -35,6 +47,60 @@ def filter_cleavage_motifs(elm_regex: dict[str, str]) -> dict[str, str]:
         for name, pattern in elm_regex.items()
         if not name.startswith('CLV_')
     }
+
+
+def predict_reverse_domain_motif_interactions_from_data(
+    bacterial_sequences: dict[str, str],
+    elm_regex: dict[str, str],
+    motif_domains: dict[str, list[str]],
+    human_domain_table: dict[str, list[str]],
+) -> list[ReverseDomainMotifInteraction]:
+    """Predict reverse domain-motif interactions from in-memory inputs.
+
+    Scans bacterial protein sequences for ELM motif patterns, then maps each
+    hit through the motif-domain interaction table to the human proteins that
+    carry a compatible Pfam domain.
+
+    Args:
+        bacterial_sequences: Mapping from FASTA header to bacterial protein
+            sequence.
+        elm_regex: Mapping from ELM motif identifier to regex pattern.
+            Pass through filter_cleavage_motifs() first to exclude CLV_ entries.
+        motif_domains: Mapping from ELM motif identifier to compatible Pfam
+            domain identifiers.
+        human_domain_table: Mapping from Pfam domain identifier to human
+            UniProt accessions carrying that domain.
+
+    Returns:
+        List of predicted interactions, one entry per
+        (bacterial protein, motif hit, human domain, human protein) combination.
+    """
+    bacterial_motif = create_uniprot_motif_dict(bacterial_sequences, elm_regex)
+    interactions: list[ReverseDomainMotifInteraction] = []
+
+    for motif_name, compatible_domains in motif_domains.items():
+        motif_hits = [
+            (bacterial_id, int(start), int(end))
+            for bacterial_id, matches in bacterial_motif.items()
+            for match_name, start, end in matches
+            if match_name == motif_name
+        ]
+
+        for domain in compatible_domains:
+            for human_protein in human_domain_table.get(domain, []):
+                for bacterial_id, start, end in motif_hits:
+                    interactions.append(
+                        ReverseDomainMotifInteraction(
+                            bacterial_protein=bacterial_id,
+                            motif=motif_name,
+                            start=start,
+                            end=end,
+                            human_domain=domain,
+                            human_protein=human_protein,
+                        ),
+                    )
+
+    return interactions
 
 
 def parse_args() -> argparse.Namespace:
@@ -89,32 +155,27 @@ def main(args: argparse.Namespace) -> None:
         args: Parsed argument namespace from parse_args().
     """
     bacterial_sequences = read_fasta_sequences(args.fasta_file)
-    elm_regex = parse_elm_regex(args.elm_regex_file)
-    elm_regex = filter_cleavage_motifs(elm_regex)
+    elm_regex = filter_cleavage_motifs(parse_elm_regex(args.elm_regex_file))
     motif_domain = parse_motif_domain(args.motif_domain_file)
-    pfam_human = parse_protein_domain(args.human_domain_file)
-    bacterial_motif = create_uniprot_motif_dict(bacterial_sequences, elm_regex)
+    human_domain_table = parse_protein_domain(args.human_domain_file)
+
+    interactions = predict_reverse_domain_motif_interactions_from_data(
+        bacterial_sequences=bacterial_sequences,
+        elm_regex=elm_regex,
+        motif_domains=motif_domain,
+        human_domain_table=human_domain_table,
+    )
 
     with open(Path(args.output_file), 'w', encoding='utf-8') as output_file:
         output_file.write(
             '# Bacterial Protein;Motif;Start;End;Human Domain;Human Protein\n',
         )
-
-        for motif_name, motif_domains in motif_domain.items():
-            motif_hits = [
-                (bacterial_id, start, end)
-                for bacterial_id, matches in bacterial_motif.items()
-                for match_name, start, end in matches
-                if match_name == motif_name
-            ]
-
-            for domain in motif_domains:
-                for human_protein in pfam_human.get(domain, []):
-                    for bacterial_id, start, end in motif_hits:
-                        output_file.write(
-                            f'{bacterial_id};{motif_name};{start};{end};'
-                            f'{domain};{human_protein}\n',
-                        )
+        for interaction in interactions:
+            output_file.write(
+                f'{interaction.bacterial_protein};{interaction.motif};'
+                f'{interaction.start};{interaction.end};'
+                f'{interaction.human_domain};{interaction.human_protein}\n',
+            )
 
 
 if __name__ == '__main__':
