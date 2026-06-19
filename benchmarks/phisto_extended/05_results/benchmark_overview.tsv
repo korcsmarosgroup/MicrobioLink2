@@ -1,0 +1,13 @@
+metric	value
+phisto_rows	9333
+phisto_unique_pairs	9027
+unique_bacterial_accessions	2715
+unique_human_accessions	3736
+resolved_bacterial_annotations	2715
+resolved_human_annotations	3736
+bacterial_with_pfam	1232
+human_with_pfam	3555
+unresolved_bacterial_accessions	0
+unresolved_human_accessions	0
+bacterial_with_sequence	1287
+human_with_sequence	3675

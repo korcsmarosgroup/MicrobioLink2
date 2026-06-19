@@ -1,0 +1,10 @@
+   3 00_docs
+   2 01_raw_sources
+   8 02_reference_resources
+   6 03_resolved_annotations
+   4 04_benchmark_inputs
+   9 05_results
+   2 06_scripts
+   6 07_metadata
+   3 08_figures
+   1 README.md

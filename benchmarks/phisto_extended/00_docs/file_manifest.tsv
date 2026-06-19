@@ -1,0 +1,49 @@
+relative_path	category	origin	purpose
+README.md	documentation	generated	Top-level orientation and benchmark summary for the complete bundle.
+00_docs/results_guide.md	documentation	generated	Table-by-table explanation of inputs, outputs, and interpretation.
+00_docs/file_manifest.tsv	documentation	generated	Curated inventory of files included in the documented bundle.
+00_docs/resource_provenance.tsv	documentation	generated	Source and version provenance for benchmark inputs and resource tables.
+01_raw_sources/phisto_bacteria.csv	raw_source	exported	Raw PHISTO bacteria-human interaction export used as the benchmark source.
+01_raw_sources/domine_v2_INTERACTION.txt	raw_source	downloaded	Raw DOMINE v2 interaction table from the official archive.
+02_reference_resources/dmi/elm_classes.tsv	reference_resource	copied	Packaged ELM motif regex table used by forward and reverse DMI.
+02_reference_resources/dmi/elm_interaction_domains.tsv	reference_resource	copied	Packaged ELM motif-to-domain mapping table used by DMI.
+02_reference_resources/dmi/3did_dmi_classes.tsv	reference_resource	copied	Packaged 3did-derived structural motif regex table used by DMI.
+02_reference_resources/dmi/3did_dmi_interaction_domains.tsv	reference_resource	copied	Packaged 3did-derived motif-to-domain mapping table used by DMI.
+02_reference_resources/ddi/pfam_interactions_3did_current.tsv	reference_resource	copied	Current local 3did Pfam-Pfam interaction table used by DDI.
+02_reference_resources/ddi/domine_v2_all_pfam_pairs.tsv	reference_resource	derived	All DOMINE v2 Pfam-Pfam interaction pairs derived from INTERACTION.txt.
+02_reference_resources/ddi/domine_v2_hc_pfam_pairs.tsv	reference_resource	derived	DOMINE v2 high-confidence Pfam-Pfam interaction pairs derived from INTERACTION.txt.
+02_reference_resources/ddi/domine_hc_legacy_pfam_pairs.tsv	reference_resource	copied	Legacy local high-confidence DOMINE-style Pfam-Pfam baseline from the repository.
+03_resolved_annotations/bacterial_accessions.txt	resolved_annotation	generated	Unique bacterial UniProt accessions extracted from the PHISTO benchmark panel.
+03_resolved_annotations/human_accessions.txt	resolved_annotation	generated	Unique human UniProt accessions extracted from the PHISTO benchmark panel.
+03_resolved_annotations/bacterial_uniprot_annotations.tsv	resolved_annotation	generated	UniProt-resolved sequence and Pfam annotation table for benchmark bacterial proteins.
+03_resolved_annotations/human_uniprot_annotations.tsv	resolved_annotation	generated	UniProt-resolved sequence and Pfam annotation table for benchmark human proteins.
+03_resolved_annotations/unresolved_bacterial_accessions.txt	resolved_annotation	generated	List of PHISTO bacterial accessions unresolved by UniProt lookup.
+03_resolved_annotations/unresolved_human_accessions.txt	resolved_annotation	generated	List of PHISTO human accessions unresolved by UniProt lookup.
+04_benchmark_inputs/bacterial_sequences.fasta	benchmark_input	generated	Bacterial FASTA used by the reverse DMI benchmark.
+04_benchmark_inputs/human_sequences.fasta	benchmark_input	generated	Human FASTA used by the forward DMI benchmark.
+04_benchmark_inputs/bacterial_domains.tsv	benchmark_input	generated	Bacterial protein-to-Pfam table used by forward DMI and DDI.
+04_benchmark_inputs/human_domains.tsv	benchmark_input	generated	Human protein-to-Pfam table used by reverse DMI and DDI.
+05_results/benchmark_overview.tsv	result	generated	Run-level overview metrics for panel size and structural annotation coverage.
+05_results/approach_summary.tsv	result	generated	Primary performance summary across forward DMI, reverse DMI, and DDI resource sets.
+05_results/approach_union_summary.tsv	result	generated	Union summary for the best-performing result sets across the three approaches.
+05_results/phisto_unique_pairs.tsv	result	generated	Deduplicated PHISTO benchmark panel with aggregated methods and PMIDs.
+05_results/phisto_method_counts.tsv	result	generated	Frequency table of PHISTO experimental methods in the raw benchmark export.
+05_results/phisto_pmid_counts.tsv	result	generated	Frequency table of PHISTO PMIDs in the raw benchmark export.
+05_results/forward_dmi_true_positive_details.tsv	result	generated	Recovered PHISTO pairs supported by forward DMI hits.
+05_results/reverse_dmi_true_positive_details.tsv	result	generated	Recovered PHISTO pairs supported by reverse DMI hits.
+05_results/ddi_true_positive_details.tsv	result	generated	Recovered PHISTO pairs supported by DDI hits across tested resource sets.
+06_scripts/benchmark_phisto_extended.py	script	copied	Exact benchmark script snapshot used to generate the documented result bundle.
+06_scripts/build_phisto_benchmark_figures.py	script	copied	Exact SVG figure-building script used to generate the publication-style benchmark figure set.
+06_scripts/package_benchmark_workflow.py	script	generated	Package-driven helper module for rerunning the benchmark with the MicrobioLink 2.1 API.
+07_metadata/run_command.tsv	metadata	generated	Exact command line used for the benchmark run.
+07_metadata/figure_build_command.tsv	metadata	generated	Exact command line used to build the benchmark SVG figures from the documented bundle.
+07_metadata/software_environment.tsv	metadata	generated	Minimal environment metadata including Python version and run date.
+07_metadata/file_list.txt	metadata	generated	Flat list of all files contained in this documented bundle.
+07_metadata/line_counts.txt	metadata	generated	Line counts for bundle files as a lightweight integrity check.
+07_metadata/top_level_file_counts.txt	metadata	generated	File counts grouped by top-level bundle path as a compact structural summary.
+08_figures/README.md	figure_documentation	generated	Figure-level notes describing the publication-style figure set and suggested usage.
+08_figures/figure_1_main_benchmark_overview.svg	figure	generated	Main publication-style four-panel benchmark summary figure in SVG format.
+08_figures/figure_2_context_and_resource_effects.svg	figure	generated	Supplementary publication-style four-panel figure covering benchmark skew and resource effects.
+09_notebooks/README.md	documentation	generated	Notebook-level guidance for the interactive package-driven benchmark walkthrough.
+09_notebooks/phisto_extended_package_walkthrough.ipynb	notebook	generated	Interactive notebook for rebuilding and rerunning the broad PHISTO benchmark through the packaged MicrobioLink 2.1 API.
+10_reproduced_run/README.md	documentation	generated	Explains the output area reserved for notebook-generated reruns so the reference bundle remains unchanged.

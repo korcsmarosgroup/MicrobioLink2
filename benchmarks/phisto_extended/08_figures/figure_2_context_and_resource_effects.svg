@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" fill="none">
+<rect width="1600" height="1120" fill="white"/>
+<text x="72.00" y="54.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="28" font-weight="700" fill="#15202b" text-anchor="start">PHISTO Benchmark Context and Resource Effects</text>
+<text x="72.00" y="82.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="400" fill="#5c6b73" text-anchor="start">Supplementary figure showing benchmark skew, method composition, precision-recall tradeoffs, and DMI resource support.</text>
+<rect x="56.00" y="110.00" width="720.00" height="440.00" fill="#f7fafc" stroke="#d9e2e8" stroke-width="1.2" rx="18"/>
+<text x="80.00" y="144.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#1f5a91" text-anchor="start">A</text>
+<text x="114.00" y="144.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="700" fill="#15202b" text-anchor="start">PHISTO PMID Composition</text>
+<text x="114.00" y="168.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="13" font-weight="400" fill="#5c6b73" text-anchor="start">The benchmark is dominated by one large high-throughput study.</text>
+<rect x="824.00" y="110.00" width="720.00" height="440.00" fill="#f7fafc" stroke="#d9e2e8" stroke-width="1.2" rx="18"/>
+<text x="848.00" y="144.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#1f5a91" text-anchor="start">B</text>
+<text x="882.00" y="144.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="700" fill="#15202b" text-anchor="start">Experimental Method Composition</text>
+<text x="882.00" y="168.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="13" font-weight="400" fill="#5c6b73" text-anchor="start">Two-hybrid pooling accounts for the overwhelming majority of unique PHISTO pairs.</text>
+<rect x="56.00" y="592.00" width="720.00" height="440.00" fill="#f7fafc" stroke="#d9e2e8" stroke-width="1.2" rx="18"/>
+<text x="80.00" y="626.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#1f5a91" text-anchor="start">C</text>
+<text x="114.00" y="626.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="700" fill="#15202b" text-anchor="start">Precision-Recall Positioning of Tested Configurations</text>
+<text x="114.00" y="650.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="13" font-weight="400" fill="#5c6b73" text-anchor="start">DDI variants improve precision; reverse DMI maximizes recall.</text>
+<rect x="824.00" y="592.00" width="720.00" height="440.00" fill="#f7fafc" stroke="#d9e2e8" stroke-width="1.2" rx="18"/>
+<text x="848.00" y="626.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#1f5a91" text-anchor="start">D</text>
+<text x="882.00" y="626.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="20" font-weight="700" fill="#15202b" text-anchor="start">DMI True-Positive Resource Support</text>
+<text x="882.00" y="650.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="13" font-weight="400" fill="#5c6b73" text-anchor="start">3did provides the majority of DMI-supported TP recovery in both directions.</text>
+<line x1="288.00" y1="188.00" x2="288.00" y2="466.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="288.00" y="486.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="middle">0</text>
+<line x1="437.33" y1="188.00" x2="437.33" y2="466.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="437.33" y="486.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="middle">3,000</text>
+<line x1="586.67" y1="188.00" x2="586.67" y2="466.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="586.67" y="486.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="middle">6,000</text>
+<line x1="736.00" y1="188.00" x2="736.00" y2="466.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="736.00" y="486.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="middle">9,000</text>
+<line x1="288.00" y1="188.00" x2="288.00" y2="466.00" stroke="#15202b" stroke-width="1.6"/>
+<line x1="288.00" y1="466.00" x2="736.00" y2="466.00" stroke="#15202b" stroke-width="1.6"/>
+<text x="274.00" y="198.90" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="274.00" dy="0.00">20711500</tspan></text>
+<rect x="288.00" y="193.56" width="425.90" height="16.68" fill="#d55d52" stroke="#d55d52" stroke-width="0" rx="6"/>
+<text x="721.90" y="205.90" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">8,556</text>
+<text x="274.00" y="226.70" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="274.00" dy="0.00">21067998</tspan></text>
+<rect x="288.00" y="221.36" width="3.88" height="16.68" fill="#9ecae1" stroke="#9ecae1" stroke-width="0" rx="6"/>
+<text x="299.88" y="233.70" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">78</text>
+<text x="274.00" y="254.50" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="274.00" dy="0.00">25519916</tspan></text>
+<rect x="288.00" y="249.16" width="3.19" height="16.68" fill="#9ecae1" stroke="#9ecae1" stroke-width="0" rx="6"/>
+<text x="299.19" y="261.50" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">64</text>
+<text x="274.00" y="282.30" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="274.00" dy="0.00">21566117</tspan></text>
+<rect x="288.00" y="276.96" width="1.49" height="16.68" fill="#9ecae1" stroke="#9ecae1" stroke-width="0" rx="6"/>
+<text x="297.49" y="289.30" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">30</text>
+<text x="274.00" y="310.10" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="274.00" dy="0.00">20374249</tspan></text>
+<rect x="288.00" y="304.76" width="1.05" height="16.68" fill="#9ecae1" stroke="#9ecae1" stroke-width="0" rx="6"/>
+<text x="297.05" y="317.10" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">21</text>
+<text x="274.00" y="337.90" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="274.00" dy="0.00">24446487</tspan></text>
+<rect x="288.00" y="332.56" width="1.05" height="16.68" fill="#9ecae1" stroke="#9ecae1" stroke-width="0" rx="6"/>
+<text x="297.05" y="344.90" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">21</text>
+<text x="274.00" y="365.70" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="274.00" dy="0.00">26829648</tspan></text>
+<rect x="288.00" y="360.36" width="1.00" height="16.68" fill="#9ecae1" stroke="#9ecae1" stroke-width="0" rx="6"/>
+<text x="297.00" y="372.70" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">20</text>
+<text x="274.00" y="393.50" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="274.00" dy="0.00">26627825</tspan></text>
+<rect x="288.00" y="388.16" width="0.95" height="16.68" fill="#9ecae1" stroke="#9ecae1" stroke-width="0" rx="6"/>
+<text x="296.95" y="400.50" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">19</text>
+<text x="274.00" y="421.30" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="274.00" dy="0.00">27018634</tspan></text>
+<rect x="288.00" y="415.96" width="0.90" height="16.68" fill="#9ecae1" stroke="#9ecae1" stroke-width="0" rx="6"/>
+<text x="296.90" y="428.30" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">18</text>
+<text x="274.00" y="449.10" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="274.00" dy="0.00">12383250</tspan></text>
+<rect x="288.00" y="443.76" width="0.80" height="16.68" fill="#9ecae1" stroke="#9ecae1" stroke-width="0" rx="6"/>
+<text x="296.80" y="456.10" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">16</text>
+<text x="512.00" y="500.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="13" font-weight="600" fill="#5c6b73" text-anchor="middle">Unique PHISTO pairs supported by PMID</text>
+<text x="300.00" y="206.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="700" fill="#d55d52" text-anchor="start"><tspan x="300.00" dy="0.00">PMID 20711500 alone supports</tspan><tspan x="300.00" dy="15.00">8,556 / 9,027 unique pairs (94.8%).</tspan></text>
+<line x1="1056.00" y1="188.00" x2="1056.00" y2="466.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="1056.00" y="486.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="middle">0</text>
+<line x1="1205.33" y1="188.00" x2="1205.33" y2="466.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="1205.33" y="486.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="middle">3,000</text>
+<line x1="1354.67" y1="188.00" x2="1354.67" y2="466.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="1354.67" y="486.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="middle">6,000</text>
+<line x1="1504.00" y1="188.00" x2="1504.00" y2="466.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="1504.00" y="486.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="middle">9,000</text>
+<line x1="1056.00" y1="188.00" x2="1056.00" y2="466.00" stroke="#15202b" stroke-width="1.6"/>
+<line x1="1056.00" y1="466.00" x2="1504.00" y2="466.00" stroke="#15202b" stroke-width="1.6"/>
+<text x="1042.00" y="198.90" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="1042.00" dy="0.00">two hybrid</tspan><tspan x="1042.00" dy="15.00">pooling approach</tspan></text>
+<rect x="1056.00" y="193.56" width="425.90" height="16.68" fill="#d99a2b" stroke="#d99a2b" stroke-width="0" rx="6"/>
+<text x="1489.90" y="205.90" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">8,556</text>
+<text x="1042.00" y="226.70" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="1042.00" dy="0.00">pull down</tspan></text>
+<rect x="1056.00" y="221.36" width="5.18" height="16.68" fill="#9dd9d2" stroke="#9dd9d2" stroke-width="0" rx="6"/>
+<text x="1069.18" y="233.70" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">104</text>
+<text x="1042.00" y="254.50" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="1042.00" dy="0.00">two hybrid</tspan></text>
+<rect x="1056.00" y="249.16" width="4.13" height="16.68" fill="#9dd9d2" stroke="#9dd9d2" stroke-width="0" rx="6"/>
+<text x="1068.13" y="261.50" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">83</text>
+<text x="1042.00" y="282.30" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="1042.00" dy="0.00">Reactome Curated</tspan></text>
+<rect x="1056.00" y="276.96" width="3.88" height="16.68" fill="#9dd9d2" stroke="#9dd9d2" stroke-width="0" rx="6"/>
+<text x="1067.88" y="289.30" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">78</text>
+<text x="1042.00" y="310.10" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="1042.00" dy="0.00">anti tag coimmunoprecipitation</tspan></text>
+<rect x="1056.00" y="304.76" width="3.88" height="16.68" fill="#9dd9d2" stroke="#9dd9d2" stroke-width="0" rx="6"/>
+<text x="1067.88" y="317.10" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">78</text>
+<text x="1042.00" y="337.90" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="1042.00" dy="0.00">x-ray crystallography</tspan></text>
+<rect x="1056.00" y="332.56" width="2.79" height="16.68" fill="#9dd9d2" stroke="#9dd9d2" stroke-width="0" rx="6"/>
+<text x="1066.79" y="344.90" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">56</text>
+<text x="1042.00" y="365.70" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="1042.00" dy="0.00">experimental interaction detection</tspan></text>
+<rect x="1056.00" y="360.36" width="2.74" height="16.68" fill="#9dd9d2" stroke="#9dd9d2" stroke-width="0" rx="6"/>
+<text x="1066.74" y="372.70" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">55</text>
+<text x="1042.00" y="393.50" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="1042.00" dy="0.00">anti bait coimmunoprecipitation</tspan></text>
+<rect x="1056.00" y="388.16" width="1.24" height="16.68" fill="#9dd9d2" stroke="#9dd9d2" stroke-width="0" rx="6"/>
+<text x="1065.24" y="400.50" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">25</text>
+<text x="1042.00" y="421.30" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="1042.00" dy="0.00">Other Methods</tspan></text>
+<rect x="1056.00" y="415.96" width="1.05" height="16.68" fill="#9dd9d2" stroke="#9dd9d2" stroke-width="0" rx="6"/>
+<text x="1065.05" y="428.30" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">21</text>
+<text x="1042.00" y="449.10" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#15202b" text-anchor="end"><tspan x="1042.00" dy="0.00">surface plasmon resonance</tspan></text>
+<rect x="1056.00" y="443.76" width="0.95" height="16.68" fill="#9dd9d2" stroke="#9dd9d2" stroke-width="0" rx="6"/>
+<text x="1064.95" y="456.10" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="start">19</text>
+<text x="1280.00" y="500.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="13" font-weight="600" fill="#5c6b73" text-anchor="middle">Unique PHISTO pairs supported by method</text>
+<text x="1068.00" y="206.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="700" fill="#d55d52" text-anchor="start"><tspan x="1068.00" dy="0.00">The panel is dominated by</tspan><tspan x="1068.00" dy="15.00">two hybrid pooling approach.</tspan></text>
+<line x1="148.00" y1="676.00" x2="148.00" y2="916.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="148.00" y="936.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="middle">0</text>
+<line x1="277.33" y1="676.00" x2="277.33" y2="916.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="277.33" y="936.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="middle">2</text>
+<line x1="406.67" y1="676.00" x2="406.67" y2="916.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="406.67" y="936.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="middle">4</text>
+<line x1="536.00" y1="676.00" x2="536.00" y2="916.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="536.00" y="936.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="middle">6</text>
+<line x1="665.33" y1="676.00" x2="665.33" y2="916.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="665.33" y="936.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="middle">8</text>
+<line x1="148.00" y1="916.00" x2="730.00" y2="916.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="138.00" y="920.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="end">0.0</text>
+<line x1="148.00" y1="881.71" x2="730.00" y2="881.71" stroke="#d9e2e8" stroke-width="1"/>
+<text x="138.00" y="885.71" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="end">0.1</text>
+<line x1="148.00" y1="847.43" x2="730.00" y2="847.43" stroke="#d9e2e8" stroke-width="1"/>
+<text x="138.00" y="851.43" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="end">0.2</text>
+<line x1="148.00" y1="813.14" x2="730.00" y2="813.14" stroke="#d9e2e8" stroke-width="1"/>
+<text x="138.00" y="817.14" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="end">0.3</text>
+<line x1="148.00" y1="778.86" x2="730.00" y2="778.86" stroke="#d9e2e8" stroke-width="1"/>
+<text x="138.00" y="782.86" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="end">0.4</text>
+<line x1="148.00" y1="744.57" x2="730.00" y2="744.57" stroke="#d9e2e8" stroke-width="1"/>
+<text x="138.00" y="748.57" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="end">0.5</text>
+<line x1="148.00" y1="710.29" x2="730.00" y2="710.29" stroke="#d9e2e8" stroke-width="1"/>
+<text x="138.00" y="714.29" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="end">0.6</text>
+<line x1="148.00" y1="676.00" x2="730.00" y2="676.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="138.00" y="680.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="end">0.7</text>
+<line x1="148.00" y1="676.00" x2="148.00" y2="916.00" stroke="#15202b" stroke-width="1.6"/>
+<line x1="148.00" y1="916.00" x2="730.00" y2="916.00" stroke="#15202b" stroke-width="1.6"/>
+<circle cx="251.16" cy="877.75" r="7.50" fill="#d99a2b" stroke="white" stroke-width="2"/>
+<text x="261.16" y="869.75" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11.5" font-weight="600" fill="#15202b" text-anchor="start">F-DMI</text>
+<circle cx="689.58" cy="881.14" r="7.50" fill="#1f8a8a" stroke="white" stroke-width="2"/>
+<text x="699.58" y="873.14" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11.5" font-weight="600" fill="#15202b" text-anchor="start">R-DMI</text>
+<circle cx="266.92" cy="701.65" r="7.50" fill="#1f5a91" stroke="white" stroke-width="2"/>
+<text x="276.92" y="693.65" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11.5" font-weight="600" fill="#15202b" text-anchor="start">3did</text>
+<circle cx="163.76" cy="863.83" r="7.50" fill="#f3b6b0" stroke="white" stroke-width="2"/>
+<text x="173.76" y="855.83" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11.5" font-weight="600" fill="#15202b" text-anchor="start">D-HC</text>
+<circle cx="303.45" cy="850.17" r="7.50" fill="#d55d52" stroke="white" stroke-width="2"/>
+<text x="313.45" y="842.17" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11.5" font-weight="600" fill="#15202b" text-anchor="start">D-all</text>
+<circle cx="276.23" cy="745.14" r="7.50" fill="#6c63a6" stroke="white" stroke-width="2"/>
+<text x="286.23" y="737.14" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11.5" font-weight="600" fill="#15202b" text-anchor="start">3+HC</text>
+<circle cx="357.18" cy="836.55" r="7.50" fill="#3a7d44" stroke="white" stroke-width="2"/>
+<text x="367.18" y="828.55" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11.5" font-weight="600" fill="#15202b" text-anchor="start">3+all</text>
+<text x="439.00" y="952.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="13" font-weight="600" fill="#5c6b73" text-anchor="middle">Recall on full PHISTO benchmark (%)</text>
+<text x="88.00" y="822.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="13" font-weight="600" fill="#5c6b73" text-anchor="start">Precision among predicted panel pairs (%)</text>
+<line x1="920.00" y1="904.00" x2="1504.00" y2="904.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="910.00" y="908.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="end">0</text>
+<line x1="920.00" y1="845.50" x2="1504.00" y2="845.50" stroke="#d9e2e8" stroke-width="1"/>
+<text x="910.00" y="849.50" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="end">200</text>
+<line x1="920.00" y1="787.00" x2="1504.00" y2="787.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="910.00" y="791.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="end">400</text>
+<line x1="920.00" y1="728.50" x2="1504.00" y2="728.50" stroke="#d9e2e8" stroke-width="1"/>
+<text x="910.00" y="732.50" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="end">600</text>
+<line x1="920.00" y1="670.00" x2="1504.00" y2="670.00" stroke="#d9e2e8" stroke-width="1"/>
+<text x="910.00" y="674.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#5c6b73" text-anchor="end">800</text>
+<line x1="920.00" y1="670.00" x2="920.00" y2="904.00" stroke="#15202b" stroke-width="1.6"/>
+<line x1="920.00" y1="904.00" x2="1504.00" y2="904.00" stroke="#15202b" stroke-width="1.6"/>
+<rect x="960.88" y="894.35" width="95.12" height="9.65" fill="#1f5a91" stroke="#1f5a91" stroke-width="0" rx="6"/>
+<text x="1008.44" y="886.35" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11.5" font-weight="600" fill="#15202b" text-anchor="middle">33</text>
+<rect x="1066.00" y="865.39" width="95.12" height="38.61" fill="#d55d52" stroke="#d55d52" stroke-width="0" rx="6"/>
+<text x="1113.56" y="857.39" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11.5" font-weight="600" fill="#15202b" text-anchor="middle">132</text>
+<text x="1066.00" y="926.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="middle">Forward
+DMI</text>
+<rect x="1252.88" y="807.77" width="95.12" height="96.23" fill="#1f5a91" stroke="#1f5a91" stroke-width="0" rx="6"/>
+<text x="1300.44" y="799.77" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11.5" font-weight="600" fill="#15202b" text-anchor="middle">329</text>
+<rect x="1358.00" y="703.93" width="95.12" height="200.07" fill="#d55d52" stroke="#d55d52" stroke-width="0" rx="6"/>
+<text x="1405.56" y="695.93" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="11.5" font-weight="600" fill="#15202b" text-anchor="middle">684</text>
+<text x="1358.00" y="926.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="600" fill="#15202b" text-anchor="middle">Reverse
+DMI</text>
+<rect x="1324.00" y="668.00" width="14.00" height="14.00" fill="#1f5a91" stroke="#1f5a91" stroke-width="0" rx="3"/>
+<text x="1346.00" y="679.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#5c6b73" text-anchor="start">ELM support</text>
+<rect x="1324.00" y="692.00" width="14.00" height="14.00" fill="#d55d52" stroke="#d55d52" stroke-width="0" rx="3"/>
+<text x="1346.00" y="703.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#5c6b73" text-anchor="start">3did support</text>
+<text x="854.00" y="822.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="13" font-weight="600" fill="#5c6b73" text-anchor="start">Unique TP pairs with resource support</text>
+<text x="868.00" y="970.00" font-family="'IBM Plex Sans','Aptos','Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="12" font-weight="400" fill="#5c6b73" text-anchor="start"><tspan x="868.00" dy="0.00">Support counts are non-exclusive:</tspan><tspan x="868.00" dy="15.00">the same TP pair can have both ELM and 3did support.</tspan></text>
+</svg>

@@ -1,0 +1,2 @@
+field	value
+command	python3 tools/benchmark_phisto_extended.py --phisto_csv runs/phisto_extended_benchmark/raw/phisto_bacteria.csv --domine_interaction_file runs/phisto_extended_benchmark/raw/domine_v2_INTERACTION.txt --output_dir runs/phisto_extended_benchmark

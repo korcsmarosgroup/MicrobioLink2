@@ -1,0 +1,2 @@
+field	value
+command	python3 tools/build_phisto_benchmark_figures.py --bundle_dir runs/phisto_extended_benchmark_documented
