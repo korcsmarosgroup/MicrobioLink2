@@ -16,8 +16,14 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Bio-Informatics"
 ]
 dependencies = [
-    "tiedie @ git+https://github.com/saezlab/tiedie.git",
-    "iupred @ git+https://github.com/saezlab/iupred.git",
+    "gget>=0.28.6",
+    "matplotlib>=3.8",
+    "mygene>=3.2.2",
+    "numpy>=1.26.4",
+    "omnipath>=1.0.8",
+    "pandas>=2.2.2",
+    "requests>=2.31",
+    "scipy>=1.13.1",
 ]
 description = "Prediction of microbe-host protein interactions using domain-motif interactions and intrinsically disordered regions"
 license = "BSD-3-Clause"
@@ -27,14 +33,41 @@ maintainers = [
 name = "microbiolink"
 readme = "README.md"
 requires-python = ">=3.9"
-version = "0.0.1"
+version = "2.1.0"
+
+[project.scripts]
+microbiolink-aiupred = "microbiolink.cli:aiupred"
+microbiolink-ddi = "microbiolink.cli:ddi"
+microbiolink-dmi = "microbiolink.cli:dmi"
+microbiolink-download-bacterial-proteins = "microbiolink.cli:download_bacterial_proteins"
+microbiolink-download-human-domains = "microbiolink.cli:download_human_domains"
+microbiolink-download-protein-domains = "microbiolink.cli:download_protein_domains"
+microbiolink-enrichr-ranking = "microbiolink.cli:enrichr_id_database_ranking"
+microbiolink-get-bacterial-fasta = "microbiolink.cli:get_bacterial_fasta"
+microbiolink-get-human-fasta = "microbiolink.cli:get_human_fasta"
+microbiolink-get-protein-fasta = "microbiolink.cli:get_protein_fasta"
+microbiolink-idr-prediction = "microbiolink.cli:idr_prediction"
+microbiolink-idr-prediction-score = "microbiolink.cli:idr_prediction_score"
+microbiolink-processing-tiedie-output = "microbiolink.cli:processing_tiedie_output"
+microbiolink-tiedie-input-processing = "microbiolink.cli:tiedie_input_processing"
+microbiolink-zscore-filter = "microbiolink.cli:z_score_filter_terminal"
 
 [project.optional-dependencies]
 dev = [
     "distlib",
+    "build",
     "pre-commit",
     "bump2version",
     "twine",
+]
+idr = [
+    "numpy>=1.26.4,<2",
+    "biopython>=1.84",
+    "torch>=1.9",
+    "iupred @ git+https://github.com/saezlab/iupred.git",
+]
+workflow = [
+    "tiedie @ git+https://github.com/saezlab/tiedie.git",
 ]
 docs = [
     "mkdocs-material>=9.6.14",
@@ -56,6 +89,17 @@ Homepage = "https://github.com/korcsmarosgroup/MicrobioLink2"
 Issues = "https://github.com/korcsmarosgroup/MicrobioLink2/issues"
 Repository = "https://github.com/korcsmarosgroup/MicrobioLink2"
 
+[tool.hatch.build.targets.wheel]
+packages = ["microbiolink", "microbiolink_api"]
+
+[tool.hatch.build]
+include = [
+    "microbiolink_api/resources/*.tsv",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
 
 [tool.bandit]
 exclude_dirs = [".venv", "venv", "build", "dist"]
@@ -67,7 +111,7 @@ skips = [
 omit = [
 	"**/test_*.py",
 ]
-source = ["microbiolink"]
+source = ["microbiolink", "microbiolink_api"]
 
 [tool.cruft]
 skip = [
@@ -162,7 +206,7 @@ case-sensitive = false
 combine-as-imports = true
 force-sort-within-sections = true
 force-wrap-aliases = true
-known-first-party = [ "microbiolink" ]
+known-first-party = [ "microbiolink", "microbiolink_api" ]
 known-third-party = ["numpy", "pandas"]
 length-sort = true
 lines-after-imports = 2
