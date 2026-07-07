@@ -28,9 +28,9 @@ Even for quick verification, write it as a real test that provides ongoing value
 ## Package management
 This project uses Pixi for all package management.
 Never run commands directly (`python`, `pytest`, etc.).
-Always prefix commands with `uv run <command>`.
-Example: `uv run python script.py` not `python script.py`.
-Example: `uv run pytest` not `pytest`.
+Always prefix commands with `pixi run <command>`.
+Example: `pixi run python script.py` not `python script.py`.
+Example: `pixi run pytest` not `pytest`.
 
 ## Reproducibility & Determinism
 All scripts using randomized algorithms (e.g., PCA, t-SNE, K-Means) must set a fixed `random_state` or seed to ensure reproducible results.
