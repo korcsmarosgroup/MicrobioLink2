@@ -1,11 +1,15 @@
-# Merge `MicrobioLink-2.1-beta` into `main` — Stage 1 (non-reverse-DMI)
+# Merge `MicrobioLink-2.1-beta` into `main`
 
-**Status: executed.** Committed locally as `532b89a` on branch
-`merge-beta-into-main`. `main` was not touched, nothing was pushed. This
-document is the plan as originally written, with a **Deviations from the
-plan** section documenting where execution differed from what was planned.
+**Status: executed.** Stage 1 committed locally as `532b89a` on branch
+`merge-beta-into-main`; Stage 2 (reverse-DMI reconciliation) committed as
+`2ca933d` on the same branch. `main` was not touched at any point, nothing
+was pushed. This document is the plan as originally written for each stage,
+with a **Deviations from the plan** section per stage documenting where
+execution differed from what was planned.
 
-## Context
+## Stage 1: initial merge (non-reverse-DMI)
+
+### Context
 
 `main` and `origin/MicrobioLink-2.1-beta` had diverged significantly. A
 direct `git merge` produced 10 conflicting files. Two of those
@@ -17,8 +21,8 @@ schema baked into `dmi.py`. Reconciling that is a real design decision, not a
 mechanical merge, and the user explicitly deferred it: **no reverse-DMI code
 was merged, no new reverse-DMI tests were written, in this pass.**
 
-This plan covered everything else: setting up an integration branch, merging
-in beta's genuinely new/independent work (DDI module, tooling/CI/docs
+This stage covered everything else: setting up an integration branch,
+merging in beta's genuinely new/independent work (DDI module, tooling/CI/docs
 scaffolding), removing the PHISTO benchmark bundle (per prior decision), and
 resolving every conflict that is *not* reverse-DMI-entangled — while proving
 main's existing behavior (everything except reverse-DMI) still works
@@ -79,7 +83,7 @@ Confirmed with the user before execution:
   branch, also do a manual smoke check — `import microbiolink_api` and run
   the `ddi`/`dmi`/`reverse-dmi` CLI entry points with `--help`.
 
-## Conflict classification (from test-merge investigation)
+### Conflict classification (from test-merge investigation)
 
 <!-- markdownlint-disable MD013 -->
 | File | Nature | Resolution |
@@ -110,7 +114,7 @@ Removed entirely:
 
 - `benchmarks/` (both `phisto_extended/` and `benchmarks/README.md`)
 
-## Steps (as planned)
+### Steps (as planned)
 
 1. Set up the integration branch `merge-beta-into-main` off `main`, start the
    merge with `git merge --no-commit --no-ff origin/MicrobioLink-2.1-beta`.
@@ -135,7 +139,7 @@ Removed entirely:
 14. Do not commit to `main` or push anything — leave on
     `merge-beta-into-main`, report back what was resolved and test results.
 
-## Deviations from the plan
+### Deviations from the plan
 
 Things that came up during execution that the plan did not anticipate, or
 that were resolved differently than originally written:
@@ -233,7 +237,7 @@ that were resolved differently than originally written:
     with no deviation** — noted here for completeness, since everything
     else in this section is a deviation.
 
-## Final outcome
+### Final outcome (Stage 1)
 
 - Branch: `merge-beta-into-main`, commit `532b89a`.
 - `main` untouched at `a823dcb`. Nothing pushed to `origin`.
@@ -246,3 +250,109 @@ that were resolved differently than originally written:
   `tests/test_reverse_DMI.py` are byte-identical to `main`; the only change
   anywhere near reverse-DMI is the one-line alias in
   `microbiolink_api/dmi.py` (deviation 4).
+
+## Stage 2: reconcile reverse-DMI between `main` and beta
+
+### Context (Stage 2)
+
+Stage 1 deliberately deferred reverse-DMI: main's `microbiolink_api/dmi.py`
+was kept forward-only, and beta's unified forward/reverse/`mode`-flag
+implementation was left out entirely. This stage reconciles that one
+remaining piece: keep main's implementation as the base, and add whatever
+from beta's version is genuinely useful or improves on main — without
+regressing anything that currently works.
+
+Two implementation layers exist for DMI on `main`:
+
+- **Script layer** (`microbiolink/DMI.py` forward, `microbiolink/reverse_DMI.py`
+  reverse, wired to the `microbiolink-dmi`/`microbiolink-reverse-dmi` CLI
+  commands): simple, standalone, plain-text I/O. Already fully working and
+  tested. Beta has no equivalent of this layer — **not touched by this
+  stage.**
+- **Package/API layer** (`microbiolink_api/dmi.py`, used by
+  `workflows.py`'s `run_dmi_workflow`): main only had forward. Beta added
+  reverse and combined-mode support here, plus a richer resource-provenance
+  model. **This is the only layer changed.**
+
+Confirmed with the user before execution:
+
+- **Adopt beta's resource-provenance model**: merge 3did structural motifs
+  (1654 entries) into the default bundle alongside ELM (359 entries), and
+  tag every interaction with a `resource` field (`ELM`/`3did`/`custom`) via
+  a new `motif_sources` mechanism. Changes forward-mode's default output
+  (more matches, one new column) but keeps all function signatures
+  backward compatible.
+- **Adopt beta's unified `BidirectionalDomainMotifInteraction` schema +
+  `mode={forward,reverse,both}` design**, rather than a direction-specific
+  dataclass mirroring the script layer's naming — enables one call to get
+  combined forward+reverse results, and reuses one shared internal matching
+  engine instead of duplicating it.
+- **Continue on `merge-beta-into-main`** (same branch as Stage 1) rather
+  than a fresh branch — one linear history for what's conceptually one
+  integration effort.
+- **One commit** for the whole reconciliation, not split by code vs. tests
+  — splitting would leave an intermediate state where tests reference
+  exports that don't exist yet.
+- **Keep `read_bacterial_domain_table` canonical**, `read_protein_domain_table`
+  as the alias — preserves the Stage 1 naming decision rather than silently
+  flipping it as a side effect of pulling in beta's file wholesale.
+- **Verified before writing the plan:** `tests/test_microbiolink_api.py`
+  (excluded in Stage 1 specifically because it exercised this not-yet-merged
+  API) was written against exactly this model — e.g. it asserts
+  `default_resources.motif_sources['3DID_PCNA_C_LIG_0-0'] == '3did'` and
+  expects `run_dmi_workflow`'s CSV output to include a `resource` column
+  with value `ELM`. Restoring it now gives real test coverage for
+  `workflows.py`/`microbiome.py`/`dmi.py` — modules with zero prior tests
+  on `main`.
+
+### What changed and why (Stage 2)
+
+<!-- markdownlint-disable MD013 -->
+| File | Change | Why |
+| --- | --- | --- |
+| `microbiolink_api/dmi.py` | Replaced with beta's version, adapted to main's style (`str \| Path` instead of `typing.Union`, now valid since `requires-python >= 3.10` from Stage 1); dropped the unused `motif_regex` property (dead code — verified unused anywhere in beta's own codebase before porting) | Brings in `BidirectionalDomainMotifInteraction`, reverse/bidirectional prediction functions, resource-provenance tracking. Forward-mode signatures stayed backward compatible. |
+| `microbiolink_api/workflows.py` | Added `motif_sources` threading (`resolved_elm_regex`/`resolved_motif_domains`/`resolved_motif_sources`, passed into `predict_domain_motif_interactions_from_data`) | Without this, `run_dmi_workflow` would attribute everything to `resource='custom'` instead of correctly tracking `ELM`/`3did`. |
+| `microbiolink_api/__init__.py` | Added 10 new exports (`BidirectionalDomainMotifInteraction`, `predict_reverse_domain_motif_interactions[_from_data]`, `predict_bidirectional_domain_motif_interactions[_from_data]`, `bidirectional_interactions_to_dataframe`, `write_bidirectional_domain_motif_interactions`, `merge_dmi_resource_bundles`, `load_default_elm_dmi_resource_bundle`, `load_default_3did_dmi_resource_bundle`) | These were deliberately absent since Stage 1's deferral; now needed to make the new capability importable. |
+| `tests/test_microbiolink_api.py` | Restored in full from beta, no stripping | The reverse/bidirectional imports it needs now exist. |
+<!-- markdownlint-enable MD013 -->
+
+**Not touched:** `microbiolink/DMI.py`, `microbiolink/reverse_DMI.py`,
+`microbiolink/cli.py`, `tests/test_reverse_DMI.py`,
+`tests/test_package_smoke.py`, `microbiolink_api/ddi.py`.
+
+**Out of scope (noted, not built):** a workflow-level reverse or
+bidirectional orchestration function (e.g. `run_reverse_dmi_workflow`) —
+beta never built one either, so this would be new work, not a port.
+
+### Deviations from the plan (Stage 2)
+
+Minimal — execution matched the plan almost exactly. Two small refinements
+made via follow-up questions after the plan was already approved, not
+reflected in the original written plan text:
+
+1. Dropping the unused `motif_regex` property from `DMIResourceBundle` was
+   decided in conversation just before the final grilling pass, not written
+   into the plan document itself.
+2. The `read_bacterial_domain_table`/`read_protein_domain_table` canonical
+   direction was resolved via a follow-up question after plan approval,
+   also not in the original plan text.
+
+Test count matched the plan's implicit expectation exactly: 54 (Stage 1
+baseline) + 13 (all of `test_microbiolink_api.py`, including the 3
+reverse/bidirectional tests that were failing-by-exclusion before) = **67**,
+with no surprises.
+
+### Final outcome (Stage 2)
+
+- Branch: `merge-beta-into-main`, commit `2ca933d` (on top of Stage 1's
+  `cbb0b75`/`532b89a`).
+- `main` untouched. Nothing pushed to `origin`.
+- 67/67 tests pass (`.venv/bin/python -m pytest tests/ -q`).
+- `microbiolink_api.__all__` now has 49 exports, all resolving with no
+  missing attributes.
+- Spot-checked `predict_bidirectional_domain_motif_interactions(mode='both')`
+  end-to-end against test fixtures: returns interactions tagged with both
+  `motif_protein_side` values (`host` and `microbe`).
+- `microbiolink/DMI.py`, `microbiolink/reverse_DMI.py`, and `cli.py`
+  confirmed byte-identical to Stage 1's commit `532b89a` — this stage
+  touched only the package API layer.
