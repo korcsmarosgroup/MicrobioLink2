@@ -6,23 +6,25 @@ from __future__ import annotations
 
 from dataclasses import asdict
 from dataclasses import dataclass
+from dataclasses import field
 import importlib.resources
 from pathlib import Path
+import re
 from typing import Iterable
 
 import pandas as pd
-import re
 
 from microbiolink_api.exceptions import InputFormatError
 import microbiolink_api.resources
 
 
 PathLike = str | Path
+REVERSE_EXCLUDED_MOTIF_PREFIXES = ('CLV_',)
 
 
 @dataclass(frozen = True)
 class DomainMotifInteraction:
-    """Represent one predicted domain-motif interaction."""
+    """Represent one forward host-microbe domain-motif interaction."""
 
     human_protein: str
     motif: str
@@ -30,6 +32,22 @@ class DomainMotifInteraction:
     end: int
     bacterial_domain: str
     bacterial_protein: str
+    resource: str = 'ELM'
+
+
+@dataclass(frozen = True)
+class BidirectionalDomainMotifInteraction:
+    """Represent one directional host-microbe domain-motif interaction."""
+
+    host_protein: str
+    microbial_protein: str
+    motif: str
+    start: int
+    end: int
+    domain: str
+    motif_protein_side: str
+    domain_protein_side: str
+    resource: str = 'ELM'
 
 
 @dataclass(frozen = True)
@@ -38,6 +56,7 @@ class DMIResourceBundle:
 
     elm_regex: dict[str, str]
     motif_domains: dict[str, list[str]]
+    motif_sources: dict[str, str] = field(default_factory = dict)
 
 
 def extract_uniprot_id(fasta_header: str) -> str:
@@ -117,7 +136,7 @@ def write_fasta_sequences(
 
 
 def _parse_elm_regex_lines(lines: Iterable[str]) -> dict[str, str]:
-    """Parse ELM motif regex data from an iterable of lines."""
+    """Parse motif regex data from an iterable of lines."""
 
     elm_regex: dict[str, str] = {}
 
@@ -153,11 +172,53 @@ def _parse_motif_domain_lines(lines: Iterable[str]) -> dict[str, list[str]]:
     return motif_domains
 
 
+def _unique_preserve_order(values: Iterable[str]) -> list[str]:
+    """Return unique values while preserving input order."""
+
+    return list(dict.fromkeys(values))
+
+
+def _is_reverse_compatible_motif(motif_name: str) -> bool:
+    """Return whether a motif should be retained in reverse-mode DMI."""
+
+    return not motif_name.startswith(REVERSE_EXCLUDED_MOTIF_PREFIXES)
+
+
+def _filter_reverse_motif_resources(
+    motif_regex: dict[str, str],
+    motif_domains: dict[str, list[str]],
+    motif_sources: dict[str, str] | None,
+) -> tuple[dict[str, str], dict[str, list[str]], dict[str, str] | None]:
+    """Filter reverse-mode motif resources to exclude cleavage motifs."""
+
+    filtered_regex = {
+        motif_name: motif_pattern
+        for motif_name, motif_pattern in motif_regex.items()
+        if _is_reverse_compatible_motif(motif_name)
+    }
+    filtered_domains = {
+        motif_name: compatible_domains
+        for motif_name, compatible_domains in motif_domains.items()
+        if _is_reverse_compatible_motif(motif_name)
+    }
+
+    if motif_sources is None:
+        return filtered_regex, filtered_domains, None
+
+    filtered_sources = {
+        motif_name: source_name
+        for motif_name, source_name in motif_sources.items()
+        if _is_reverse_compatible_motif(motif_name)
+    }
+
+    return filtered_regex, filtered_domains, filtered_sources
+
+
 def read_elm_regex_table(filename: PathLike) -> dict[str, str]:
-    """Read an ELM motif regex table from disk.
+    """Read a motif regex table from disk.
 
     Args:
-        filename: Path to the ELM table.
+        filename: Path to the motif table.
 
     Returns:
         A mapping from motif identifier to regular expression.
@@ -181,12 +242,59 @@ def read_motif_domain_table(filename: PathLike) -> dict[str, list[str]]:
         return _parse_motif_domain_lines(motif_domain_table)
 
 
-def load_default_dmi_resource_bundle() -> DMIResourceBundle:
-    """Load the packaged default DMI resource tables.
+def merge_dmi_resource_bundles(
+    *resource_bundles: DMIResourceBundle,
+) -> DMIResourceBundle:
+    """Merge multiple DMI resource bundles.
 
-    Returns:
-        The packaged ELM regex and motif-domain tables.
+    Later bundles may add motif-domain relationships to existing motifs, but
+    cannot redefine a motif regular expression.
     """
+
+    merged_regex: dict[str, str] = {}
+    merged_domains: dict[str, list[str]] = {}
+    merged_sources: dict[str, str] = {}
+
+    for bundle in resource_bundles:
+        for motif_name, motif_pattern in bundle.elm_regex.items():
+            existing_pattern = merged_regex.get(motif_name)
+
+            if existing_pattern is not None and existing_pattern != motif_pattern:
+                raise ValueError(
+                    f'Motif {motif_name} has conflicting patterns: '
+                    f'{existing_pattern} vs {motif_pattern}',
+                )
+
+            merged_regex[motif_name] = motif_pattern
+
+        for motif_name, domains in bundle.motif_domains.items():
+            merged_domains[motif_name] = _unique_preserve_order(
+                [*merged_domains.get(motif_name, []), *domains],
+            )
+
+        for motif_name, source_name in bundle.motif_sources.items():
+            existing_source = merged_sources.get(motif_name)
+
+            if existing_source is not None and existing_source != source_name:
+                raise ValueError(
+                    f'Motif {motif_name} has conflicting sources: '
+                    f'{existing_source} vs {source_name}',
+                )
+
+            merged_sources[motif_name] = source_name
+
+    for motif_name in set(merged_regex) | set(merged_domains):
+        merged_sources.setdefault(motif_name, 'custom')
+
+    return DMIResourceBundle(
+        elm_regex = merged_regex,
+        motif_domains = merged_domains,
+        motif_sources = merged_sources,
+    )
+
+
+def load_default_elm_dmi_resource_bundle() -> DMIResourceBundle:
+    """Load the packaged ELM DMI resource tables."""
 
     elm_regex_path = importlib.resources.files(
         microbiolink_api.resources,
@@ -194,10 +302,52 @@ def load_default_dmi_resource_bundle() -> DMIResourceBundle:
     motif_domain_path = importlib.resources.files(
         microbiolink_api.resources,
     ).joinpath('elm_interaction_domains.tsv')
+    elm_regex = read_elm_regex_table(str(elm_regex_path))
+    motif_domains = read_motif_domain_table(str(motif_domain_path))
 
     return DMIResourceBundle(
-        elm_regex = read_elm_regex_table(str(elm_regex_path)),
-        motif_domains = read_motif_domain_table(str(motif_domain_path)),
+        elm_regex = elm_regex,
+        motif_domains = motif_domains,
+        motif_sources = {
+            motif_name: 'ELM'
+            for motif_name in set(elm_regex) | set(motif_domains)
+        },
+    )
+
+
+def load_default_3did_dmi_resource_bundle() -> DMIResourceBundle:
+    """Load the packaged 3did structural DMI resource tables."""
+
+    motif_regex_path = importlib.resources.files(
+        microbiolink_api.resources,
+    ).joinpath('3did_dmi_classes.tsv')
+    motif_domain_path = importlib.resources.files(
+        microbiolink_api.resources,
+    ).joinpath('3did_dmi_interaction_domains.tsv')
+    motif_regex = read_elm_regex_table(str(motif_regex_path))
+    motif_domains = read_motif_domain_table(str(motif_domain_path))
+
+    return DMIResourceBundle(
+        elm_regex = motif_regex,
+        motif_domains = motif_domains,
+        motif_sources = {
+            motif_name: '3did'
+            for motif_name in set(motif_regex) | set(motif_domains)
+        },
+    )
+
+
+def load_default_dmi_resource_bundle() -> DMIResourceBundle:
+    """Load the packaged default DMI resource tables.
+
+    Returns:
+        The packaged ELM and 3did structural motif-domain tables merged into
+        one bundle.
+    """
+
+    return merge_dmi_resource_bundles(
+        load_default_elm_dmi_resource_bundle(),
+        load_default_3did_dmi_resource_bundle(),
     )
 
 
@@ -209,18 +359,32 @@ def _resolve_dmi_resource_bundle(
     """Resolve built-in and user-provided DMI resource tables."""
 
     resolved_bundle = resource_bundle or load_default_dmi_resource_bundle()
+    elm_regex = (
+        read_elm_regex_table(elm_regex_file)
+        if elm_regex_file is not None
+        else resolved_bundle.elm_regex
+    )
+    motif_domains = (
+        read_motif_domain_table(motif_domain_file)
+        if motif_domain_file is not None
+        else resolved_bundle.motif_domains
+    )
+
+    if elm_regex_file is not None or motif_domain_file is not None:
+        motif_sources = {
+            motif_name: 'custom'
+            for motif_name in set(elm_regex) | set(motif_domains)
+        }
+    else:
+        motif_sources = {
+            motif_name: resolved_bundle.motif_sources.get(motif_name, 'custom')
+            for motif_name in set(elm_regex) | set(motif_domains)
+        }
 
     return DMIResourceBundle(
-        elm_regex = (
-            read_elm_regex_table(elm_regex_file)
-            if elm_regex_file is not None
-            else resolved_bundle.elm_regex
-        ),
-        motif_domains = (
-            read_motif_domain_table(motif_domain_file)
-            if motif_domain_file is not None
-            else resolved_bundle.motif_domains
-        ),
+        elm_regex = elm_regex,
+        motif_domains = motif_domains,
+        motif_sources = motif_sources,
     )
 
 
@@ -279,9 +443,9 @@ def select_sequences_by_uniprot_ids(
 
 def _find_motif_matches(
     sequences: dict[str, str],
-    elm_regex: dict[str, str],
+    motif_regex: dict[str, str],
 ) -> dict[str, list[tuple[str, int, int]]]:
-    """Find motif matches for each human protein."""
+    """Find motif matches for each protein sequence."""
 
     motif_matches: dict[str, list[tuple[str, int, int]]] = {}
 
@@ -289,7 +453,7 @@ def _find_motif_matches(
         uniprot_id = extract_uniprot_id(header)
         matches: list[tuple[str, int, int]] = []
 
-        for motif_name, motif_pattern in elm_regex.items():
+        for motif_name, motif_pattern in motif_regex.items():
             for match in re.finditer(motif_pattern, sequence):
                 matches.append((motif_name, match.start(), match.end()))
 
@@ -299,48 +463,188 @@ def _find_motif_matches(
     return motif_matches
 
 
+def _predict_directional_domain_motif_interactions(
+    motif_sequences: dict[str, str],
+    motif_regex: dict[str, str],
+    motif_domains: dict[str, list[str]],
+    partner_domains: dict[str, list[str]],
+    motif_sources: dict[str, str] | None,
+    motif_protein_side: str,
+) -> list[BidirectionalDomainMotifInteraction]:
+    """Predict one directional set of domain-motif interactions."""
+
+    motif_matches = _find_motif_matches(motif_sequences, motif_regex)
+    interactions: list[BidirectionalDomainMotifInteraction] = []
+    resolved_sources = motif_sources or {}
+
+    for motif_name, compatible_domains in motif_domains.items():
+        motif_hits = [
+            (protein_id, start, end)
+            for protein_id, matches in motif_matches.items()
+            for match_name, start, end in matches
+            if match_name == motif_name
+        ]
+
+        if not motif_hits:
+            continue
+
+        for domain_name in compatible_domains:
+            for partner_protein in partner_domains.get(domain_name, []):
+                for motif_protein, start, end in motif_hits:
+                    if motif_protein_side == 'host':
+                        host_protein = motif_protein
+                        microbial_protein = partner_protein
+                        domain_protein_side = 'microbe'
+                    else:
+                        host_protein = partner_protein
+                        microbial_protein = motif_protein
+                        domain_protein_side = 'host'
+
+                    interactions.append(
+                        BidirectionalDomainMotifInteraction(
+                            host_protein = host_protein,
+                            microbial_protein = microbial_protein,
+                            motif = motif_name,
+                            start = start,
+                            end = end,
+                            domain = domain_name,
+                            motif_protein_side = motif_protein_side,
+                            domain_protein_side = domain_protein_side,
+                            resource = resolved_sources.get(motif_name, 'custom'),
+                        ),
+                    )
+
+    return interactions
+
+
 def predict_domain_motif_interactions_from_data(
     human_sequences: dict[str, str],
     elm_regex: dict[str, str],
     motif_domains: dict[str, list[str]],
     bacterial_domains: dict[str, list[str]],
+    motif_sources: dict[str, str] | None = None,
 ) -> list[DomainMotifInteraction]:
-    """Predict domain-motif interactions from in-memory inputs.
+    """Predict forward domain-motif interactions from in-memory inputs.
 
     Args:
-        human_sequences: Mapping from FASTA header to human protein sequence.
+        human_sequences: Mapping from human FASTA header to sequence.
         elm_regex: Mapping from motif identifier to regular expression.
         motif_domains: Mapping from motif identifier to compatible Pfam domains.
         bacterial_domains: Mapping from Pfam domain to bacterial proteins.
+        motif_sources: Optional mapping from motif identifier to resource name.
 
     Returns:
-        A list of predicted interactions.
+        A list of forward host-microbe interactions.
     """
 
-    motif_matches = _find_motif_matches(human_sequences, elm_regex)
-    interactions: list[DomainMotifInteraction] = []
+    bidirectional_interactions = _predict_directional_domain_motif_interactions(
+        motif_sequences = human_sequences,
+        motif_regex = elm_regex,
+        motif_domains = motif_domains,
+        partner_domains = bacterial_domains,
+        motif_sources = motif_sources,
+        motif_protein_side = 'host',
+    )
 
-    for motif_name, compatible_domains in motif_domains.items():
-        motif_hits = [
-            (human_protein, start, end)
-            for human_protein, matches in motif_matches.items()
-            for match_name, start, end in matches
-            if match_name == motif_name
-        ]
+    return [
+        DomainMotifInteraction(
+            human_protein = interaction.host_protein,
+            motif = interaction.motif,
+            start = interaction.start,
+            end = interaction.end,
+            bacterial_domain = interaction.domain,
+            bacterial_protein = interaction.microbial_protein,
+            resource = interaction.resource,
+        )
+        for interaction in bidirectional_interactions
+    ]
 
-        for domain_name in compatible_domains:
-            for bacterial_protein in bacterial_domains.get(domain_name, []):
-                for human_protein, start, end in motif_hits:
-                    interactions.append(
-                        DomainMotifInteraction(
-                            human_protein = human_protein,
-                            motif = motif_name,
-                            start = start,
-                            end = end,
-                            bacterial_domain = domain_name,
-                            bacterial_protein = bacterial_protein,
-                        ),
-                    )
+
+def predict_reverse_domain_motif_interactions_from_data(
+    bacterial_sequences: dict[str, str],
+    elm_regex: dict[str, str],
+    motif_domains: dict[str, list[str]],
+    human_domains: dict[str, list[str]],
+    motif_sources: dict[str, str] | None = None,
+) -> list[BidirectionalDomainMotifInteraction]:
+    """Predict reverse domain-motif interactions from in-memory inputs."""
+
+    filtered_regex, filtered_domains, filtered_sources = _filter_reverse_motif_resources(
+        motif_regex = elm_regex,
+        motif_domains = motif_domains,
+        motif_sources = motif_sources,
+    )
+
+    return _predict_directional_domain_motif_interactions(
+        motif_sequences = bacterial_sequences,
+        motif_regex = filtered_regex,
+        motif_domains = filtered_domains,
+        partner_domains = human_domains,
+        motif_sources = filtered_sources,
+        motif_protein_side = 'microbe',
+    )
+
+
+def predict_bidirectional_domain_motif_interactions_from_data(
+    elm_regex: dict[str, str],
+    motif_domains: dict[str, list[str]],
+    motif_sources: dict[str, str] | None = None,
+    human_sequences: dict[str, str] | None = None,
+    bacterial_domains: dict[str, list[str]] | None = None,
+    bacterial_sequences: dict[str, str] | None = None,
+    human_domains: dict[str, list[str]] | None = None,
+    mode: str = 'both',
+) -> list[BidirectionalDomainMotifInteraction]:
+    """Predict forward, reverse, or bidirectional domain-motif interactions."""
+
+    if mode not in {'forward', 'reverse', 'both'}:
+        raise InputFormatError(
+            '`mode` must be one of: forward, reverse, both.',
+        )
+
+    interactions: list[BidirectionalDomainMotifInteraction] = []
+
+    if mode in {'forward', 'both'}:
+        if human_sequences is None or bacterial_domains is None:
+            raise InputFormatError(
+                'Forward DMI mode requires `human_sequences` and '
+                '`bacterial_domains`.',
+            )
+
+        interactions.extend(
+            _predict_directional_domain_motif_interactions(
+                motif_sequences = human_sequences,
+                motif_regex = elm_regex,
+                motif_domains = motif_domains,
+                partner_domains = bacterial_domains,
+                motif_sources = motif_sources,
+                motif_protein_side = 'host',
+            ),
+        )
+
+    if mode in {'reverse', 'both'}:
+        if bacterial_sequences is None or human_domains is None:
+            raise InputFormatError(
+                'Reverse DMI mode requires `bacterial_sequences` and '
+                '`human_domains`.',
+            )
+
+        filtered_regex, filtered_domains, filtered_sources = _filter_reverse_motif_resources(
+            motif_regex = elm_regex,
+            motif_domains = motif_domains,
+            motif_sources = motif_sources,
+        )
+
+        interactions.extend(
+            _predict_directional_domain_motif_interactions(
+                motif_sequences = bacterial_sequences,
+                motif_regex = filtered_regex,
+                motif_domains = filtered_domains,
+                partner_domains = human_domains,
+                motif_sources = filtered_sources,
+                motif_protein_side = 'microbe',
+            ),
+        )
 
     return interactions
 
@@ -352,22 +656,7 @@ def predict_domain_motif_interactions(
     motif_domain_file: PathLike | None = None,
     resource_bundle: DMIResourceBundle | None = None,
 ) -> list[DomainMotifInteraction]:
-    """Predict domain-motif interactions from input files.
-
-    Args:
-        fasta_file: Path to the human FASTA file.
-        bacterial_domain_file: Path to the bacterial domain table.
-        elm_regex_file: Optional override for the ELM regex table. When omitted,
-            the built-in default table is used.
-        motif_domain_file: Optional override for the motif-domain table. When
-            omitted, the built-in default table is used.
-        resource_bundle: Optional in-memory resource bundle. This is useful when
-            you want to override the built-in defaults without reading from
-            extra files.
-
-    Returns:
-        A list of predicted interactions.
-    """
+    """Predict forward domain-motif interactions from input files."""
 
     human_sequences = read_fasta_sequences(fasta_file)
     resolved_resources = _resolve_dmi_resource_bundle(
@@ -382,20 +671,91 @@ def predict_domain_motif_interactions(
         elm_regex = resolved_resources.elm_regex,
         motif_domains = resolved_resources.motif_domains,
         bacterial_domains = bacterial_domains,
+        motif_sources = resolved_resources.motif_sources,
+    )
+
+
+def predict_reverse_domain_motif_interactions(
+    bacterial_fasta_file: PathLike,
+    human_domain_file: PathLike,
+    elm_regex_file: PathLike | None = None,
+    motif_domain_file: PathLike | None = None,
+    resource_bundle: DMIResourceBundle | None = None,
+) -> list[BidirectionalDomainMotifInteraction]:
+    """Predict reverse domain-motif interactions from input files."""
+
+    bacterial_sequences = read_fasta_sequences(bacterial_fasta_file)
+    human_domains = read_protein_domain_table(human_domain_file)
+    resolved_resources = _resolve_dmi_resource_bundle(
+        elm_regex_file = elm_regex_file,
+        motif_domain_file = motif_domain_file,
+        resource_bundle = resource_bundle,
+    )
+
+    return predict_reverse_domain_motif_interactions_from_data(
+        bacterial_sequences = bacterial_sequences,
+        elm_regex = resolved_resources.elm_regex,
+        motif_domains = resolved_resources.motif_domains,
+        human_domains = human_domains,
+        motif_sources = resolved_resources.motif_sources,
+    )
+
+
+def predict_bidirectional_domain_motif_interactions(
+    human_fasta_file: PathLike | None = None,
+    bacterial_domain_file: PathLike | None = None,
+    bacterial_fasta_file: PathLike | None = None,
+    human_domain_file: PathLike | None = None,
+    elm_regex_file: PathLike | None = None,
+    motif_domain_file: PathLike | None = None,
+    resource_bundle: DMIResourceBundle | None = None,
+    mode: str = 'both',
+) -> list[BidirectionalDomainMotifInteraction]:
+    """Predict forward, reverse, or bidirectional domain-motif interactions."""
+
+    resolved_resources = _resolve_dmi_resource_bundle(
+        elm_regex_file = elm_regex_file,
+        motif_domain_file = motif_domain_file,
+        resource_bundle = resource_bundle,
+    )
+
+    human_sequences = (
+        read_fasta_sequences(human_fasta_file)
+        if human_fasta_file is not None
+        else None
+    )
+    bacterial_domains = (
+        read_protein_domain_table(bacterial_domain_file)
+        if bacterial_domain_file is not None
+        else None
+    )
+    bacterial_sequences = (
+        read_fasta_sequences(bacterial_fasta_file)
+        if bacterial_fasta_file is not None
+        else None
+    )
+    human_domains = (
+        read_protein_domain_table(human_domain_file)
+        if human_domain_file is not None
+        else None
+    )
+
+    return predict_bidirectional_domain_motif_interactions_from_data(
+        elm_regex = resolved_resources.elm_regex,
+        motif_domains = resolved_resources.motif_domains,
+        motif_sources = resolved_resources.motif_sources,
+        human_sequences = human_sequences,
+        bacterial_domains = bacterial_domains,
+        bacterial_sequences = bacterial_sequences,
+        human_domains = human_domains,
+        mode = mode,
     )
 
 
 def interactions_to_dataframe(
     interactions: list[DomainMotifInteraction],
 ) -> pd.DataFrame:
-    """Convert interaction records to a data frame.
-
-    Args:
-        interactions: Predicted interaction records.
-
-    Returns:
-        A tabular representation of the interactions.
-    """
+    """Convert forward interaction records to a data frame."""
 
     columns = [
         'human_protein',
@@ -404,6 +764,30 @@ def interactions_to_dataframe(
         'end',
         'bacterial_domain',
         'bacterial_protein',
+        'resource',
+    ]
+
+    return pd.DataFrame(
+        [asdict(interaction) for interaction in interactions],
+        columns = columns,
+    )
+
+
+def bidirectional_interactions_to_dataframe(
+    interactions: list[BidirectionalDomainMotifInteraction],
+) -> pd.DataFrame:
+    """Convert bidirectional interaction records to a data frame."""
+
+    columns = [
+        'host_protein',
+        'microbial_protein',
+        'motif',
+        'start',
+        'end',
+        'domain',
+        'motif_protein_side',
+        'domain_protein_side',
+        'resource',
     ]
 
     return pd.DataFrame(
@@ -417,15 +801,24 @@ def write_domain_motif_interactions(
     output_file: PathLike,
     separator: str = ';',
 ) -> None:
-    """Write predicted interactions to disk.
-
-    Args:
-        interactions: Predicted interaction records.
-        output_file: Path to the output file.
-        separator: Field separator for the output table.
-    """
+    """Write forward predicted interactions to disk."""
 
     interaction_frame = interactions_to_dataframe(interactions)
+    interaction_frame.to_csv(
+        output_file,
+        sep = separator,
+        index = False,
+    )
+
+
+def write_bidirectional_domain_motif_interactions(
+    interactions: list[BidirectionalDomainMotifInteraction],
+    output_file: PathLike,
+    separator: str = ';',
+) -> None:
+    """Write bidirectional predicted interactions to disk."""
+
+    interaction_frame = bidirectional_interactions_to_dataframe(interactions)
     interaction_frame.to_csv(
         output_file,
         sep = separator,

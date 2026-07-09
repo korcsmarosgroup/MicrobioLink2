@@ -135,6 +135,21 @@ def run_dmi_workflow(
         write_fasta_sequences(selected_sequences, selected_fasta_output)
 
     resolved_bundle = resource_bundle or load_default_dmi_resource_bundle()
+    resolved_elm_regex = (
+        read_elm_regex_table(elm_regex_file)
+        if elm_regex_file is not None
+        else resolved_bundle.elm_regex
+    )
+    resolved_motif_domains = (
+        read_motif_domain_table(motif_domain_file)
+        if motif_domain_file is not None
+        else resolved_bundle.motif_domains
+    )
+    resolved_motif_sources = {
+        motif_name: resolved_bundle.motif_sources.get(motif_name, 'custom')
+        for motif_name in set(resolved_elm_regex) | set(resolved_motif_domains)
+    }
+
     if bacterial_domain_file is not None:
         bacterial_domain_table = pd.read_csv(
             bacterial_domain_file,
@@ -167,17 +182,10 @@ def run_dmi_workflow(
 
     interactions = predict_domain_motif_interactions_from_data(
         human_sequences = selected_sequences,
-        elm_regex = (
-            read_elm_regex_table(elm_regex_file)
-            if elm_regex_file is not None
-            else resolved_bundle.elm_regex
-        ),
-        motif_domains = (
-            read_motif_domain_table(motif_domain_file)
-            if motif_domain_file is not None
-            else resolved_bundle.motif_domains
-        ),
+        elm_regex = resolved_elm_regex,
+        motif_domains = resolved_motif_domains,
         bacterial_domains = bacterial_domains,
+        motif_sources = resolved_motif_sources,
     )
     interaction_frame = interactions_to_dataframe(interactions)
 
