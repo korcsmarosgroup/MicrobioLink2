@@ -17,9 +17,21 @@ from microbiolink_api.dmi import read_bacterial_domain_table
 from microbiolink_api.dmi import read_elm_regex_table
 from microbiolink_api.dmi import read_fasta_sequences
 from microbiolink_api.dmi import read_motif_domain_table
+from microbiolink_api.dmi import read_protein_domain_table
 from microbiolink_api.dmi import select_sequences_by_uniprot_ids
 from microbiolink_api.dmi import write_domain_motif_interactions
 from microbiolink_api.dmi import write_fasta_sequences
+from microbiolink_api.ddi import DDIResourceBundle
+from microbiolink_api.ddi import DomainDomainInteraction
+from microbiolink_api.ddi import ddi_interactions_to_dataframe
+from microbiolink_api.ddi import load_default_3did_ddi_resource_bundle
+from microbiolink_api.ddi import load_default_ddi_resource_bundle
+from microbiolink_api.ddi import load_default_domine_all_ddi_resource_bundle
+from microbiolink_api.ddi import load_default_domine_hc_ddi_resource_bundle
+from microbiolink_api.ddi import merge_ddi_resource_bundles
+from microbiolink_api.ddi import predict_domain_domain_interactions
+from microbiolink_api.ddi import predict_domain_domain_interactions_from_data
+from microbiolink_api.ddi import write_domain_domain_interactions
 from microbiolink_api.exceptions import InputFormatError
 from microbiolink_api.exceptions import MicrobioLinkAPIError
 from microbiolink_api.expression import filter_count_matrix_file
@@ -37,17 +49,20 @@ from microbiolink_api.workflows import run_dmi_workflow
 try:
     __version__ = importlib.metadata.version('microbiolink')
 except importlib.metadata.PackageNotFoundError:
-    __version__ = '0.0.1'
+    __version__ = '0.0.2'
 
 
 __all__ = [
     '__version__',
+    'DDIResourceBundle',
     'DMIWorkflowResult',
     'DMIResourceBundle',
+    'DomainDomainInteraction',
     'DomainMotifInteraction',
     'InputFormatError',
     'MicrobioLinkAPIError',
     'bacterial_domain_dataframe_to_mapping',
+    'ddi_interactions_to_dataframe',
     'extract_uniprot_id',
     'fetch_bacterial_domain_table_from_file',
     'fetch_bacterial_domain_table_from_ids',
@@ -55,7 +70,14 @@ __all__ = [
     'filter_count_matrix_file',
     'filter_counts_by_zscore',
     'interactions_to_dataframe',
+    'load_default_3did_ddi_resource_bundle',
+    'load_default_ddi_resource_bundle',
     'load_default_dmi_resource_bundle',
+    'load_default_domine_all_ddi_resource_bundle',
+    'load_default_domine_hc_ddi_resource_bundle',
+    'merge_ddi_resource_bundles',
+    'predict_domain_domain_interactions',
+    'predict_domain_domain_interactions_from_data',
     'predict_domain_motif_interactions',
     'predict_domain_motif_interactions_from_data',
     'read_bacterial_domain_table',
@@ -64,8 +86,10 @@ __all__ = [
     'read_fasta_sequences',
     'read_microbiome_identifiers',
     'read_motif_domain_table',
+    'read_protein_domain_table',
     'run_dmi_workflow',
     'select_sequences_by_uniprot_ids',
+    'write_domain_domain_interactions',
     'write_domain_motif_interactions',
     'write_fasta_sequences',
 ]

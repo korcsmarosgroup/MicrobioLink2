@@ -19,7 +19,7 @@ __all__ = ['__version__', '__author__', '__license__']
 
 import importlib.metadata
 
-_FALLBACK_VERSION = '0.0.1'
+_FALLBACK_VERSION = '0.0.2'
 
 try:
     __version__ = importlib.metadata.version('microbiolink')

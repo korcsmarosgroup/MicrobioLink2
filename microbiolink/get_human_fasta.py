@@ -2,9 +2,7 @@ import argparse
 import sys
 from pathlib import Path
 
-import omnipath as op
 import requests
-from mygene import MyGeneInfo
 
 from microbiolink.get_protein_fasta import fetch_fasta_sequences
 
@@ -14,6 +12,8 @@ def get_proteins(gene_expression_file, id_type, sep, location_filter_list, outpu
     proteins = []
 
     if location_filter_list:
+        import omnipath as op
+
         # Fetch intercell data with optional parent parameter
         pmtm = op.requests.Intercell.get(
             parent=location_filter_list,
@@ -101,6 +101,8 @@ def translate_symbol_to_uniprot(symbol, species='human'):
     Returns:
         Dict mapping query symbol to UniProt entry dict.
     """
+    from mygene import MyGeneInfo
+
     mg = MyGeneInfo()
     target_genesymbols_translation = mg.querymany(
         symbol,

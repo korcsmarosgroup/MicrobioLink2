@@ -15,8 +15,25 @@ dist/
 venv/
 env/
 .venv
+/.venv-test-*/
+/.tox/
 
 # Testing and Coverage
 .pytest_cache/
 .coverage
+*.coverage
 htmlcov/
+*.prof
+
+# Editors and IDEs
+/.idea/
+*.kate-swp
+
+# Other artifacts
+*.pickle
+/out/
+*.log
+/dist/
+*.pye
+/.cache/
+/data/

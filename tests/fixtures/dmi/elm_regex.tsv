@@ -1,0 +1,2 @@
+Accession	Identifier	Description	Type	Regex
+ELME000354	DEG_Nend_UBRbox_4	N-degron	pattern	^M{0,1}(C).

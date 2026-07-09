@@ -4,10 +4,10 @@ requires = ["hatchling"]
 
 [project]
 name = "microbiolink"
-version = "0.0.1"
+version = "0.0.2"
 description = "Prediction of microbe-host protein interactions using domain-motif interactions and intrinsically disordered regions"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "BSD-3-Clause"
 authors = [
   {name = "Leila Potari-Gul", email = "l.potari-gul@imperial.ac.uk"},
@@ -28,7 +28,7 @@ dependencies = [
   "gget>=0.28.6",
   "matplotlib>=3.8",
   "mygene>=3.2.2",
-  "numpy>=1.26.4,<2",
+  "numpy>=1.26.4",
   "omnipath>=1.0.8",
   "pandas>=2.2.2",
   "requests>=2.31",
@@ -37,24 +37,30 @@ dependencies = [
 
 [project.scripts]
 microbiolink-aiupred = "microbiolink.cli:aiupred"
+microbiolink-ddi = "microbiolink.cli:ddi"
 microbiolink-dmi = "microbiolink.cli:dmi"
 microbiolink-download-bacterial-proteins = "microbiolink.cli:download_bacterial_proteins"
+microbiolink-download-human-domains = "microbiolink.cli:download_human_domains"
+microbiolink-download-protein-domains = "microbiolink.cli:download_protein_domains"
 microbiolink-enrichr-ranking = "microbiolink.cli:enrichr_id_database_ranking"
+microbiolink-get-bacterial-fasta = "microbiolink.cli:get_bacterial_fasta"
 microbiolink-get-human-fasta = "microbiolink.cli:get_human_fasta"
+microbiolink-get-protein-fasta = "microbiolink.cli:get_protein_fasta"
 microbiolink-idr-prediction = "microbiolink.cli:idr_prediction"
 microbiolink-idr-prediction-score = "microbiolink.cli:idr_prediction_score"
 microbiolink-processing-tiedie-output = "microbiolink.cli:processing_tiedie_output"
 microbiolink-tiedie-input-processing = "microbiolink.cli:tiedie_input_processing"
 microbiolink-zscore-filter = "microbiolink.cli:z_score_filter_terminal"
-microbiolink-download-protein-domains = "microbiolink.cli:download_protein_domains"
-microbiolink-get-protein-fasta = "microbiolink.cli:get_protein_fasta"
-microbiolink-download-human-domains = "microbiolink.cli:download_human_domains"
-microbiolink-get-bacterial-fasta = "microbiolink.cli:get_bacterial_fasta"
 microbiolink-reverse-dmi = "microbiolink.cli:reverse_dmi"
 
 [project.optional-dependencies]
 dev = [
   "pytest>=8.0",
+  "distlib",
+  "build",
+  "pre-commit",
+  "bump2version",
+  "twine",
 ]
 idr = [
   "numpy>=1.26.4,<2",
@@ -64,6 +70,11 @@ idr = [
 ]
 workflow = [
   "tiedie @ git+https://github.com/saezlab/tiedie.git",
+]
+docs = [
+  "mkdocs-material>=9.6.14",
+  "pymdown-extensions>=10.15",
+  "mkdocstrings[python]>=0.29.1,<0.30"
 ]
 
 [project.urls]
@@ -82,3 +93,126 @@ include = [
 
 [tool.hatch.metadata]
 allow-direct-references = true
+
+[tool.coverage.run]
+omit = [
+	"**/test_*.py",
+]
+source = ["microbiolink", "microbiolink_api"]
+
+[tool.cruft]
+skip = [
+  "tests",
+  "microbiolink/__init__.py",
+  "microbiolink/_metadata.py",
+  "docs/api.md",
+  "docs/changelog.md",
+  "docs/references.bib",
+  "docs/references.md",
+  "docs/notebooks/example.ipynb",
+]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",  # allow using test files with same name
+]
+filterwarnings = [
+]
+python_files = "test_*.py"
+testpaths = [
+  "tests",
+]
+xfail_strict = true
+
+[tool.rstcheck]
+ignore_directives = [
+    "automodule",
+    "toctree",
+]
+ignore_messages = '(Unknown target name:.*|No (directive|role) entry for "(auto)?(class|method|property|function|func|mod|attr)" in module "docutils\.parsers\.rst\.languages\.en"\.)'
+ignore_roles = ["ref"]
+report_level = "INFO"
+
+[tool.ruff]
+extend-include = [ "*.ipynb" ]
+line-length = 80
+target-version = "py310"
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+exclude = [
+    "docs/_build"
+]
+ignore = [
+    # flake8-bugbear (B)
+    "B008",  # Name: function-call-in-default-argument
+    "B024",  # Name: abstract-base-class-without-abstract-method
+    # pydocstyle (D)
+    "D100",  # Name: undocumented-public-module
+    "D104",  # Name: undocumented-public-package
+    "D105",  # Name: undocumented-magic-method
+    "D107",  # Name: undocumented-public-init
+    "D200",  # Name: unnecessary-multiline-docstring
+    "D202",  # Name: blank-line-after-function
+    "D203",  # Name: incorrect-blank-line-before-class
+    "D213",  # Name: multi-line-summary-second-line
+    "D400",  # Name: missing-trailing-period
+    "D401",  # Name: non-imperative-mood
+    # Error (E)
+    "E251",  # Name: unexpected-spaces-around-keyword-parameter-equals
+    "E303",  # Name: too-many-blank-lines
+    "E501",  # Name: line too long
+    "E731",  # Name: lambda-assignment
+    "E741"  # allow I, O, l as variable names -> I is the identity matrix
+]
+select = [
+    "B",  # flake8-bugbear
+    "BLE",  # flake8-blind-except
+    "C4",  # flake8-comprehensions
+    "D",  # pydocstyle
+    "E",  # Error detected by Pycodestyle
+    "F",  # Errors detected by Pyflakes
+    "I",  # isort
+    "RUF100",  # Report unused noqa directives
+    "TID",  # flake8-tidy-imports
+    "UP",  # pyupgrade
+    "W",  # Warning detected by Pycodestyle
+    "Q",  # Consistent quotes
+    "S307",  # eval() detection
+    "ANN"  # flake8-annotations
+]
+unfixable = ["UP"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+
+[tool.ruff.lint.isort]
+case-sensitive = false
+combine-as-imports = true
+force-sort-within-sections = true
+force-wrap-aliases = true
+known-first-party = [ "microbiolink", "microbiolink_api" ]
+known-third-party = ["numpy", "pandas"]
+length-sort = true
+lines-after-imports = 2
+no-lines-before = ["local-folder"]
+order-by-type = true
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "first-party",
+    "local-folder"
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*/__init__.py" = ["D104", "F401"]
+"docs/*" = ["I"]
+"docs/src/conf.py" = ["D100"]
+"tests/*" = ["D"]
+"tests/conftest.py" = ["D101", "D102", "D103", "E402"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

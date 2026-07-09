@@ -72,6 +72,18 @@ def _import_module(module_name: str):
     return importlib.import_module(module_name, package=__package__)
 
 
+def _omnipath_import_error(command_name: str, error: Exception) -> int:
+    print(
+        f'Failed to load `{command_name}`. '
+        'This command depends on `omnipath`, which may not work reliably '
+        'with Python 3.13. Use a Python 3.10 or 3.11 environment for this '
+        'step.',
+        file=sys.stderr,
+    )
+    print(str(error), file=sys.stderr)
+    return 1
+
+
 def aiupred() -> int:
     try:
         aiupred_module = _import_module('.AIUPred')
@@ -116,6 +128,13 @@ def download_bacterial_proteins() -> int:
     return _as_exit_code(module.main(sys.argv[1:]))
 
 
+def ddi() -> int:
+    module = _import_module('.DDI')
+
+    module.main(module.parse_args())
+    return 0
+
+
 def enrichr_id_database_ranking() -> int:
     module = _import_module('.enrichr_id_database_ranking')
 
@@ -127,15 +146,7 @@ def get_human_fasta() -> int:
     try:
         module = _import_module('.get_human_fasta')
     except Exception as error:
-        print(
-            'Failed to load `microbiolink-get-human-fasta`. '
-            'This command depends on `omnipath`, which may not work reliably '
-            'with Python 3.13. Use a Python 3.10 or 3.11 environment for this '
-            'step.',
-            file=sys.stderr,
-        )
-        print(str(error), file=sys.stderr)
-        return 1
+        return _omnipath_import_error('microbiolink-get-human-fasta', error)
 
     module.main()
     return 0
@@ -171,7 +182,13 @@ def processing_tiedie_output() -> int:
 
 
 def tiedie_input_processing() -> int:
-    module = _import_module('.tiedie_input_processing')
+    try:
+        module = _import_module('.tiedie_input_processing')
+    except Exception as error:
+        return _omnipath_import_error(
+            'microbiolink-tiedie-input-processing',
+            error,
+        )
 
     module.main()
     return 0

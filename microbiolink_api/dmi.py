@@ -250,6 +250,11 @@ def read_bacterial_domain_table(filename: PathLike) -> dict[str, list[str]]:
     return bacterial_domains
 
 
+# Identical logic to `read_bacterial_domain_table`; DDI uses this name since
+# it reads domain tables for both bacterial and human proteins.
+read_protein_domain_table = read_bacterial_domain_table
+
+
 def select_sequences_by_uniprot_ids(
     sequences: dict[str, str],
     uniprot_ids: list[str],
