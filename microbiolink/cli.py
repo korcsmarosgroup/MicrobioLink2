@@ -127,8 +127,7 @@ def get_human_fasta() -> int:
     except Exception as error:
         return _omnipath_import_error('microbiolink-get-human-fasta', error)
 
-    module.main()
-    return 0
+    return _as_exit_code(module.main(sys.argv[1:]))
 
 
 def idr_prediction() -> int:

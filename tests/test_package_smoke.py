@@ -123,8 +123,7 @@ def test_cli_download_bacterial_proteins_end_to_end(
 ) -> None:
     requested_urls: list[str] = []
     output_file = tmp_path / 'download_output.tsv'
-    module = cli._import_module('.download_bacterial_proteins')
-    helper_module = cli._import_module('.download_protein_domains')
+    helper_module = cli._import_module('.core.uniprot')
 
     class FakeResponse:
         def __init__(self, text: str) -> None:
@@ -142,7 +141,6 @@ def test_cli_download_bacterial_proteins_end_to_end(
             'P22222\tPF0002\tgene2\n',
         )
 
-    del module
     monkeypatch.setattr(helper_module.requests, 'get', fake_get)
     monkeypatch.setattr(
         cli.sys,
@@ -154,7 +152,7 @@ def test_cli_download_bacterial_proteins_end_to_end(
             '--sep',
             '\t',
             '--id_type',
-            'Uniprot',
+            'uniprot',
             '--id_column',
             '1',
             '--output',

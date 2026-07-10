@@ -10,9 +10,9 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-from microbiolink.download_bacterial_proteins import download_protein_list_with_fields
-from microbiolink.download_bacterial_proteins import download_proteome_with_fields
-from microbiolink.download_bacterial_proteins import read_ids
+from microbiolink.core.uniprot import download_protein_list_with_fields
+from microbiolink.core.uniprot import download_proteome_with_fields
+from microbiolink.core.uniprot import read_ids
 
 
 PathLike = str | Path

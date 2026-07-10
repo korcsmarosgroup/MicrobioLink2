@@ -1,27 +1,11 @@
 """Tests for microbiolink.get_bacterial_fasta."""
 
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, patch
 
-import pytest
-
-from microbiolink.get_bacterial_fasta import fetch_proteome_fasta, main
+from microbiolink.get_bacterial_fasta import main
 
 
 SAMPLE_FASTA = '>sp|A0A000|GENE_BACT Gene\nMBACTSEQ\n'
-
-
-def test_fetch_proteome_fasta_builds_correct_url():
-    mock_response = MagicMock()
-    mock_response.text = SAMPLE_FASTA
-
-    with patch('microbiolink.get_bacterial_fasta.requests.get', return_value=mock_response) as mock_get:
-        fetch_proteome_fasta('UP000000625')
-
-    called_url = mock_get.call_args[0][0]
-    assert 'proteome' in called_url
-    assert 'UP000000625' in called_url
-    assert 'fasta' in called_url
-    mock_response.raise_for_status.assert_called_once()
 
 
 def test_uniprot_mode_batches_correctly(tmp_path):
@@ -55,7 +39,7 @@ def test_main_proteome_mode_writes_fasta(tmp_path):
     mock_response = MagicMock()
     mock_response.text = SAMPLE_FASTA
 
-    with patch('microbiolink.get_bacterial_fasta.requests.get', return_value=mock_response):
+    with patch('microbiolink.core.uniprot.requests.get', return_value=mock_response):
         result = main([
             '--id_list', str(id_file),
             '--sep', ',',

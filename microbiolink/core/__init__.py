@@ -55,6 +55,19 @@ from microbiolink.core.microbiome import filter_bacterial_domain_table_by_locati
 from microbiolink.core.microbiome import read_microbiome_identifiers
 from microbiolink.core.workflows import DMIWorkflowResult
 from microbiolink.core.workflows import run_dmi_workflow
+from microbiolink.core.uniprot import build_uniprot_accession_query
+from microbiolink.core.uniprot import build_uniprot_stream_url
+from microbiolink.core.uniprot import download_protein_list
+from microbiolink.core.uniprot import download_protein_list_with_fields
+from microbiolink.core.uniprot import download_proteome
+from microbiolink.core.uniprot import download_proteome_with_fields
+from microbiolink.core.uniprot import fetch_fasta_sequences
+from microbiolink.core.uniprot import fetch_proteome_fasta
+from microbiolink.core.uniprot import read_ids
+from microbiolink.core.human_domains import fetch_protein_sequences
+from microbiolink.core.human_domains import get_proteins
+from microbiolink.core.human_domains import read_expressed_genes
+from microbiolink.core.human_domains import translate_symbol_to_uniprot
 
 
 try:
@@ -75,13 +88,23 @@ __all__ = [
     'MicrobioLinkError',
     'bacterial_domain_dataframe_to_mapping',
     'bidirectional_interactions_to_dataframe',
+    'build_uniprot_accession_query',
+    'build_uniprot_stream_url',
     'ddi_interactions_to_dataframe',
+    'download_protein_list',
+    'download_protein_list_with_fields',
+    'download_proteome',
+    'download_proteome_with_fields',
     'extract_uniprot_id',
     'fetch_bacterial_domain_table_from_file',
     'fetch_bacterial_domain_table_from_ids',
+    'fetch_fasta_sequences',
+    'fetch_protein_sequences',
+    'fetch_proteome_fasta',
     'filter_bacterial_domain_table_by_location',
     'filter_count_matrix_file',
     'filter_counts_by_zscore',
+    'get_proteins',
     'interactions_to_dataframe',
     'load_default_3did_ddi_resource_bundle',
     'load_default_3did_dmi_resource_bundle',
@@ -103,13 +126,16 @@ __all__ = [
     'read_bacterial_domain_table',
     'read_count_matrix',
     'read_elm_regex_table',
+    'read_expressed_genes',
     'read_fasta_sequences',
+    'read_ids',
     'read_microbiome_identifiers',
     'read_motif_domain_table',
     'read_protein_domain_table',
     'resolve_dmi_resource_bundle_by_name',
     'run_dmi_workflow',
     'select_sequences_by_uniprot_ids',
+    'translate_symbol_to_uniprot',
     'write_bidirectional_domain_motif_interactions',
     'write_domain_domain_interactions',
     'write_domain_motif_interactions',
