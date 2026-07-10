@@ -216,5 +216,66 @@ in the original text:
   `import microbiolink_api` now correctly fails.
 - Full test suite: **67/67 passed**, matching the pre-refactor baseline
   exactly — no regressions.
-- Not yet committed to git as of writing this section; Commit 2 (the
-  `DMI.py`/`reverse_DMI.py` thin-shim collapse) has not started.
+- Committed as `070d388` (AGENTS.md rule), `2d18bf5` (the rename), `e221204`
+  (this plan document). One git-mechanics mistake happened and was corrected
+  before anything was pushed: `git mv`'s renames stage immediately, so the
+  first commit attempt captured the moved files with stale pre-edit content;
+  caught via `git show HEAD:...`, undone with a non-destructive
+  `git reset --soft`, and redone correctly.
+
+## Deviations from the plan (Commit 2)
+
+Minimal — execution matched the plan. Two details worth recording:
+
+1. `motif_monte_carlo_filter.py` also imports `read_fasta_sequences` from
+   `microbiolink.DMI`, not just `extract_uniprot_id` as the plan's decisions
+   section named explicitly. Both imports were repointed to
+   `microbiolink.core.dmi` (which has an identical implementation of each),
+   since `DMI.py` drops both functions.
+2. `DMI.py`/`reverse_DMI.py` were first written without spaces around `=` in
+   keyword arguments/defaults (matching the *old* pre-refactor style of
+   these two files). Running `uvx ruff check` (the project has no `ruff`
+   installed locally; `uvx ruff` was used instead) confirmed `E251`
+   (spaces-around-keyword-equals) is explicitly ignored in `pyproject.toml`
+   — i.e. the project's real convention is the *spaces* style already used
+   by `DDI.py` and `microbiolink/core/*`. Both files were rewritten to match
+   `DDI.py`'s style exactly, since they're meant to look and behave
+   identically as thin shims going forward. Separately, `ruff check --fix`
+   also auto-combined `DMI.py`'s two `from microbiolink.core.dmi import ...`
+   lines into one parenthesized multi-name import and reordered `cli.py`'s
+   `import sys`/`import importlib` — both reverted by hand, since they
+   contradict the one-name-per-line, alphabetically-ordered import style
+   used consistently throughout `microbiolink/core/*` (e.g. the 30+ separate
+   import lines in `microbiolink/core/__init__.py`).
+
+## Final outcome (Commit 2)
+
+- `microbiolink/DMI.py` and `microbiolink/reverse_DMI.py` rewritten as thin
+  shims calling `microbiolink.core.dmi.predict_domain_motif_interactions`/
+  `predict_reverse_domain_motif_interactions` directly; both gained
+  `--resource_set {default, elm, 3did}` and made
+  `--elm_regex_file`/`--motif_domain_file` optional.
+- `microbiolink/core/dmi.py` gained `resolve_dmi_resource_bundle_by_name`
+  (added in Commit 1, consumed here); confirmed dropped from `DMI.py`:
+  `read_fasta_sequences`, `parse_elm_regex`, `parse_motif_domain`,
+  `parse_protein_domain`, `create_uniprot_motif_dict`, `extract_uniprot_id`;
+  confirmed dropped from `reverse_DMI.py`: `ReverseDomainMotifInteraction`,
+  `predict_reverse_domain_motif_interactions_from_data`,
+  `filter_cleavage_motifs`.
+- `motif_monte_carlo_filter.py` repointed to `microbiolink.core.dmi` for
+  both `extract_uniprot_id` and `read_fasta_sequences`.
+- `cli.py:dmi()` now delegates to `DMI.parse_args()`/`DMI.main()`, matching
+  `ddi()`/`reverse_dmi()`; its now-unused `argparse` import removed.
+- Tests: `tests/test_reverse_DMI.py` slimmed to its 2 `main()` output-format
+  tests (6 obsolete unit tests for deleted functions removed); new
+  `tests/test_DMI.py` added (output-format test plus a `--resource_set`
+  wiring test); new `test_resolve_dmi_resource_bundle_by_name` added to
+  `tests/test_microbiolink_core.py`; new `test_cli_reverse_dmi_end_to_end`
+  added to `tests/test_package_smoke.py`.
+- Full test suite: **65/65 passed** (67 baseline − 6 removed + 4 added).
+- Manual smoke checks: `microbiolink-ddi/-dmi/-reverse-dmi --help` all work
+  via the installed console scripts (confirming `cli.py:dmi()`'s delegation
+  fix works through the real entry point, not just `python -m`); confirmed
+  by direct import that all named functions/classes are actually gone from
+  `DMI.py`/`reverse_DMI.py`, not just unused.
+- Not yet committed to git as of writing this section.
