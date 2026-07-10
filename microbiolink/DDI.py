@@ -6,12 +6,12 @@ from __future__ import annotations
 
 import argparse
 
-from microbiolink_api.ddi import load_default_3did_ddi_resource_bundle
-from microbiolink_api.ddi import load_default_ddi_resource_bundle
-from microbiolink_api.ddi import load_default_domine_all_ddi_resource_bundle
-from microbiolink_api.ddi import load_default_domine_hc_ddi_resource_bundle
-from microbiolink_api.ddi import predict_domain_domain_interactions
-from microbiolink_api.ddi import write_domain_domain_interactions
+from microbiolink.core.ddi import load_default_3did_ddi_resource_bundle
+from microbiolink.core.ddi import load_default_ddi_resource_bundle
+from microbiolink.core.ddi import load_default_domine_all_ddi_resource_bundle
+from microbiolink.core.ddi import load_default_domine_hc_ddi_resource_bundle
+from microbiolink.core.ddi import predict_domain_domain_interactions
+from microbiolink.core.ddi import write_domain_domain_interactions
 
 
 def parse_args() -> argparse.Namespace:

@@ -14,8 +14,8 @@ from typing import Iterable
 
 import pandas as pd
 
-from microbiolink_api.exceptions import InputFormatError
-import microbiolink_api.resources
+from microbiolink.core.exceptions import InputFormatError
+import microbiolink.core.resources
 
 
 PathLike = str | Path
@@ -297,10 +297,10 @@ def load_default_elm_dmi_resource_bundle() -> DMIResourceBundle:
     """Load the packaged ELM DMI resource tables."""
 
     elm_regex_path = importlib.resources.files(
-        microbiolink_api.resources,
+        microbiolink.core.resources,
     ).joinpath('elm_classes.tsv')
     motif_domain_path = importlib.resources.files(
-        microbiolink_api.resources,
+        microbiolink.core.resources,
     ).joinpath('elm_interaction_domains.tsv')
     elm_regex = read_elm_regex_table(str(elm_regex_path))
     motif_domains = read_motif_domain_table(str(motif_domain_path))
@@ -319,10 +319,10 @@ def load_default_3did_dmi_resource_bundle() -> DMIResourceBundle:
     """Load the packaged 3did structural DMI resource tables."""
 
     motif_regex_path = importlib.resources.files(
-        microbiolink_api.resources,
+        microbiolink.core.resources,
     ).joinpath('3did_dmi_classes.tsv')
     motif_domain_path = importlib.resources.files(
-        microbiolink_api.resources,
+        microbiolink.core.resources,
     ).joinpath('3did_dmi_interaction_domains.tsv')
     motif_regex = read_elm_regex_table(str(motif_regex_path))
     motif_domains = read_motif_domain_table(str(motif_domain_path))
@@ -348,6 +348,35 @@ def load_default_dmi_resource_bundle() -> DMIResourceBundle:
     return merge_dmi_resource_bundles(
         load_default_elm_dmi_resource_bundle(),
         load_default_3did_dmi_resource_bundle(),
+    )
+
+
+def resolve_dmi_resource_bundle_by_name(resource_set: str) -> DMIResourceBundle:
+    """Resolve a packaged DMI resource bundle by name.
+
+    Args:
+        resource_set: One of `'default'` (ELM and 3did merged), `'elm'`
+            (ELM only), or `'3did'` (3did structural motifs only).
+
+    Returns:
+        The packaged resource bundle selected by `resource_set`.
+
+    Raises:
+        InputFormatError: If `resource_set` is not one of the supported
+            names.
+    """
+
+    if resource_set == 'elm':
+        return load_default_elm_dmi_resource_bundle()
+
+    if resource_set == '3did':
+        return load_default_3did_dmi_resource_bundle()
+
+    if resource_set == 'default':
+        return load_default_dmi_resource_bundle()
+
+    raise InputFormatError(
+        f"`resource_set` must be one of: default, elm, 3did. Got: {resource_set!r}",
     )
 
 

@@ -9,23 +9,23 @@ from pathlib import Path
 
 import pandas as pd
 
-from microbiolink_api.dmi import DMIResourceBundle
-from microbiolink_api.dmi import DomainMotifInteraction
-from microbiolink_api.dmi import interactions_to_dataframe
-from microbiolink_api.dmi import load_default_dmi_resource_bundle
-from microbiolink_api.dmi import predict_domain_motif_interactions_from_data
-from microbiolink_api.dmi import read_bacterial_domain_table
-from microbiolink_api.dmi import read_elm_regex_table
-from microbiolink_api.dmi import read_fasta_sequences
-from microbiolink_api.dmi import read_motif_domain_table
-from microbiolink_api.dmi import select_sequences_by_uniprot_ids
-from microbiolink_api.dmi import write_domain_motif_interactions
-from microbiolink_api.dmi import write_fasta_sequences
-from microbiolink_api.expression import filter_count_matrix_file
-from microbiolink_api.exceptions import InputFormatError
-from microbiolink_api.microbiome import bacterial_domain_dataframe_to_mapping
-from microbiolink_api.microbiome import fetch_bacterial_domain_table_from_file
-from microbiolink_api.microbiome import filter_bacterial_domain_table_by_location
+from microbiolink.core.dmi import DMIResourceBundle
+from microbiolink.core.dmi import DomainMotifInteraction
+from microbiolink.core.dmi import interactions_to_dataframe
+from microbiolink.core.dmi import load_default_dmi_resource_bundle
+from microbiolink.core.dmi import predict_domain_motif_interactions_from_data
+from microbiolink.core.dmi import read_bacterial_domain_table
+from microbiolink.core.dmi import read_elm_regex_table
+from microbiolink.core.dmi import read_fasta_sequences
+from microbiolink.core.dmi import read_motif_domain_table
+from microbiolink.core.dmi import select_sequences_by_uniprot_ids
+from microbiolink.core.dmi import write_domain_motif_interactions
+from microbiolink.core.dmi import write_fasta_sequences
+from microbiolink.core.expression import filter_count_matrix_file
+from microbiolink.core.exceptions import InputFormatError
+from microbiolink.core.microbiome import bacterial_domain_dataframe_to_mapping
+from microbiolink.core.microbiome import fetch_bacterial_domain_table_from_file
+from microbiolink.core.microbiome import filter_bacterial_domain_table_by_location
 
 
 PathLike = str | Path

@@ -5,19 +5,19 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-from microbiolink_api import DMIWorkflowResult
-from microbiolink_api import BidirectionalDomainMotifInteraction
-from microbiolink_api import DomainMotifInteraction
-from microbiolink_api import InputFormatError
-from microbiolink_api import fetch_bacterial_domain_table_from_file
-from microbiolink_api import filter_count_matrix_file
-from microbiolink_api import filter_bacterial_domain_table_by_location
-from microbiolink_api import interactions_to_dataframe
-from microbiolink_api import predict_bidirectional_domain_motif_interactions
-from microbiolink_api import load_default_dmi_resource_bundle
-from microbiolink_api import predict_domain_motif_interactions
-from microbiolink_api import predict_reverse_domain_motif_interactions
-from microbiolink_api import run_dmi_workflow
+from microbiolink.core import DMIWorkflowResult
+from microbiolink.core import BidirectionalDomainMotifInteraction
+from microbiolink.core import DomainMotifInteraction
+from microbiolink.core import InputFormatError
+from microbiolink.core import fetch_bacterial_domain_table_from_file
+from microbiolink.core import filter_count_matrix_file
+from microbiolink.core import filter_bacterial_domain_table_by_location
+from microbiolink.core import interactions_to_dataframe
+from microbiolink.core import predict_bidirectional_domain_motif_interactions
+from microbiolink.core import load_default_dmi_resource_bundle
+from microbiolink.core import predict_domain_motif_interactions
+from microbiolink.core import predict_reverse_domain_motif_interactions
+from microbiolink.core import run_dmi_workflow
 
 
 FIXTURES = Path(__file__).parent / 'fixtures'
@@ -203,7 +203,7 @@ def test_run_dmi_workflow_writes_outputs(
 def test_fetch_bacterial_domain_table_from_file(
     monkeypatch,
 ) -> None:
-    from microbiolink_api import microbiome as microbiome_module
+    from microbiolink.core import microbiome as microbiome_module
 
     def fake_download_protein_list_with_fields(
         uniprot_ids: list[str],
@@ -241,7 +241,7 @@ def test_fetch_bacterial_domain_table_from_file(
 def test_fetch_bacterial_domain_table_from_ids_splits_failed_large_batches(
     monkeypatch,
 ) -> None:
-    from microbiolink_api import microbiome as microbiome_module
+    from microbiolink.core import microbiome as microbiome_module
 
     batch_calls: list[list[str]] = []
 
@@ -313,7 +313,7 @@ def test_run_dmi_workflow_accepts_bacterial_identifier_file(
     monkeypatch,
     tmp_path,
 ) -> None:
-    from microbiolink_api import workflows as workflow_module
+    from microbiolink.core import workflows as workflow_module
 
     def fake_fetch_bacterial_domain_table_from_file(
         id_file,
@@ -372,7 +372,7 @@ def test_run_dmi_workflow_filters_bacterial_locations(
     monkeypatch,
     tmp_path,
 ) -> None:
-    from microbiolink_api import workflows as workflow_module
+    from microbiolink.core import workflows as workflow_module
 
     def fake_fetch_bacterial_domain_table_from_file(
         id_file,
@@ -440,7 +440,7 @@ def test_run_dmi_workflow_does_not_drop_fasta_on_identifier_mismatch(
     monkeypatch,
     tmp_path,
 ) -> None:
-    from microbiolink_api import workflows as workflow_module
+    from microbiolink.core import workflows as workflow_module
 
     gene_symbol_counts = tmp_path / 'gene_symbol_counts.csv'
     gene_symbol_counts.write_text(

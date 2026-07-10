@@ -5,8 +5,9 @@ MicrobioLink.
 
 It contains only:
 
-- the runtime Python packages `microbiolink` and `microbiolink_api`,
-- the packaged ELM resource files used by `microbiolink_api`,
+- the runtime Python package `microbiolink`, including its `microbiolink.core`
+  library API,
+- the packaged ELM resource files used by `microbiolink.core`,
 - the package metadata needed for `pip install`,
 - a small `tutorials/mock_data` folder with runnable mock-data notebooks,
 - the license file.
@@ -67,10 +68,9 @@ Notes:
 - `microbiolink-processing-tiedie-output`
 - `microbiolink-enrichr-ranking`
 
-### Python packages
+### Python package
 
-- `microbiolink`
-- `microbiolink_api`
+- `microbiolink` (CLI scripts, plus the `microbiolink.core` library API)
 
 ## Minimal usage
 
@@ -92,7 +92,7 @@ microbiolink-dmi \
 Use the library-style API with packaged ELM resources:
 
 ```python
-from microbiolink_api import predict_domain_motif_interactions
+from microbiolink.core import predict_domain_motif_interactions
 
 interactions = predict_domain_motif_interactions(
     fasta_file = 'human_proteins.fasta',
@@ -117,6 +117,5 @@ Typical user-provided inputs are:
 ├── README.md
 ├── pyproject.toml
 ├── microbiolink/
-├── microbiolink_api/
 └── tutorials/
 ```

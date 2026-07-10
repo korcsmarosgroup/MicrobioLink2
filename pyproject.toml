@@ -84,11 +84,11 @@ Issues = "https://github.com/korcsmarosgroup/MicrobioLink2/issues"
 Repository = "https://github.com/korcsmarosgroup/MicrobioLink2"
 
 [tool.hatch.build.targets.wheel]
-packages = ["microbiolink", "microbiolink_api"]
+packages = ["microbiolink"]
 
 [tool.hatch.build]
 include = [
-  "microbiolink_api/resources/*.tsv",
+  "microbiolink/core/resources/*.tsv",
 ]
 
 [tool.hatch.metadata]
@@ -98,7 +98,7 @@ allow-direct-references = true
 omit = [
 	"**/test_*.py",
 ]
-source = ["microbiolink", "microbiolink_api"]
+source = ["microbiolink"]
 
 [tool.cruft]
 skip = [
@@ -193,7 +193,7 @@ case-sensitive = false
 combine-as-imports = true
 force-sort-within-sections = true
 force-wrap-aliases = true
-known-first-party = [ "microbiolink", "microbiolink_api" ]
+known-first-party = [ "microbiolink" ]
 known-third-party = ["numpy", "pandas"]
 length-sort = true
 lines-after-imports = 2

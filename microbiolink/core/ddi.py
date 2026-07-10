@@ -13,8 +13,8 @@ from typing import Union
 
 import pandas as pd
 
-from microbiolink_api.dmi import read_protein_domain_table
-import microbiolink_api.resources
+from microbiolink.core.dmi import read_protein_domain_table
+import microbiolink.core.resources
 
 
 PathLike = Union[str, Path]
@@ -116,7 +116,7 @@ def load_default_3did_ddi_resource_bundle() -> DDIResourceBundle:
     """Load the packaged 3did Pfam-Pfam interaction table."""
 
     resource_path = importlib.resources.files(
-        microbiolink_api.resources,
+        microbiolink.core.resources,
     ).joinpath('pfam_interactions_3did_current.tsv')
     pfam_pairs = read_ddi_resource_table(str(resource_path))
 
@@ -131,7 +131,7 @@ def load_default_domine_hc_ddi_resource_bundle() -> DDIResourceBundle:
     """Load the packaged high-confidence DOMINE Pfam-Pfam interaction table."""
 
     resource_path = importlib.resources.files(
-        microbiolink_api.resources,
+        microbiolink.core.resources,
     ).joinpath('domine_v2_hc_pfam_pairs.tsv')
     pfam_pairs = read_ddi_resource_table(str(resource_path))
 
@@ -146,7 +146,7 @@ def load_default_domine_all_ddi_resource_bundle() -> DDIResourceBundle:
     """Load the packaged full DOMINE Pfam-Pfam interaction table."""
 
     resource_path = importlib.resources.files(
-        microbiolink_api.resources,
+        microbiolink.core.resources,
     ).joinpath('domine_v2_all_pfam_pairs.tsv')
     pfam_pairs = read_ddi_resource_table(str(resource_path))
 

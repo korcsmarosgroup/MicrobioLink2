@@ -2,17 +2,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from microbiolink_api import DDIResourceBundle
-from microbiolink_api import DomainDomainInteraction
-from microbiolink_api import ddi_interactions_to_dataframe
-from microbiolink_api import load_default_3did_ddi_resource_bundle
-from microbiolink_api import load_default_ddi_resource_bundle
-from microbiolink_api import load_default_domine_all_ddi_resource_bundle
-from microbiolink_api import load_default_domine_hc_ddi_resource_bundle
-from microbiolink_api import merge_ddi_resource_bundles
-from microbiolink_api import predict_domain_domain_interactions
-from microbiolink_api import predict_domain_domain_interactions_from_data
-from microbiolink_api import write_domain_domain_interactions
+from microbiolink.core import DDIResourceBundle
+from microbiolink.core import DomainDomainInteraction
+from microbiolink.core import ddi_interactions_to_dataframe
+from microbiolink.core import load_default_3did_ddi_resource_bundle
+from microbiolink.core import load_default_ddi_resource_bundle
+from microbiolink.core import load_default_domine_all_ddi_resource_bundle
+from microbiolink.core import load_default_domine_hc_ddi_resource_bundle
+from microbiolink.core import merge_ddi_resource_bundles
+from microbiolink.core import predict_domain_domain_interactions
+from microbiolink.core import predict_domain_domain_interactions_from_data
+from microbiolink.core import write_domain_domain_interactions
 
 
 FIXTURES = Path(__file__).parent / 'fixtures'
