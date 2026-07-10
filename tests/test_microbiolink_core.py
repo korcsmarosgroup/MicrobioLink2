@@ -15,8 +15,11 @@ from microbiolink.core import filter_bacterial_domain_table_by_location
 from microbiolink.core import interactions_to_dataframe
 from microbiolink.core import predict_bidirectional_domain_motif_interactions
 from microbiolink.core import load_default_dmi_resource_bundle
+from microbiolink.core import load_default_elm_dmi_resource_bundle
+from microbiolink.core import load_default_3did_dmi_resource_bundle
 from microbiolink.core import predict_domain_motif_interactions
 from microbiolink.core import predict_reverse_domain_motif_interactions
+from microbiolink.core import resolve_dmi_resource_bundle_by_name
 from microbiolink.core import run_dmi_workflow
 
 
@@ -85,6 +88,19 @@ def test_predict_domain_motif_interactions_returns_records() -> None:
             'resource': 'ELM',
         },
     ]
+
+
+def test_resolve_dmi_resource_bundle_by_name() -> None:
+    assert resolve_dmi_resource_bundle_by_name('default') == load_default_dmi_resource_bundle()
+    assert resolve_dmi_resource_bundle_by_name('elm') == load_default_elm_dmi_resource_bundle()
+    assert resolve_dmi_resource_bundle_by_name('3did') == load_default_3did_dmi_resource_bundle()
+
+    try:
+        resolve_dmi_resource_bundle_by_name('bogus')
+    except InputFormatError:
+        pass
+    else:
+        raise AssertionError('Expected InputFormatError to be raised.')
 
 
 def test_predict_reverse_domain_motif_interactions_returns_records() -> None:

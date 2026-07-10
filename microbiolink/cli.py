@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import argparse
 import importlib
 import sys
 
@@ -98,27 +97,7 @@ def aiupred() -> int:
 def dmi() -> int:
     dmi_module = _import_module('.DMI')
 
-    parser = argparse.ArgumentParser(
-        description=(
-            'Predict interaction between human and microbial proteins based on '
-            'domain-motif interactions.'
-        ),
-    )
-    parser.add_argument('-fasta', '--fasta_file', help='Path to human protein FASTA file')
-    parser.add_argument('-motif', '--elm_regex_file', help='Path to ELM regex file')
-    parser.add_argument(
-        '-interaction',
-        '--motif_domain_file',
-        help='Path to motif-domain interaction file',
-    )
-    parser.add_argument(
-        '-domain',
-        '--bacterial_domain_file',
-        help='Path to bacterial protein domain file',
-    )
-    parser.add_argument('-o', '--output_file', help='Path to output file')
-    args = parser.parse_args()
-    dmi_module.main(args)
+    dmi_module.main(dmi_module.parse_args())
     return 0
 
 

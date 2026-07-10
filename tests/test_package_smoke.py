@@ -55,6 +55,39 @@ def test_cli_dmi_end_to_end(
     ]
 
 
+def test_cli_reverse_dmi_end_to_end(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    output_file = tmp_path / 'reverse_dmi_output.tsv'
+
+    monkeypatch.setattr(
+        cli.sys,
+        'argv',
+        [
+            'microbiolink-reverse-dmi',
+            '--fasta_file',
+            str(fixture_path('dmi', 'bacterial_reverse.fasta')),
+            '--elm_regex_file',
+            str(fixture_path('dmi', 'elm_regex.tsv')),
+            '--motif_domain_file',
+            str(fixture_path('dmi', 'motif_domain.tsv')),
+            '--human_domain_file',
+            str(fixture_path('dmi', 'human_domains.tsv')),
+            '--output_file',
+            str(output_file),
+        ],
+    )
+
+    exit_code = cli.reverse_dmi()
+
+    assert exit_code == 0
+    assert output_file.read_text(encoding='utf-8').splitlines() == [
+        '# Bacterial Protein;Motif;Start;End;Human Domain;Human Protein',
+        'BACREV1;DEG_Nend_UBRbox_4;0;3;PF02207;HUMANPROT1',
+    ]
+
+
 def test_cli_zscore_filter_end_to_end(
     monkeypatch,
     tmp_path,

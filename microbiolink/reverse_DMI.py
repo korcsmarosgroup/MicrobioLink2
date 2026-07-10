@@ -5,102 +5,10 @@
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
 from pathlib import Path
 
-from microbiolink.DMI import (
-    create_uniprot_motif_dict,
-    parse_elm_regex,
-    parse_motif_domain,
-    parse_protein_domain,
-    read_fasta_sequences,
-)
-
-
-@dataclass(frozen=True)
-class ReverseDomainMotifInteraction:
-    """Represent one predicted reverse domain-motif interaction."""
-
-    bacterial_protein: str
-    motif: str
-    start: int
-    end: int
-    human_domain: str
-    human_protein: str
-
-
-def filter_cleavage_motifs(elm_regex: dict[str, str]) -> dict[str, str]:
-    """Remove cleavage site motifs from an ELM regex dictionary.
-
-    Cleavage (CLV_*) motifs mediate proteolytic digestion rather than
-    domain binding and are not meaningful in a domain-motif interaction
-    context.
-
-    Args:
-        elm_regex: Mapping of ELM identifier to regex pattern.
-
-    Returns:
-        Copy of the dict with all CLV_* entries removed.
-    """
-    return {
-        name: pattern
-        for name, pattern in elm_regex.items()
-        if not name.startswith('CLV_')
-    }
-
-
-def predict_reverse_domain_motif_interactions_from_data(
-    bacterial_sequences: dict[str, str],
-    elm_regex: dict[str, str],
-    motif_domains: dict[str, list[str]],
-    human_domain_table: dict[str, list[str]],
-) -> list[ReverseDomainMotifInteraction]:
-    """Predict reverse domain-motif interactions from in-memory inputs.
-
-    Scans bacterial protein sequences for ELM motif patterns, then maps each
-    hit through the motif-domain interaction table to the human proteins that
-    carry a compatible Pfam domain.
-
-    Args:
-        bacterial_sequences: Mapping from FASTA header to bacterial protein
-            sequence.
-        elm_regex: Mapping from ELM motif identifier to regex pattern.
-            Pass through filter_cleavage_motifs() first to exclude CLV_ entries.
-        motif_domains: Mapping from ELM motif identifier to compatible Pfam
-            domain identifiers.
-        human_domain_table: Mapping from Pfam domain identifier to human
-            UniProt accessions carrying that domain.
-
-    Returns:
-        List of predicted interactions, one entry per
-        (bacterial protein, motif hit, human domain, human protein) combination.
-    """
-    bacterial_motif = create_uniprot_motif_dict(bacterial_sequences, elm_regex)
-    interactions: list[ReverseDomainMotifInteraction] = []
-
-    for motif_name, compatible_domains in motif_domains.items():
-        motif_hits = [
-            (bacterial_id, int(start), int(end))
-            for bacterial_id, matches in bacterial_motif.items()
-            for match_name, start, end in matches
-            if match_name == motif_name
-        ]
-
-        for domain in compatible_domains:
-            for human_protein in human_domain_table.get(domain, []):
-                for bacterial_id, start, end in motif_hits:
-                    interactions.append(
-                        ReverseDomainMotifInteraction(
-                            bacterial_protein=bacterial_id,
-                            motif=motif_name,
-                            start=start,
-                            end=end,
-                            human_domain=domain,
-                            human_protein=human_protein,
-                        ),
-                    )
-
-    return interactions
+from microbiolink.core.dmi import predict_reverse_domain_motif_interactions
+from microbiolink.core.dmi import resolve_dmi_resource_bundle_by_name
 
 
 def parse_args() -> argparse.Namespace:
@@ -110,7 +18,7 @@ def parse_args() -> argparse.Namespace:
         Parsed argument namespace.
     """
     parser = argparse.ArgumentParser(
-        description=(
+        description = (
             'Predict interactions between microbial and human proteins based on '
             'domain-motif interactions (reversed: bacterial motifs, human domains).'
         ),
@@ -118,32 +26,43 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         '-fasta',
         '--fasta_file',
-        required=True,
-        help='Path to the bacterial protein FASTA file.',
+        required = True,
+        help = 'Path to the bacterial protein FASTA file.',
     )
     parser.add_argument(
         '-motif',
         '--elm_regex_file',
-        required=True,
-        help='Path to the ELM regex file.',
+        required = False,
+        default = None,
+        help = 'Path to the ELM regex file. Omit to use the packaged '
+        'resource set selected by --resource_set.',
     )
     parser.add_argument(
         '-interaction',
         '--motif_domain_file',
-        required=True,
-        help='Path to the motif-domain interaction file.',
+        required = False,
+        default = None,
+        help = 'Path to the motif-domain interaction file. Omit to use the '
+        'packaged resource set selected by --resource_set.',
     )
     parser.add_argument(
         '-domain',
         '--human_domain_file',
-        required=True,
-        help='Path to the human protein domain file.',
+        required = True,
+        help = 'Path to the human protein domain file.',
+    )
+    parser.add_argument(
+        '--resource_set',
+        choices = ['default', 'elm', '3did'],
+        default = 'default',
+        help = 'Packaged DMI resource set to use when --motif/--interaction '
+        'are omitted.',
     )
     parser.add_argument(
         '-o',
         '--output_file',
-        required=True,
-        help='Path to the output file.',
+        required = True,
+        help = 'Path to the output file.',
     )
     return parser.parse_args()
 
@@ -154,27 +73,27 @@ def main(args: argparse.Namespace) -> None:
     Args:
         args: Parsed argument namespace from parse_args().
     """
-    bacterial_sequences = read_fasta_sequences(args.fasta_file)
-    elm_regex = filter_cleavage_motifs(parse_elm_regex(args.elm_regex_file))
-    motif_domain = parse_motif_domain(args.motif_domain_file)
-    human_domain_table = parse_protein_domain(args.human_domain_file)
+    resource_bundle = None
+    if args.elm_regex_file is None or args.motif_domain_file is None:
+        resource_bundle = resolve_dmi_resource_bundle_by_name(args.resource_set)
 
-    interactions = predict_reverse_domain_motif_interactions_from_data(
-        bacterial_sequences=bacterial_sequences,
-        elm_regex=elm_regex,
-        motif_domains=motif_domain,
-        human_domain_table=human_domain_table,
+    interactions = predict_reverse_domain_motif_interactions(
+        bacterial_fasta_file = args.fasta_file,
+        human_domain_file = args.human_domain_file,
+        elm_regex_file = args.elm_regex_file,
+        motif_domain_file = args.motif_domain_file,
+        resource_bundle = resource_bundle,
     )
 
-    with open(Path(args.output_file), 'w', encoding='utf-8') as output_file:
+    with open(Path(args.output_file), 'w', encoding = 'utf-8') as output_file:
         output_file.write(
             '# Bacterial Protein;Motif;Start;End;Human Domain;Human Protein\n',
         )
         for interaction in interactions:
             output_file.write(
-                f'{interaction.bacterial_protein};{interaction.motif};'
+                f'{interaction.microbial_protein};{interaction.motif};'
                 f'{interaction.start};{interaction.end};'
-                f'{interaction.human_domain};{interaction.human_protein}\n',
+                f'{interaction.domain};{interaction.host_protein}\n',
             )
 
 

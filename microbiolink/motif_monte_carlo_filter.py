@@ -13,8 +13,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from microbiolink.DMI import extract_uniprot_id
-from microbiolink.DMI import read_fasta_sequences
+from microbiolink.core.dmi import extract_uniprot_id
+from microbiolink.core.dmi import read_fasta_sequences
 
 
 PathLike = str | Path

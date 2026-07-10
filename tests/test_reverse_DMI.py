@@ -4,38 +4,7 @@ import argparse
 
 import pytest
 
-from microbiolink.reverse_DMI import (
-    ReverseDomainMotifInteraction,
-    filter_cleavage_motifs,
-    main,
-    predict_reverse_domain_motif_interactions_from_data,
-)
-
-
-# ── filter_cleavage_motifs ────────────────────────────────────────────────────
-
-def test_filter_cleavage_motifs_removes_clv():
-    elm = {
-        'CLV_C14_Caspase3-7': '[DSTE]D',
-        'CLV_PCSK_FUR_1': 'RXX[RK]',
-        'LIG_SH2_STAT5': 'Y..[VILF]',
-        'DOC_PP1_RVXF_1': '[RK].{0,1}[VI][^P][FW]',
-    }
-    result = filter_cleavage_motifs(elm)
-    assert 'CLV_C14_Caspase3-7' not in result
-    assert 'CLV_PCSK_FUR_1' not in result
-    assert 'LIG_SH2_STAT5' in result
-    assert 'DOC_PP1_RVXF_1' in result
-
-
-def test_filter_cleavage_motifs_empty_input():
-    assert filter_cleavage_motifs({}) == {}
-
-
-def test_filter_cleavage_motifs_no_clv_entries():
-    elm = {'LIG_FHA_1': 'pattern', 'MOD_PKA_1': 'pattern2'}
-    result = filter_cleavage_motifs(elm)
-    assert result == elm
+from microbiolink.reverse_DMI import main
 
 
 # ── main / output format ──────────────────────────────────────────────────────
@@ -86,6 +55,7 @@ def test_reverse_dmi_main_output_format(fixture_dir):
         elm_regex_file=str(fixture_dir['elm_regex']),
         motif_domain_file=str(fixture_dir['motif_domain']),
         human_domain_file=str(fixture_dir['human_domains']),
+        resource_set='default',
         output_file=str(fixture_dir['output']),
     )
     main(args)
@@ -105,76 +75,10 @@ def test_reverse_dmi_excludes_clv_motifs(fixture_dir):
         elm_regex_file=str(fixture_dir['elm_regex']),
         motif_domain_file=str(fixture_dir['motif_domain']),
         human_domain_file=str(fixture_dir['human_domains']),
+        resource_set='default',
         output_file=str(fixture_dir['output']),
     )
     main(args)
 
     content = fixture_dir['output'].read_text()
     assert 'CLV_' not in content
-
-
-# ── predict_reverse_domain_motif_interactions_from_data ───────────────────────
-
-def test_predict_reverse_dmi_from_data_returns_interactions():
-    bacterial_sequences = {
-        'sp|BACT001|GENE_BACT BacterialProtein': 'MCRAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-    }
-    elm_regex = {'^M{0,1}(C).': '^M{0,1}(C).'}
-    elm_regex = {'DEG_Nend_UBRbox_4': '^M{0,1}(C).'}
-    motif_domains = {'DEG_Nend_UBRbox_4': ['PF02207']}
-    human_domain_table = {'PF02207': ['P99999']}
-
-    results = predict_reverse_domain_motif_interactions_from_data(
-        bacterial_sequences=bacterial_sequences,
-        elm_regex=elm_regex,
-        motif_domains=motif_domains,
-        human_domain_table=human_domain_table,
-    )
-
-    assert len(results) == 1
-    interaction = results[0]
-    assert isinstance(interaction, ReverseDomainMotifInteraction)
-    assert interaction.bacterial_protein == 'BACT001'
-    assert interaction.motif == 'DEG_Nend_UBRbox_4'
-    assert interaction.human_domain == 'PF02207'
-    assert interaction.human_protein == 'P99999'
-
-
-def test_predict_reverse_dmi_from_data_clv_excluded():
-    bacterial_sequences = {
-        'sp|BACT002|CLV_BACT CleavageSiteProtein': 'GGGRRRKRGGGGGGGGGGGGGGGGGGGGG',
-    }
-    elm_regex_with_clv = {
-        'CLV_PCSK_FUR_1': 'R.[RK]R.',
-        'LIG_SH2_STAT5': 'Y..[VILF]',
-    }
-    filtered = filter_cleavage_motifs(elm_regex_with_clv)
-    motif_domains = {'CLV_PCSK_FUR_1': ['PF00089'], 'LIG_SH2_STAT5': ['PF00017']}
-    human_domain_table = {'PF00089': ['P11111'], 'PF00017': ['P22222']}
-
-    results = predict_reverse_domain_motif_interactions_from_data(
-        bacterial_sequences=bacterial_sequences,
-        elm_regex=filtered,
-        motif_domains=motif_domains,
-        human_domain_table=human_domain_table,
-    )
-
-    assert all(r.motif != 'CLV_PCSK_FUR_1' for r in results)
-
-
-def test_predict_reverse_dmi_from_data_no_match():
-    bacterial_sequences = {
-        'sp|BACT003|NOMATCH NomatchProtein': 'MCRAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-    }
-    elm_regex = {'DEG_Nend_UBRbox_4': '^M{0,1}(C).'}
-    motif_domains = {'DEG_Nend_UBRbox_4': ['PF02207']}
-    human_domain_table = {}
-
-    results = predict_reverse_domain_motif_interactions_from_data(
-        bacterial_sequences=bacterial_sequences,
-        elm_regex=elm_regex,
-        motif_domains=motif_domains,
-        human_domain_table=human_domain_table,
-    )
-
-    assert results == []
