@@ -29,6 +29,19 @@ There should be core functions which contain both public and private functions. 
 
 There should be a seperate cli folder which contains argparse and any functions which are cli specific boilerplate.
 
+## Package Layout
+
+This should be a single flat top-level package 'microbiolink'. For any overlapping fucntionality the flat `microbiolink/` from the case study branch takes precedent over the MicrobioLink-2.1-beta and the `microbiolink_api`. 
+`pyproject.toml` with `hatchling`, console-script entry points wired through `microbiolink/cli.py`.
+
+## Testing/CI Tooling
+
+This is deferred entirely for a future development plan. Include only the packaging essentials (pyproject.toml, build backend, entrypoints)
+
+## Checks against old code
+
+Delete old code as the new code lands. Use `case_study_input/` → `case_study_output/` to check the outputs are the same as the old code. If there is neew functionality display the output manually to get confirmation from me that it looks correct.
+
 ## Coding Style
 
 All functions should be implemented in the style described in @https://github.com/TobyL98/toby_verse/blob/main/guidelines/python-coding-style.md.
@@ -57,6 +70,10 @@ For bacterial proteins, it is using uniprot to find secreted or membrane based p
 
 - Outputs:
 Same format they provided but with an extra columns with the annotations (dictionary with uniprot ID)
+
+- Notes
+Human-side mebanre filter is from `workflow/get_human_fasta.py`. 
+Bacterial-side is from the fucntion `filter_bacterial_domain_table_by_location()` in `microbiolink_api/microbiome.py` in the MicrobioLink-2.1-beta branch.
 
 
 ### Module 3 - Downloading Fasta
