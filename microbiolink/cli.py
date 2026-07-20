@@ -2,6 +2,8 @@
 
 import argparse
 
+import pandas as pd
+
 
 def zscore_filter() -> int:
     """Filter a gene/protein count matrix by a z-score cutoff."""
@@ -115,12 +117,11 @@ def _build_membrane_filter_parser() -> argparse.ArgumentParser:
 def _resolve_membrane_filter_identifiers(args: argparse.Namespace) -> list[str]:
     """Resolve the identifier list from CLI args, per --from-count-matrix."""
 
-    from .utils import gene_matrix
     from .utils import uniprot_client
 
     if args.from_count_matrix:
-        count_matrix = gene_matrix.read_count_matrix(args.input_file)
-        return gene_matrix.extract_gene_symbols_from_count_matrix(count_matrix)
+        count_matrix = pd.read_csv(args.input_file, index_col=0)
+        return count_matrix.index.tolist()
 
     return uniprot_client.read_ids(args.input_file, args.sep, args.id_column)
 
@@ -229,12 +230,12 @@ def _resolve_human_fasta_identifiers(args: argparse.Namespace) -> list[str] | No
     if args.human_input_file is None:
         return None
 
-    from .utils import gene_matrix
     from .utils import uniprot_client
 
     if args.human_from_count_matrix:
-        count_matrix = gene_matrix.read_count_matrix(args.human_input_file)
-        return gene_matrix.extract_expressed_gene_symbols_from_count_matrix(count_matrix)
+        count_matrix = pd.read_csv(args.human_input_file, index_col=0)
+        expressed_mask = count_matrix.notna().any(axis=1) & (count_matrix != 0).any(axis=1)
+        return count_matrix.index[expressed_mask].tolist()
 
     return uniprot_client.read_ids(args.human_input_file, args.human_sep, args.human_id_column)
 

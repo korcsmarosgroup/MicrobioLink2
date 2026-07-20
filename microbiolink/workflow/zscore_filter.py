@@ -7,8 +7,6 @@ import numpy as np
 import pandas as pd
 from scipy.stats import gaussian_kde
 
-from ..utils import gene_matrix
-
 PathLike = Union[str, Path]
 
 
@@ -95,7 +93,7 @@ def filter_count_matrix_file(
         The filtered count matrix.
     """
 
-    count_matrix = gene_matrix.read_count_matrix(input_file)
+    count_matrix = pd.read_csv(input_file, index_col=0)
     filtered_matrix = filter_counts_by_zscore(
         count_matrix,
         zscore_threshold=zscore_threshold,
