@@ -7,24 +7,9 @@ import numpy as np
 import pandas as pd
 from scipy.stats import gaussian_kde
 
+from ..utils import gene_matrix
+
 PathLike = Union[str, Path]
-
-
-def read_count_matrix(
-    filename: PathLike,
-    index_col: int | str = 0,
-) -> pd.DataFrame:
-    """Read a gene/protein count matrix from disk.
-
-    Args:
-        filename: Path to a comma-separated count matrix.
-        index_col: Column to use as the row index.
-
-    Returns:
-        A pandas data frame indexed by gene or protein identifier.
-    """
-
-    return pd.read_csv(filename, index_col=index_col)
 
 
 def _filter_column_by_zscore(
@@ -110,7 +95,7 @@ def filter_count_matrix_file(
         The filtered count matrix.
     """
 
-    count_matrix = read_count_matrix(input_file)
+    count_matrix = gene_matrix.read_count_matrix(input_file)
     filtered_matrix = filter_counts_by_zscore(
         count_matrix,
         zscore_threshold=zscore_threshold,

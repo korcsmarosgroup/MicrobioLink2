@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from . import uniprot_client
+from ..utils import uniprot_client
 
 LOCATION_FIELD = 'cc_subcellular_location'
 LOCATION_COLUMN = 'Subcellular location [CC]'

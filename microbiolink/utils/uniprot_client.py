@@ -12,6 +12,7 @@ PathLike = Union[str, Path]
 UNIPROT_STREAM_BASE_URL = 'https://rest.uniprot.org/uniprotkb/stream?'
 DEFAULT_UNIPROT_FIELDS = ['accession', 'xref_pfam', 'gene_names']
 UNIPROT_BATCH_SIZE = 1000
+FASTA_BATCH_SIZE = 100
 
 
 def read_ids(
@@ -191,3 +192,65 @@ def fetch_proteome_table(
 
     frame['Proteome_ID'] = proteome_id
     return frame
+
+
+def build_uniprot_fasta_url(query: str) -> str:
+    """Build a UniProt stream endpoint URL for FASTA format.
+
+    Unlike build_uniprot_stream_url, this takes no fields: FASTA format
+    always returns full records and doesn't support field selection.
+
+    Args:
+        query: Percent-encoded UniProt query string.
+
+    Returns:
+        A complete UniProt stream URL requesting FASTA format.
+    """
+
+    return f'{UNIPROT_STREAM_BASE_URL}format=fasta&query={query}'
+
+
+def _fetch_fasta_batch(identifiers: list[str]) -> list[str]:
+    """Fetch one FASTA batch as raw text, retrying by splitting on HTTP 400.
+
+    Args:
+        identifiers: UniProt accessions for this batch.
+
+    Returns:
+        A list of raw FASTA text chunks (zero or one, unless the batch was
+        split by a retry).
+    """
+
+    url = build_uniprot_fasta_url(build_uniprot_accession_query(identifiers))
+    response = requests.get(url, timeout=60)
+
+    try:
+        response.raise_for_status()
+    except requests.HTTPError:
+        if response.status_code == 400 and len(identifiers) > 1:
+            midpoint = len(identifiers) // 2
+            left = _fetch_fasta_batch(identifiers[:midpoint])
+            right = _fetch_fasta_batch(identifiers[midpoint:])
+            return left + right
+        raise
+
+    return [response.text] if response.text.strip() else []
+
+
+def fetch_fasta_sequences(identifiers: list[str]) -> str:
+    """Fetch FASTA sequence text for a batch of UniProt accessions.
+
+    Args:
+        identifiers: UniProt accession strings.
+
+    Returns:
+        Concatenated raw FASTA text for all matched accessions.
+    """
+
+    texts = []
+
+    for start in range(0, len(identifiers), FASTA_BATCH_SIZE):
+        batch = identifiers[start : start + FASTA_BATCH_SIZE]
+        texts.extend(_fetch_fasta_batch(batch))
+
+    return ''.join(texts)
