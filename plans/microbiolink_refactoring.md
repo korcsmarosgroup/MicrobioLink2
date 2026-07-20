@@ -33,7 +33,7 @@ There should be a seperate cli folder which contains argparse and any functions 
 
 ## Package Layout
 
-This should be a single flat top-level package 'microbiolink'. For any overlapping fucntionality the flat `microbiolink/` from the case study branch takes precedent over the MicrobioLink-2.1-beta and the `microbiolink_api`. 
+This should be a top-level package 'microbiolink' with two sub-packages of /workflow which directly follows the module logic and utils which has functions that repeat across modules. For any overlapping fucntionality the flat `microbiolink/` from the case study branch takes precedent over the MicrobioLink-2.1-beta and the `microbiolink_api`. 
 `pyproject.toml` with `hatchling`, console-script entry points wired through `microbiolink/cli.py`.
 
 ## Testing/CI Tooling
