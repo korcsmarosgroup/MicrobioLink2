@@ -69,6 +69,11 @@ def _add_identifier_source_arguments(parser: argparse.ArgumentParser) -> None:
         default=1,
         help='One-based identifier column for a plain list (ignored with --from-count-matrix).',
     )
+    parser.add_argument(
+        '--no-header',
+        action='store_true',
+        help='Treat the identifier list as having no header row (ignored with --from-count-matrix).',
+    )
 
 
 def _add_membrane_filter_target_arguments(parser: argparse.ArgumentParser) -> None:
@@ -123,7 +128,7 @@ def _resolve_membrane_filter_identifiers(args: argparse.Namespace) -> list[str]:
         count_matrix = pd.read_csv(args.input_file, index_col=0)
         return count_matrix.index.tolist()
 
-    return uniprot_client.read_ids(args.input_file, args.sep, args.id_column)
+    return uniprot_client.read_ids(args.input_file, args.sep, args.id_column, has_header=not args.no_header)
 
 
 def membrane_filter() -> int:
@@ -176,6 +181,11 @@ def _add_human_fasta_arguments(parser: argparse.ArgumentParser) -> None:
         default=1,
         help='One-based identifier column for a plain human identifier list.',
     )
+    parser.add_argument(
+        '--human-no-header',
+        action='store_true',
+        help='Treat the human identifier list as having no header row.',
+    )
 
 
 def _add_microbial_fasta_arguments(parser: argparse.ArgumentParser) -> None:
@@ -204,6 +214,11 @@ def _add_microbial_fasta_arguments(parser: argparse.ArgumentParser) -> None:
         type=int,
         default=1,
         help='One-based identifier column for the microbial identifier list.',
+    )
+    parser.add_argument(
+        '--microbial-no-header',
+        action='store_true',
+        help='Treat the microbial identifier list as having no header row.',
     )
 
 
@@ -237,7 +252,12 @@ def _resolve_human_fasta_identifiers(args: argparse.Namespace) -> list[str] | No
         expressed_mask = count_matrix.notna().any(axis=1) & (count_matrix != 0).any(axis=1)
         return count_matrix.index[expressed_mask].tolist()
 
-    return uniprot_client.read_ids(args.human_input_file, args.human_sep, args.human_id_column)
+    return uniprot_client.read_ids(
+        args.human_input_file,
+        args.human_sep,
+        args.human_id_column,
+        has_header=not args.human_no_header,
+    )
 
 
 def _resolve_microbial_fasta_identifiers(args: argparse.Namespace) -> list[str] | None:
@@ -248,7 +268,12 @@ def _resolve_microbial_fasta_identifiers(args: argparse.Namespace) -> list[str] 
 
     from .utils import uniprot_client
 
-    return uniprot_client.read_ids(args.microbial_input_file, args.microbial_sep, args.microbial_id_column)
+    return uniprot_client.read_ids(
+        args.microbial_input_file,
+        args.microbial_sep,
+        args.microbial_id_column,
+        has_header=not args.microbial_no_header,
+    )
 
 
 def download_fasta() -> int:

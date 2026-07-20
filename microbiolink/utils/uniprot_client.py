@@ -19,14 +19,16 @@ def read_ids(
     filename: PathLike,
     separator: str,
     id_column: int,
+    has_header: bool = True,
 ) -> list[str]:
     """Read UniProt or proteome identifiers from a delimited file.
 
     Args:
-        filename: Path to the identifier file. The first line is treated as
-            a header and skipped.
+        filename: Path to the identifier file.
         separator: Field separator used in the file.
         id_column: One-based column number containing the identifiers.
+        has_header: Whether the first line is a header to skip. Defaults to
+            True; set False for a file with no header row.
 
     Returns:
         A list of identifiers in file order.
@@ -36,9 +38,10 @@ def read_ids(
     ids = []
 
     with open(Path(filename), encoding='utf-8-sig') as id_list:
-        next(id_list, None)
+        if has_header:
+            next(id_list, None)
 
-        for line_number, line in enumerate(id_list, start=2):
+        for line_number, line in enumerate(id_list, start=2 if has_header else 1):
             fields = line.strip().split(separator)
 
             if column_index >= len(fields):
@@ -67,20 +70,42 @@ def build_uniprot_accession_query(uniprot_ids: list[str]) -> str:
 
 def build_uniprot_stream_url(
     query: str,
+    format: str = 'tsv',
     fields: list[str] | None = None,
 ) -> str:
     """Build a UniProt stream endpoint URL.
 
     Args:
         query: Percent-encoded UniProt query string.
-        fields: Return fields. Defaults to DEFAULT_UNIPROT_FIELDS.
+        format: Response format, 'tsv' or 'fasta'. FASTA doesn't support
+            field selection, so `fields` is ignored when format='fasta'.
+        fields: Return fields for 'tsv' format. Defaults to
+            DEFAULT_UNIPROT_FIELDS.
 
     Returns:
         A complete UniProt stream URL.
     """
 
+    if format == 'fasta':
+        return f'{UNIPROT_STREAM_BASE_URL}format=fasta&query={query}'
+
     encoded_fields = '%2C'.join(fields or DEFAULT_UNIPROT_FIELDS)
     return f'{UNIPROT_STREAM_BASE_URL}fields={encoded_fields}&format=tsv&query={query}'
+
+
+def _get(url: str) -> requests.Response:
+    """GET a UniProt REST URL, raising on any HTTP error."""
+
+    response = requests.get(url, timeout=60)
+    response.raise_for_status()
+    return response
+
+
+def _chunked(items: list[str], size: int):
+    """Yield successive size-length chunks of items."""
+
+    for start in range(0, len(items), size):
+        yield items[start : start + size]
 
 
 def _parse_uniprot_response(response_text: str) -> pd.DataFrame | None:
@@ -99,45 +124,6 @@ def _parse_uniprot_response(response_text: str) -> pd.DataFrame | None:
     return pd.read_csv(StringIO(response_text), sep='\t')
 
 
-def _fetch_protein_batch(
-    identifiers: list[str],
-    fields: list[str] | None,
-) -> list[pd.DataFrame]:
-    """Fetch one UniProt protein batch, retrying by splitting on HTTP 400.
-
-    The UniProt stream endpoint rejects very long accession queries with
-    HTTP 400. A failed batch is recursively split into smaller requests
-    rather than failing the whole fetch.
-
-    Args:
-        identifiers: UniProt accessions for this batch.
-        fields: Return fields. Defaults to DEFAULT_UNIPROT_FIELDS.
-
-    Returns:
-        A list of parsed data frames (zero or one, unless the batch was
-        split by a retry).
-    """
-
-    url = build_uniprot_stream_url(
-        build_uniprot_accession_query(identifiers),
-        fields=fields,
-    )
-    response = requests.get(url, timeout=60)
-
-    try:
-        response.raise_for_status()
-    except requests.HTTPError:
-        if response.status_code == 400 and len(identifiers) > 1:
-            midpoint = len(identifiers) // 2
-            left = _fetch_protein_batch(identifiers[:midpoint], fields)
-            right = _fetch_protein_batch(identifiers[midpoint:], fields)
-            return left + right
-        raise
-
-    frame = _parse_uniprot_response(response.text)
-    return [frame] if frame is not None else []
-
-
 def fetch_protein_table(
     identifiers: list[str],
     fields: list[str] | None = None,
@@ -154,9 +140,11 @@ def fetch_protein_table(
 
     frames = []
 
-    for start in range(0, len(identifiers), UNIPROT_BATCH_SIZE):
-        batch = identifiers[start : start + UNIPROT_BATCH_SIZE]
-        frames.extend(_fetch_protein_batch(batch, fields))
+    for batch in _chunked(identifiers, UNIPROT_BATCH_SIZE):
+        url = build_uniprot_stream_url(build_uniprot_accession_query(batch), fields=fields)
+        frame = _parse_uniprot_response(_get(url).text)
+        if frame is not None:
+            frames.append(frame)
 
     if not frames:
         return pd.DataFrame(columns=fields or DEFAULT_UNIPROT_FIELDS)
@@ -183,8 +171,7 @@ def fetch_proteome_table(
         f'%28%28proteome%3A{proteome_id}%29%29',
         fields=fields,
     )
-    response = requests.get(url, timeout=60)
-    response.raise_for_status()
+    response = _get(url)
 
     frame = _parse_uniprot_response(response.text)
     if frame is None:
@@ -192,49 +179,6 @@ def fetch_proteome_table(
 
     frame['Proteome_ID'] = proteome_id
     return frame
-
-
-def build_uniprot_fasta_url(query: str) -> str:
-    """Build a UniProt stream endpoint URL for FASTA format.
-
-    Unlike build_uniprot_stream_url, this takes no fields: FASTA format
-    always returns full records and doesn't support field selection.
-
-    Args:
-        query: Percent-encoded UniProt query string.
-
-    Returns:
-        A complete UniProt stream URL requesting FASTA format.
-    """
-
-    return f'{UNIPROT_STREAM_BASE_URL}format=fasta&query={query}'
-
-
-def _fetch_fasta_batch(identifiers: list[str]) -> list[str]:
-    """Fetch one FASTA batch as raw text, retrying by splitting on HTTP 400.
-
-    Args:
-        identifiers: UniProt accessions for this batch.
-
-    Returns:
-        A list of raw FASTA text chunks (zero or one, unless the batch was
-        split by a retry).
-    """
-
-    url = build_uniprot_fasta_url(build_uniprot_accession_query(identifiers))
-    response = requests.get(url, timeout=60)
-
-    try:
-        response.raise_for_status()
-    except requests.HTTPError:
-        if response.status_code == 400 and len(identifiers) > 1:
-            midpoint = len(identifiers) // 2
-            left = _fetch_fasta_batch(identifiers[:midpoint])
-            right = _fetch_fasta_batch(identifiers[midpoint:])
-            return left + right
-        raise
-
-    return [response.text] if response.text.strip() else []
 
 
 def fetch_fasta_sequences(identifiers: list[str]) -> str:
@@ -248,9 +192,8 @@ def fetch_fasta_sequences(identifiers: list[str]) -> str:
     """
 
     texts = []
-
-    for start in range(0, len(identifiers), FASTA_BATCH_SIZE):
-        batch = identifiers[start : start + FASTA_BATCH_SIZE]
-        texts.extend(_fetch_fasta_batch(batch))
+    for batch in _chunked(identifiers, FASTA_BATCH_SIZE):
+        url = build_uniprot_stream_url(build_uniprot_accession_query(batch), format='fasta')
+        texts.append(_get(url).text)
 
     return ''.join(texts)
