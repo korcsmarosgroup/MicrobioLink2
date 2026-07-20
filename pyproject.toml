@@ -8,6 +8,7 @@ authors = [
   {name = "Toby Lawrence", email = "tobylawrence1998@gmail.com"},
 ]
 dependencies = [
+    "mygene>=3.2.2",
     "numpy>=1.26.4",
     "omnipath>=1.0.8",
     "pandas>=2.2.2",
@@ -22,6 +23,7 @@ requires-python = ">=3.9"
 version = "2.1.0"
 
 [project.scripts]
+microbiolink-download-fasta = "microbiolink.cli:download_fasta"
 microbiolink-membrane-filter = "microbiolink.cli:membrane_filter"
 microbiolink-zscore-filter = "microbiolink.cli:zscore_filter"
 
