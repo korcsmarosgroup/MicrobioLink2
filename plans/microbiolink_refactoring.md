@@ -23,6 +23,8 @@ The ground truth microbioLink code is implemented in https://github.com/korcsmar
 within https://github.com/korcsmarosgroup/MicrobioLink2/tree/MicrobioLink-2.1-beta. The ground truth code in the case study branch should always be prioritised in the case
 where there is duplicate code.
 
+The implementation of the plan should all take place in the refactoring branch: https://github.com/korcsmarosgroup/MicrobioLink2/tree/refactoring
+
 ## Overall Layout
 
 There should be core functions which contain both public and private functions. The public functions should be accessible as API calls within a package. The public functions should be enough to run microbiolink without the cli.
@@ -40,7 +42,9 @@ This is deferred entirely for a future development plan. Include only the packag
 
 ## Checks against old code
 
-Delete old code as the new code lands. Use `case_study_input/` → `case_study_output/` to check the outputs are the same as the old code. If there is neew functionality display the output manually to get confirmation from me that it looks correct.
+Delete old code once the new code has been checked. Use `case_study_input/` → `case_study_output/` to check the outputs are the same as the old code. 
+Check against the case study branch for the ground truth.
+If there is new functionality display the output manually to get confirmation from me that it looks correct.
 
 ## Coding Style
 
