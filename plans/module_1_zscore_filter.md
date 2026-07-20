@@ -138,25 +138,64 @@ def zscore_filter() -> int:
 - **Output**: same-shape count matrix; each value is either the original count or `NaN` if its
   column-wise z-score does not exceed the cutoff.
 
-## Migration steps
+## Migration checklist
 
-1. Create `microbiolink/zscore_filter.py` with `read_count_matrix`, `filter_counts_by_zscore`,
-   `filter_count_matrix_file`, ported from `microbiolink_api/expression.py` minus the edge-case
-   guards (decision 2), with the index-lookup replaced by direct positional computation.
-2. Add `zscore_filter()` to `microbiolink/cli.py`, wire up `pyproject.toml` entry point.
-3. Delete `workflow/z-score_filter_terminal.py` (case-study) and both
-   `microbiolink/z-score_filter_terminal.py` / `microbiolink/z_score_filter_terminal.py` and
-   `microbiolink_api/expression.py` (beta) — no shims, per Q11.
-4. Regression check (per Q11): no pre-built "before/after" fixture exists for this module
-   specifically — `case_study_input/input/enterocyte_colon_CD_zscore.csv` is raw unfiltered
-   input, and `case_study_input/input/human_transcriptomics/enterocyte_colon_CD_zscore.csv`
-   (semicolon-delimited, legacy string-`'NaN'` format) is *an* old filtered output but the
-   z-score cutoff used to produce it is not recorded anywhere. So: run the **old**
-   `workflow/z-score_filter_terminal.py` and the **new** `filter_count_matrix_file()` on the same
-   raw input (`case_study_input/input/enterocyte_colon_CD_zscore.csv`) at a chosen cutoff (e.g.
-   `-3`, the legacy script's stated-but-unreachable default), then diff: same cells NaN in both,
-   identical non-NaN numeric values (allow float tolerance from the KDE fit, not exact string
-   match, since output NaN representation intentionally differs per decision 1).
-5. Manually confirm the `float` vs `int` cutoff type change and dropped-default behavior look
-   correct by running the new CLI once and inspecting output, since these are small intentional
-   deviations from legacy argparse behavior.
+### 1. Core module
+
+- [ ] Create `microbiolink/zscore_filter.py`.
+- [ ] Port `read_count_matrix()` from `microbiolink_api/expression.py`.
+- [ ] Port `filter_counts_by_zscore()`, replacing the legacy `list(zcount).index(x)` lookup with
+      direct positional computation (no behavior change, see "Source of truth").
+- [ ] Confirm no edge-case guards are added — degenerate columns (< 2 non-NaN values, zero
+      variance, empty upper tail, singular KDE) must raise, matching legacy behavior (decision 2).
+- [ ] Port `filter_count_matrix_file()`, with `zscore_threshold: float` (not `int`).
+- [ ] Confirm output NaN cells are real `NaN` (pandas default `to_csv` empty-cell behavior), not
+      the literal string `'NaN'` (decision 1).
+
+### 2. CLI wiring
+
+- [ ] Add `zscore_filter()` to `microbiolink/cli.py` (argparse only — no `parse_args()` left in
+      the core module, per Q2).
+- [ ] `--zscore` argument is `type=float`, `required=True`, no `default` (the legacy default was
+      dead code alongside `required=True`).
+- [ ] Update `pyproject.toml` entry point to
+      `microbiolink-zscore-filter = "microbiolink.cli:zscore_filter"`.
+
+### 3. Regression check (per Q11)
+
+Must run **before** section 4 deletes `workflow/z-score_filter_terminal.py` — the baseline needs
+the old script to exist. Pull the baseline script explicitly from the `case-study` branch (the
+documented ground truth), rather than relying on the `refactoring` branch's working-tree copy,
+so this step stays correct even after that copy is deleted or if the two branches ever diverge:
+
+- [ ] `git show case-study:workflow/z-score_filter_terminal.py > /tmp/baseline_zscore_filter.py`
+      (or equivalent) to get an unambiguous ground-truth copy, independent of what's currently
+      checked out on `refactoring`.
+- [ ] Run that baseline script on `case_study_input/input/enterocyte_colon_CD_zscore.csv` at a
+      chosen cutoff (e.g. `-3`) to produce a baseline output. (No pre-built fixture exists for
+      this module — the file that looks like one,
+      `case_study_input/input/human_transcriptomics/enterocyte_colon_CD_zscore.csv`, has an
+      unknown/unrecorded cutoff baked in, so it can't be used directly.)
+- [ ] Run the **new** `filter_count_matrix_file()` on the same raw input at the same cutoff.
+- [ ] Diff old vs. new: same cells are NaN/`'NaN'` in both (accounting for the intentional
+      representation difference from decision 1).
+- [ ] Diff old vs. new: non-NaN numeric values match within float tolerance (KDE fit is
+      floating-point, not expected to be bit-exact).
+
+### 4. Delete old code (no shims, per Q11)
+
+This refactor happens on the `refactoring` branch, which only contains case-study's files —
+the beta files (`microbiolink/z-score_filter_terminal.py`, `microbiolink/z_score_filter_terminal.py`,
+`microbiolink_api/expression.py`) were read via `git show origin/MicrobioLink-2.1-beta:...` purely
+as reference for comparing implementations; they were never checked out here, so there is nothing
+to delete for them on this branch.
+
+- [ ] Delete `workflow/z-score_filter_terminal.py` (the only old copy of this logic present on
+      the `refactoring` branch) — only after section 3's regression check has passed.
+
+### 5. Manual sign-off
+
+- [ ] Run the new CLI once end-to-end and inspect the output file by eye.
+- [ ] Confirm the `float`-typed cutoff (vs. legacy `int`) and the dropped unreachable default
+      behave as expected — these are small, intentional deviations from the legacy argparse
+      behavior, not covered by the regression diff.
