@@ -1,0 +1,26 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[project]
+authors = [
+  {name = "Leila Potari-Gul", email = "l.potari-gul@imperial.ac.uk"},
+  {name = "Toby Lawrence", email = "tobylawrence1998@gmail.com"},
+]
+dependencies = [
+    "numpy>=1.26.4",
+    "pandas>=2.2.2",
+    "scipy>=1.13.1",
+]
+description = "Prediction of microbe-host protein interactions using domain-motif interactions and intrinsically disordered regions"
+license = "BSD-3-Clause"
+name = "microbiolink"
+readme = "README.md"
+requires-python = ">=3.9"
+version = "2.1.0"
+
+[project.scripts]
+microbiolink-zscore-filter = "microbiolink.cli:zscore_filter"
+
+[tool.hatch.build.targets.wheel]
+packages = ["microbiolink"]
