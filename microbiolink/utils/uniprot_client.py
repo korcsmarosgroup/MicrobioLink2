@@ -11,7 +11,7 @@ PathLike = Union[str, Path]
 
 UNIPROT_STREAM_BASE_URL = 'https://rest.uniprot.org/uniprotkb/stream?'
 DEFAULT_UNIPROT_FIELDS = ['accession', 'xref_pfam', 'gene_names']
-UNIPROT_BATCH_SIZE = 1000
+UNIPROT_BATCH_SIZE = 100
 FASTA_BATCH_SIZE = 100
 
 

@@ -1,6 +1,7 @@
 """Console-script entry points for MicrobioLink. Argparse boilerplate only."""
 
 import argparse
+from pathlib import Path
 
 import pandas as pd
 
@@ -149,7 +150,7 @@ def membrane_filter() -> int:
     return 0
 
 
-def _add_human_fasta_arguments(parser: argparse.ArgumentParser) -> None:
+def _add_human_identifier_arguments(parser: argparse.ArgumentParser) -> None:
     """Add CLI arguments for the human fasta identifiers (all optional)."""
 
     parser.add_argument(
@@ -188,7 +189,7 @@ def _add_human_fasta_arguments(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def _add_microbial_fasta_arguments(parser: argparse.ArgumentParser) -> None:
+def _add_microbial_identifier_arguments(parser: argparse.ArgumentParser) -> None:
     """Add CLI arguments for the microbial fasta identifiers (all optional)."""
 
     parser.add_argument(
@@ -228,8 +229,8 @@ def _build_fasta_download_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description='Download human and/or microbial protein sequences as FASTA files.',
     )
-    _add_human_fasta_arguments(parser)
-    _add_microbial_fasta_arguments(parser)
+    _add_human_identifier_arguments(parser)
+    _add_microbial_identifier_arguments(parser)
     parser.add_argument(
         '-o',
         '--output_folder',
@@ -239,7 +240,7 @@ def _build_fasta_download_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _resolve_human_fasta_identifiers(args: argparse.Namespace) -> list[str] | None:
+def _resolve_human_identifiers(args: argparse.Namespace) -> list[str] | None:
     """Resolve the human identifier list from CLI args, or None if not supplied."""
 
     if args.human_input_file is None:
@@ -260,7 +261,7 @@ def _resolve_human_fasta_identifiers(args: argparse.Namespace) -> list[str] | No
     )
 
 
-def _resolve_microbial_fasta_identifiers(args: argparse.Namespace) -> list[str] | None:
+def _resolve_microbial_identifiers(args: argparse.Namespace) -> list[str] | None:
     """Resolve the microbial identifier list from CLI args, or None if not supplied."""
 
     if args.microbial_input_file is None:
@@ -282,8 +283,8 @@ def download_fasta() -> int:
     from .workflow import fasta_download
 
     args = _build_fasta_download_parser().parse_args()
-    human_identifiers = _resolve_human_fasta_identifiers(args)
-    microbial_identifiers = _resolve_microbial_fasta_identifiers(args)
+    human_identifiers = _resolve_human_identifiers(args)
+    microbial_identifiers = _resolve_microbial_identifiers(args)
 
     fasta_download.download_fasta(
         args.output_folder,
@@ -292,4 +293,55 @@ def download_fasta() -> int:
         microbial_identifiers=microbial_identifiers,
         microbial_id_type=args.microbial_id_type,
     )
+    return 0
+
+
+def _build_domain_download_parser() -> argparse.ArgumentParser:
+    """Build the argument parser for the domain-download CLI command."""
+
+    parser = argparse.ArgumentParser(
+        description='Download Pfam domain annotations for human and/or microbial proteins.',
+    )
+    _add_human_identifier_arguments(parser)
+    _add_microbial_identifier_arguments(parser)
+    parser.add_argument(
+        '-o',
+        '--output_folder',
+        required=True,
+        help='Folder to write human_domains.tsv / microbial_domains.tsv into.',
+    )
+    return parser
+
+
+def _write_domain_table(domains: dict[str, list[str]], output_path: Path) -> None:
+    """Write a pfam_id -> uniprot_ids mapping as a Pfam/Entries TSV."""
+
+    with open(output_path, 'w') as output_file:
+        output_file.write('Pfam\tEntries\n')
+        for pfam_id, uniprot_ids in domains.items():
+            entries_field = ';'.join(uniprot_ids) + ';' if uniprot_ids else ''
+            output_file.write(f'{pfam_id}\t{entries_field}\n')
+
+
+def download_domains() -> int:
+    """Download Pfam domains for human and/or microbial proteins."""
+
+    from .workflow import domain_download
+
+    args = _build_domain_download_parser().parse_args()
+    human_identifiers = _resolve_human_identifiers(args)
+    microbial_identifiers = _resolve_microbial_identifiers(args)
+
+    results = domain_download.download_domains(
+        human_identifiers=human_identifiers,
+        human_id_type=args.human_id_type,
+        microbial_identifiers=microbial_identifiers,
+        microbial_id_type=args.microbial_id_type,
+    )
+
+    output_folder = Path(args.output_folder)
+    output_folder.mkdir(parents=True, exist_ok=True)
+    filenames = {'human': 'human_domains.tsv', 'microbial': 'microbial_domains.tsv'}
+    for species, domains in results.items():
+        _write_domain_table(domains, output_folder / filenames[species])
     return 0

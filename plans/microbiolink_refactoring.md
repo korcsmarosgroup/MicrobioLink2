@@ -104,7 +104,8 @@ Same as Downloading fasta (reuse functions where possible).
 The code needs to find the Pfam domains for a uniprot ID.
 
 - Outputs:
-Pfam IDs of the domains. (Dictionary with key as Uniprot ID and value as pfam domains). 
+Pfam IDs of the domains. (Dictionary with key as Pfam domain and value as the list of Uniprot IDs
+carrying that domain).
 
 ### Module 5 - Domain-Domain Interactions (DDI)
 

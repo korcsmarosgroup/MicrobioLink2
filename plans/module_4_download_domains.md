@@ -30,10 +30,14 @@ Legacy precedent (case-study's `workflow/download_bacterial_proteins.py`, still 
 repo's top-level `workflow/` folder; beta's `microbiolink/download_protein_domains.py` /
 `download_human_domains.py`; `microbiolink_api/microbiome.py`) all build a dict keyed by **Pfam**
 (`pfam_id -> [uniprot_ids]`) for downstream DMI consumption (`workflow/DMI.py`'s
-`parse_protein_domain`). This refactor's Module 4 output direction is the **opposite** — the
-top-level plan is explicit: "Dictionary with key as Uniprot ID and value as pfam domains". This
-inversion is a deliberate consequence of following the plan's literal wording, not a bug; whichever
-plan implements Module 5/6 will decide whether it needs to invert this back, out of scope here.
+`parse_protein_domain`). **Revised while planning Module 5**: the top-level plan originally read
+"Dictionary with key as Uniprot ID and value as pfam domains" (protein-keyed), but Module 5's DDI
+lookup is keyed by Pfam domain pair, so a protein-keyed input forced an extra invert step in every
+consumer. The top-level plan has been updated to match the legacy direction instead —
+`pfam_id -> [uniprot_ids]` — so Module 5 (and any future Pfam-keyed consumer) can use Module 4's
+output as-is. **This plan document reflects that revision; the already-implemented
+`microbiolink/workflow/domain_download.py` on this branch still returns the old protein-keyed shape
+and needs to be updated to match before Module 5 is built.**
 
 No `case_study_output` fixture exists for domain download. `case_study_input/input/bacterial_protein/BT_BEV_domains.tsv`
 is a pre-existing fixture in the legacy `Entry\tPfam\tGene Names` TSV shape, usable as a live
@@ -49,11 +53,12 @@ regression baseline (re-fetch its `Entry` IDs and diff Pfam sets).
    parameter on the public function, mirroring `fasta_download.download_fasta`'s shape exactly.
 3. **Reuse `uniprot_client.fetch_protein_table()` with no `fields` override** — defaults already
    include `xref_pfam`. No new utils code needed for the fetch step itself.
-4. **CLI output format (per explicit user choice): legacy-style TSV**, `Entry`/`Pfam` columns only
-   (`Gene Names` dropped — not part of Module 4's data contract), one file per species in an output
-   folder (`human_domains.tsv` / `microbial_domains.tsv`), generated from the dict with the same
-   semicolon-per-Pfam-plus-trailing-semicolon convention as legacy (e.g. `PF14509;PF14508;PF10566;`)
-   to match `BT_BEV_domains.tsv`'s exact format for regression diffing.
+4. **CLI output format: Pfam-keyed TSV**, `Pfam`/`Entries` columns, one file per species in an
+   output folder (`human_domains.tsv` / `microbial_domains.tsv`), written directly from the
+   Pfam-keyed dict with a semicolon-per-Entry-plus-trailing-semicolon convention (e.g.
+   `Q9ABC1;Q9ABC2;`) — no invert step anywhere, CLI or core. This is a deliberate format change from
+   `BT_BEV_domains.tsv`'s legacy `Entry`/`Pfam` (protein-keyed) convention; the regression check
+   below compares against an inverted view of that legacy fixture instead of a literal diff.
 5. **CLI arg-builder/resolver reuse via rename**: `cli.py`'s `_add_human_fasta_arguments` /
    `_add_microbial_fasta_arguments` and `_resolve_human_fasta_identifiers` /
    `_resolve_microbial_fasta_identifiers` are renamed to generic `_add_human_identifier_arguments`
@@ -70,8 +75,8 @@ regression baseline (re-fetch its `Entry` IDs and diff Pfam sets).
 ### `microbiolink/workflow/domain_download.py` (new, core, no argparse)
 
 ```python
-def _domain_table_to_mapping(domain_table: pd.DataFrame) -> dict[str, list[str]]:
-    """Convert a UniProt Pfam table into a uniprot_id -> pfam_ids mapping."""
+def domain_table_to_mapping(domain_table: pd.DataFrame) -> dict[str, list[str]]:
+    """Convert a UniProt Pfam table into a pfam_id -> uniprot_ids mapping."""
 
 
 def _download_species_domains(identifiers: list[str], id_type: str) -> dict[str, list[str]]:
@@ -90,12 +95,19 @@ def download_domains(
 - `download_domains` mirrors `fasta_download.download_fasta`'s shape: same
   `if human_identifiers is None and microbial_identifiers is None: raise ValueError(...)` guard,
   same dict-comprehension-over-`species_requests` dispatch — except it returns
-  `{species: {uniprot_id: [pfam_id, ...]}}` instead of writing files and returning paths.
+  `{species: {pfam_id: [uniprot_id, ...]}}` instead of writing files and returning paths.
 - `_download_species_domains`: `uniprot_ids = id_resolution.resolve_uniprot_ids(identifiers, id_type)`;
   `domain_table = uniprot_client.fetch_protein_table(uniprot_ids)`; returns
-  `_domain_table_to_mapping(domain_table)`.
-- `_domain_table_to_mapping`: iterates rows, `row['Entry']` as key; if `row['Pfam']` is NaN/empty,
-  value is `[]`; else `[pfam for pfam in row['Pfam'].split(';') if pfam]`.
+  `domain_table_to_mapping(domain_table)`.
+- `domain_table_to_mapping`: iterates rows; for each row, if `row['Pfam']` is NaN/empty the protein
+  is skipped (it carries no domains, so it can never appear as a value in a Pfam-keyed mapping);
+  otherwise for each `pfam in row['Pfam'].split(';')` (non-empty), appends `row['Entry']` to
+  `mapping.setdefault(pfam, [])`. This converts UniProt's raw protein-row fetch response into the
+  Pfam-keyed shape in a single pass — no separate invert step. **Public** (no leading underscore)
+  purely as a matter of module hygiene (it's a meaningful, independently-testable conversion), not
+  because Module 5 needs to call it — Module 5's CLI reads Module 4's own Pfam-keyed TSV output
+  directly (already the right shape, see @plans/module_5_ddi.md), it does not re-parse UniProt's
+  raw response format.
 
 ### `microbiolink/cli.py` (extend, argparse only)
 
@@ -107,9 +119,9 @@ def download_domains(
   `download_fasta()`'s call sites) — behavior unchanged.
 - Add `_build_domain_download_parser()`: composes the (renamed) human/microbial identifier
   arguments plus `-o/--output_folder` (required).
-- Add `_write_domain_table(domains: dict[str, list[str]], output_path: Path) -> None`: writes an
-  `Entry\tPfam\n` header, then one row per uniprot_id:
-  `f"{uniprot_id}\t{';'.join(pfams) + ';' if pfams else ''}\n"`.
+- Add `_write_domain_table(domains: dict[str, list[str]], output_path: Path) -> None`: writes a
+  `Pfam\tEntries\n` header, then one row per pfam_id:
+  `f"{pfam_id}\t{';'.join(uniprot_ids) + ';' if uniprot_ids else ''}\n"`.
 - Add entry point:
   ```python
   def download_domains() -> int:
@@ -140,8 +152,10 @@ def download_domains(
 ## Migration checklist
 
 ### 1. Core module
-- [ ] Create `microbiolink/workflow/domain_download.py` with `_domain_table_to_mapping`,
-      `_download_species_domains`, `download_domains`.
+- [ ] Update `microbiolink/workflow/domain_download.py` (already exists, currently returns the old
+      protein-keyed shape) so `domain_table_to_mapping` (renamed public, was
+      `_domain_table_to_mapping`), `_download_species_domains`, and `download_domains` all build
+      and return the Pfam-keyed shape (`pfam_id -> [uniprot_id, ...]`) instead.
 
 ### 2. CLI wiring
 - [ ] Rename `_add_human_fasta_arguments`/`_add_microbial_fasta_arguments` →
@@ -157,14 +171,15 @@ def download_domains(
       `workflow/download_bacterial_proteins.py` (top-level, still present). Re-fetch the `Entry`
       IDs from `case_study_input/input/bacterial_protein/BT_BEV_domains.tsv` through both the
       legacy script and the new `download_domains(microbial_identifiers=..., microbial_id_type='uniprot')`.
-      Diff: for each `Entry`, the new dict's Pfam set equals the legacy TSV's `Pfam` column split
-      on `;`.
+      Since the legacy fixture is protein-keyed (`Entry`/`Pfam`) and the new output is Pfam-keyed,
+      build an inverted view of the legacy fixture (`pfam -> [entries]`) and diff that against the
+      new dict, rather than comparing files directly.
 - [ ] **Human**: no case-study equivalent exists (case-study has no human-domain download). Live
       comparison against beta's `microbiolink/download_human_domains.py` is best-effort only, same
       MyGene.info-drift caveat Module 3 already hit.
-- [ ] Confirm `human_domains.tsv`/`microbial_domains.tsv` header + row format matches
-      `BT_BEV_domains.tsv`'s two-column convention (modulo the deliberately dropped `Gene Names`
-      column).
+- [ ] Confirm `human_domains.tsv`/`microbial_domains.tsv` header + row format is the new
+      `Pfam`/`Entries` convention (no longer expected to match `BT_BEV_domains.tsv`'s literal
+      `Entry`/`Pfam` layout, since the output direction changed).
 
 ### 4. Delete old code (per Q11)
 - [ ] Delete `workflow/download_bacterial_proteins.py` (top-level, pre-refactor) once the
