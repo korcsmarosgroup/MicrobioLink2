@@ -23,10 +23,15 @@ requires-python = ">=3.9"
 version = "2.1.0"
 
 [project.scripts]
+microbiolink-ddi = "microbiolink.cli:ddi"
+microbiolink-dmi = "microbiolink.cli:dmi"
 microbiolink-download-domains = "microbiolink.cli:download_domains"
 microbiolink-download-fasta = "microbiolink.cli:download_fasta"
 microbiolink-membrane-filter = "microbiolink.cli:membrane_filter"
 microbiolink-zscore-filter = "microbiolink.cli:zscore_filter"
+
+[tool.hatch.build]
+include = ["microbiolink/data/*.tsv"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["microbiolink"]
