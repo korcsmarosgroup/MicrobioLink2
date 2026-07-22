@@ -34,10 +34,12 @@ def filter_human_membrane_proteins(
 
     import omnipath as op
 
+    # source is omitted rather than set to ['resource_specific', 'composite']: those are the
+    # only two valid values (a no-op filter), and passing both comma-joins them into a value
+    # the live Intercell API now rejects.
     intercell_table = op.requests.Intercell.get(
         parent=location_filters,
         scope=['generic', 'specific'],
-        source=['resource_specific', 'composite'],
         entity_type='protein',
     )
 
