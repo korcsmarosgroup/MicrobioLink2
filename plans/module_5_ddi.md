@@ -127,8 +127,8 @@ def predict_domain_domain_interactions(
   `{pair: ['3did']}` / `{pair: ['DOMINE_hc']}` per file, then merges — pairs in both files get
   `['3did', 'DOMINE_hc']`.
 - `predict_domain_domain_interactions`: iterates every `(bacterial_pfam, human_pfam)` combination
-  from the two input dicts' keys directly (no inversion — both are already Pfam-keyed); canonicalizes
-  each pair and looks it up in `_load_ddi_resource_pairs()`; if present, cross-joins the bacterial
+  from the two input dicts' keys; canonicalizes each pair and looks it up in
+  `_load_ddi_resource_pairs()`; if present, cross-joins the bacterial
   and human proteins for that pair, deduplicating via a `seen` set keyed on
   `(bacterial_protein, human_protein, bacterial_pfam, human_pfam)`, and appends a row with
   `resource = '|'.join(sources)`; returns
@@ -163,24 +163,24 @@ def predict_domain_domain_interactions(
 ## Migration checklist
 
 ### 1. Resource files
-- [ ] Create `microbiolink/data/__init__.py` (docstring only).
-- [ ] Copy `pfam_interactions_3did_current.tsv` and `domine_v2_hc_pfam_pairs.tsv` from
+- [x] Create `microbiolink/data/__init__.py` (docstring only).
+- [x] Copy `pfam_interactions_3did_current.tsv` and `domine_v2_hc_pfam_pairs.tsv` from
       `origin/MicrobioLink-2.1-beta:microbiolink_api/resources/` into `microbiolink/data/`.
 
 ### 2. Core module
-- [ ] Confirm `microbiolink/workflow/domain_download.py` has been updated per
+- [x] Confirm `microbiolink/workflow/domain_download.py` has been updated per
       @plans/module_4_download_domains.md to return the Pfam-keyed shape (prerequisite for this
       module).
-- [ ] Create `microbiolink/workflow/ddi.py` with `_read_pfam_pair_table`, `_load_ddi_resource_pairs`,
+- [x] Create `microbiolink/workflow/ddi.py` with `_read_pfam_pair_table`, `_load_ddi_resource_pairs`,
       `predict_domain_domain_interactions`.
 
 ### 3. CLI wiring
-- [ ] Add `_build_ddi_parser`, `_read_domain_mapping`, `ddi()` entry point to `cli.py`.
-- [ ] Add `microbiolink-ddi = "microbiolink.cli:ddi"` and
+- [x] Add `_build_ddi_parser`, `_read_domain_mapping`, `ddi()` entry point to `cli.py`.
+- [x] Add `microbiolink-ddi = "microbiolink.cli:ddi"` and
       `[tool.hatch.build] include = ["microbiolink/data/*.tsv"]` to `pyproject.toml`.
 
 ### 4. Manual sign-off (per Q11 — no case-study ground truth exists for this module)
-- [ ] Confirm a pair present in both packaged files (e.g. `PF00001` paired with itself, present in
+- [x] Confirm a pair present in both packaged files (e.g. `PF00001` paired with itself, present in
       both TSVs per sampled rows) round-trips through `_load_ddi_resource_pairs()` with
       `resource == '3did|DOMINE_hc'`.
 - [ ] Generate a bacterial domain file by running `microbiolink-download-domains` against the
