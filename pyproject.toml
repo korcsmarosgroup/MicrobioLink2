@@ -35,3 +35,8 @@ include = ["microbiolink/data/*.tsv"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["microbiolink"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9",
+]
