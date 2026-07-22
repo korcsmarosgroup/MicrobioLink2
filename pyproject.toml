@@ -23,6 +23,7 @@ requires-python = ">=3.9"
 version = "2.1.0"
 
 [project.scripts]
+microbiolink-download-domains = "microbiolink.cli:download_domains"
 microbiolink-download-fasta = "microbiolink.cli:download_fasta"
 microbiolink-membrane-filter = "microbiolink.cli:membrane_filter"
 microbiolink-zscore-filter = "microbiolink.cli:zscore_filter"
