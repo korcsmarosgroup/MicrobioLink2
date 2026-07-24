@@ -22,13 +22,20 @@ readme = "README.md"
 requires-python = ">=3.9"
 version = "2.1.0"
 
+[project.optional-dependencies]
+idr = ["iupred[aiupred] @ git+https://github.com/saezlab/iupred.git"]
+
 [project.scripts]
 microbiolink-ddi = "microbiolink.cli:ddi"
 microbiolink-dmi = "microbiolink.cli:dmi"
 microbiolink-download-domains = "microbiolink.cli:download_domains"
 microbiolink-download-fasta = "microbiolink.cli:download_fasta"
+microbiolink-idr-filter = "microbiolink.cli:idr_filter"
 microbiolink-membrane-filter = "microbiolink.cli:membrane_filter"
 microbiolink-zscore-filter = "microbiolink.cli:zscore_filter"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build]
 include = ["microbiolink/data/*.tsv"]
