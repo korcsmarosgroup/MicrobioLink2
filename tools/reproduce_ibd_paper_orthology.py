@@ -18,6 +18,8 @@ import subprocess
 import tarfile
 import time
 from typing import Any
+from typing import Optional
+from typing import Tuple
 from urllib.error import HTTPError
 from urllib.error import URLError
 from urllib.parse import urlencode
@@ -40,9 +42,9 @@ class SpeciesRequest:
     paper_species: str
     oma_species_label: str
     search_queries: tuple[str, ...]
-    preferred_proteome_id: str | None = None
-    download_mode_override: str | None = None
-    download_query_override: str | None = None
+    preferred_proteome_id: Optional[str] = None
+    download_mode_override: Optional[str] = None
+    download_query_override: Optional[str] = None
 
 
 PAPER_SPECIES: tuple[SpeciesRequest, ...] = (
@@ -321,7 +323,7 @@ def build_candidate_sequence_queries(candidate: dict[str, Any]) -> list[tuple[st
 
 def resolve_candidate_download_query(
     candidate: dict[str, Any],
-) -> tuple[str, str] | None:
+) -> Optional[Tuple[str, str]]:
     """Resolve a UniProtKB query that returns sequences for one candidate."""
 
     for mode, query in build_candidate_sequence_queries(candidate):
@@ -594,8 +596,8 @@ def extract_archive_root(archive_path: Path) -> str:
 
 def ensure_oma_bundle(
     output_dir: Path,
-    oma_bundle_dir: str | None,
-    oma_archive_path: str | None,
+    oma_bundle_dir: Optional[str],
+    oma_archive_path: Optional[str],
 ) -> Path:
     """Resolve an unpacked OMA standalone directory."""
 

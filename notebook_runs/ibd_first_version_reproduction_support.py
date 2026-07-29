@@ -9,6 +9,8 @@ import shlex
 import subprocess
 import sys
 from typing import Iterable
+from typing import Optional
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -102,6 +104,9 @@ MMC3_GENERIC_DESCRIPTION_TEXT = {
     'unknown protein',
 }
 PREFERRED_PIPELINE_RELATIVE_PATH = Path('worktrees') / 'MicrobioLink-2.1-beta'
+PathLike = Union[str, Path]
+ColumnName = Union[str, int]
+SheetName = Union[int, str]
 
 
 @dataclass
@@ -195,8 +200,8 @@ def _extract_generic_fasta_accession(header: str) -> str:
 
 def write_selected_fasta_from_reference_fastas(
     selected_accessions: Iterable[str],
-    source_fasta_paths: Iterable[str | Path],
-    output_path: str | Path,
+    source_fasta_paths: Iterable[PathLike],
+    output_path: PathLike,
     strict: bool = True,
     normalize_headers: bool = False,
 ) -> tuple[Path, list[str]]:
@@ -214,7 +219,7 @@ def write_selected_fasta_from_reference_fastas(
         if not source_path.exists():
             continue
 
-        current_header: str | None = None
+        current_header: Optional[str] = None
         current_fragments: list[str] = []
 
         with open(source_path, encoding = 'utf-8') as fasta_handle:
@@ -279,7 +284,7 @@ def write_selected_fasta_from_reference_fastas(
     return output_file, missing_accessions
 
 
-def find_repo_root(start: Path | None = None) -> Path:
+def find_repo_root(start: Optional[Path] = None) -> Path:
     """Find the top-level repository directory from any child path."""
 
     current = (start or Path.cwd()).resolve()
@@ -359,7 +364,7 @@ def activate_pipeline_root(pipeline_root: Path) -> Path:
 
 def load_module_from_path(
     module_name: str,
-    module_path: str | Path,
+    module_path: PathLike,
 ):
     """Load a Python module directly from a filesystem path."""
 
@@ -380,7 +385,7 @@ def load_module_from_path(
 
 
 def load_run_monte_carlo_filter(
-    monte_carlo_root: str | Path,
+    monte_carlo_root: PathLike,
 ):
     """Load `run_monte_carlo_filter` from the checkout that provides it."""
 
@@ -425,7 +430,7 @@ def inspect_aiupred_runtime() -> dict[str, object]:
     return runtime
 
 
-def ensure_directory(path: str | Path) -> Path:
+def ensure_directory(path: PathLike) -> Path:
     """Create a directory if it does not exist and return its Path."""
 
     directory = Path(path)
@@ -434,8 +439,8 @@ def ensure_directory(path: str | Path) -> Path:
 
 
 def read_table(
-    input_path: str | Path,
-    sheet_name: int | str = 0,
+    input_path: PathLike,
+    sheet_name: SheetName = 0,
 ) -> pd.DataFrame:
     """Read a CSV, TSV, TXT, or Excel table with light auto-detection."""
 
@@ -453,7 +458,7 @@ def read_table(
 
 def resolve_column_name(
     frame: pd.DataFrame,
-    column: str | int,
+    column: ColumnName,
 ) -> str:
     """Resolve a column identifier supplied as a name or one-based index."""
 
@@ -511,10 +516,10 @@ def parse_accession_list(value: object) -> list[str]:
 
 
 def load_accession_table(
-    input_path: str | Path,
-    accession_column: str | int,
-    sheet_name: int | str = 0,
-    gene_column: str | int | None = None,
+    input_path: PathLike,
+    accession_column: ColumnName,
+    sheet_name: SheetName = 0,
+    gene_column: Optional[ColumnName] = None,
 ) -> pd.DataFrame:
     """Standardize a table containing UniProt accessions."""
 
@@ -528,8 +533,8 @@ def load_accession_table(
 
 def load_accession_frame(
     frame: pd.DataFrame,
-    accession_column: str | int,
-    gene_column: str | int | None = None,
+    accession_column: ColumnName,
+    gene_column: Optional[ColumnName] = None,
 ) -> pd.DataFrame:
     """Standardize a data frame containing UniProt accessions."""
 
@@ -565,9 +570,9 @@ def load_accession_frame(
 
 def filter_rows_by_text_keywords(
     frame: pd.DataFrame,
-    filter_columns: list[str | int],
-    include_keywords: list[str] | None = None,
-    exclude_keywords: list[str] | None = None,
+    filter_columns: list[ColumnName],
+    include_keywords: Optional[list[str]] = None,
+    exclude_keywords: Optional[list[str]] = None,
 ) -> pd.DataFrame:
     """Filter a frame by keyword presence across one or more text columns."""
 
@@ -611,13 +616,13 @@ def filter_rows_by_text_keywords(
 
 
 def load_hpa_candidate_accession_table(
-    input_path: str | Path,
-    accession_column: str | int = 'Uniprot',
-    gene_column: str | int = 'Gene',
-    sheet_name: int | str = 0,
-    filter_columns: list[str | int] | None = None,
-    include_keywords: list[str] | None = None,
-    exclude_keywords: list[str] | None = None,
+    input_path: PathLike,
+    accession_column: ColumnName = 'Uniprot',
+    gene_column: ColumnName = 'Gene',
+    sheet_name: SheetName = 0,
+    filter_columns: Optional[list[ColumnName]] = None,
+    include_keywords: Optional[list[str]] = None,
+    exclude_keywords: Optional[list[str]] = None,
 ) -> pd.DataFrame:
     """Load a wide Human Protein Atlas export and normalize accessions."""
 
@@ -639,15 +644,15 @@ def load_hpa_candidate_accession_table(
 
 
 def prepare_microbial_protein_table(
-    supplementary_table_path: str | Path,
-    species_column: str | int | None,
-    oma_group_column: str | int,
-    microbial_protein_column: str | int | None = None,
-    sheet_name: int | str = 0,
-    membership_table_path: str | Path | None = None,
-    membership_group_column: str | int | None = None,
-    membership_protein_column: str | int | None = None,
-    membership_species_column: str | int | None = None,
+    supplementary_table_path: PathLike,
+    species_column: Optional[ColumnName],
+    oma_group_column: ColumnName,
+    microbial_protein_column: Optional[ColumnName] = None,
+    sheet_name: SheetName = 0,
+    membership_table_path: Optional[PathLike] = None,
+    membership_group_column: Optional[ColumnName] = None,
+    membership_protein_column: Optional[ColumnName] = None,
+    membership_species_column: Optional[ColumnName] = None,
 ) -> pd.DataFrame:
     """Build the three-column microbial protein table for the notebook."""
 
@@ -656,7 +661,7 @@ def prepare_microbial_protein_table(
         sheet_name = sheet_name,
     )
     resolved_group = resolve_column_name(supplementary_table, oma_group_column)
-    resolved_species: str | None = None
+    resolved_species: Optional[str] = None
 
     if species_column is not None:
         resolved_species = resolve_column_name(
@@ -703,7 +708,7 @@ def prepare_microbial_protein_table(
             resolved_membership_protein,
         ]
 
-        resolved_membership_species: str | None = None
+        resolved_membership_species: Optional[str] = None
         if membership_species_column is not None:
             resolved_membership_species = resolve_column_name(
                 membership_table,
@@ -794,13 +799,13 @@ def _extract_mmc3_feature_description(feature: str) -> str:
 
 
 def parse_mmc3_feature_table(
-    input_path: str | Path,
-    set_column: str | int = 'Set',
-    feature_column: str | int = 'Feature',
-    effect_column: str | int | None = 'Dysbiosis Coefficient (CD)',
-    allowed_sets: list[str] | None = None,
+    input_path: PathLike,
+    set_column: ColumnName = 'Set',
+    feature_column: ColumnName = 'Feature',
+    effect_column: Optional[ColumnName] = 'Dysbiosis Coefficient (CD)',
+    allowed_sets: Optional[list[str]] = None,
     cd_increased_only: bool = True,
-    sheet_name: int | str = 0,
+    sheet_name: SheetName = 0,
 ) -> pd.DataFrame:
     """Convert mmc3 features into an exact-match token table."""
 
@@ -972,7 +977,7 @@ def _parse_oma_member_label(
 
 def download_uniprot_json_annotation_table(
     uniprot_ids: Iterable[str],
-    output_path: str | Path,
+    output_path: PathLike,
     batch_size: int = DEFAULT_MMC3_UNIPROT_JSON_BATCH_SIZE,
     timeout: int = 120,
 ) -> pd.DataFrame:
@@ -1103,7 +1108,7 @@ def download_uniprot_json_annotation_table(
 
 def download_kegg_gene_to_ko_table(
     kegg_gene_ids: Iterable[str],
-    output_path: str | Path,
+    output_path: PathLike,
     batch_size: int = DEFAULT_MMC3_KEGG_BATCH_SIZE,
     timeout: int = 120,
 ) -> pd.DataFrame:
@@ -1155,8 +1160,8 @@ def download_kegg_gene_to_ko_table(
 
 def build_mmc3_member_annotation_table(
     membership_frame: pd.DataFrame,
-    uniprot_annotation_frame: pd.DataFrame | None = None,
-    kegg_ko_frame: pd.DataFrame | None = None,
+    uniprot_annotation_frame: Optional[pd.DataFrame] = None,
+    kegg_ko_frame: Optional[pd.DataFrame] = None,
 ) -> pd.DataFrame:
     """Combine local OMA labels with optional UniProt and KEGG annotations."""
 
@@ -1356,8 +1361,8 @@ def build_mmc3_member_token_table(
 def filter_oma_members_with_mmc3(
     membership_frame: pd.DataFrame,
     mmc3_feature_tokens: pd.DataFrame,
-    uniprot_annotation_frame: pd.DataFrame | None = None,
-    kegg_ko_frame: pd.DataFrame | None = None,
+    uniprot_annotation_frame: Optional[pd.DataFrame] = None,
+    kegg_ko_frame: Optional[pd.DataFrame] = None,
 ) -> Mmc3OrthogroupFilterResult:
     """Filter OMA members to groups supported by CD-increased mmc3 features."""
 
@@ -1446,19 +1451,19 @@ def filter_oma_members_with_mmc3(
 
 
 def prepare_microbial_protein_table_from_mmc3(
-    membership_table_path: str | Path,
-    mmc3_path: str | Path,
-    membership_group_column: str | int = 'oma_group',
-    membership_protein_column: str | int = 'microbial_protein',
-    membership_species_column: str | int = 'species',
-    membership_label_column: str | int | None = 'oma_member_label',
-    mmc3_set_column: str | int = 'Set',
-    mmc3_feature_column: str | int = 'Feature',
-    mmc3_effect_column: str | int | None = 'Dysbiosis Coefficient (CD)',
-    mmc3_allowed_sets: list[str] | None = None,
+    membership_table_path: PathLike,
+    mmc3_path: PathLike,
+    membership_group_column: ColumnName = 'oma_group',
+    membership_protein_column: ColumnName = 'microbial_protein',
+    membership_species_column: ColumnName = 'species',
+    membership_label_column: Optional[ColumnName] = 'oma_member_label',
+    mmc3_set_column: ColumnName = 'Set',
+    mmc3_feature_column: ColumnName = 'Feature',
+    mmc3_effect_column: Optional[ColumnName] = 'Dysbiosis Coefficient (CD)',
+    mmc3_allowed_sets: Optional[list[str]] = None,
     cd_increased_only: bool = True,
-    uniprot_annotation_path: str | Path | None = None,
-    kegg_ko_mapping_path: str | Path | None = None,
+    uniprot_annotation_path: Optional[PathLike] = None,
+    kegg_ko_mapping_path: Optional[PathLike] = None,
     download_uniprot_annotations: bool = False,
     download_kegg_ko_mapping: bool = False,
 ) -> Mmc3OrthogroupFilterResult:
@@ -1525,7 +1530,7 @@ def prepare_microbial_protein_table_from_mmc3(
         cd_increased_only = cd_increased_only,
     )
 
-    uniprot_annotation_frame: pd.DataFrame | None = None
+    uniprot_annotation_frame: Optional[pd.DataFrame] = None
     uniprot_ids = membership_frame.loc[
         membership_frame['microbial_protein'].str.match(UNIPROT_ACCESSION_PATTERN),
         'microbial_protein',
@@ -1539,7 +1544,7 @@ def prepare_microbial_protein_table_from_mmc3(
             output_path = uniprot_annotation_path,
         )
 
-    kegg_ko_frame: pd.DataFrame | None = None
+    kegg_ko_frame: Optional[pd.DataFrame] = None
 
     if kegg_ko_mapping_path is not None and Path(kegg_ko_mapping_path).exists():
         kegg_ko_frame = read_table(kegg_ko_mapping_path)
@@ -1567,7 +1572,7 @@ def prepare_microbial_protein_table_from_mmc3(
 
 
 def query_current_human_candidate_accessions(
-    location_filters: list[str] | None = None,
+    location_filters: Optional[list[str]] = None,
 ) -> pd.DataFrame:
     """Query the current OmniPath intercell resource for host candidates."""
 
@@ -1613,7 +1618,7 @@ def query_current_human_candidate_accessions(
 
 def write_identifier_table(
     values: Iterable[str],
-    output_path: str | Path,
+    output_path: PathLike,
     column_name: str = 'uniprot',
 ) -> Path:
     """Write one identifier per row as a TSV table."""
@@ -1673,7 +1678,7 @@ def _merge_split_uniprot_stream_responses(
 def _request_uniprot_stream(
     uniprot_ids: list[str],
     format_name: str,
-    fields: list[str] | None = None,
+    fields: Optional[list[str]] = None,
     timeout: int = 120,
 ) -> str:
     """Request a FASTA or TSV stream from UniProt."""
@@ -1725,7 +1730,7 @@ def _request_uniprot_stream(
 
 def download_uniprot_fasta(
     uniprot_ids: Iterable[str],
-    output_path: str | Path,
+    output_path: PathLike,
     batch_size: int = DEFAULT_FASTA_BATCH_SIZE,
 ) -> Path:
     """Download a FASTA file for a list of UniProt accessions."""
@@ -1749,8 +1754,8 @@ def download_uniprot_fasta(
 
 def download_uniprot_annotation_table(
     uniprot_ids: Iterable[str],
-    output_path: str | Path,
-    fields: list[str] | None = None,
+    output_path: PathLike,
+    fields: Optional[list[str]] = None,
     batch_size: int = DEFAULT_ANNOTATION_BATCH_SIZE,
 ) -> pd.DataFrame:
     """Download a UniProt TSV annotation table for a list of accessions."""
@@ -1797,7 +1802,7 @@ def _first_present_column(
 def _first_present_optional_column(
     frame: pd.DataFrame,
     candidates: list[str],
-) -> str | None:
+) -> Optional[str]:
     """Return the first matching column present in the frame, if any."""
 
     for candidate in candidates:
@@ -1854,9 +1859,9 @@ def uniprot_annotation_table_to_domain_table(
 
 def download_uniprot_domain_table(
     uniprot_ids: Iterable[str],
-    raw_output_path: str | Path,
-    domain_output_path: str | Path,
-    fields: list[str] | None = None,
+    raw_output_path: PathLike,
+    domain_output_path: PathLike,
+    fields: Optional[list[str]] = None,
 ) -> pd.DataFrame:
     """Download and normalize UniProt Pfam annotations."""
 
@@ -1871,11 +1876,11 @@ def download_uniprot_domain_table(
 
 
 def standardize_deg_table(
-    input_path: str | Path,
-    gene_column: str | int,
-    value_column: str | int,
-    pvalue_column: str | int,
-    sheet_name: int | str = 0,
+    input_path: PathLike,
+    gene_column: ColumnName,
+    value_column: ColumnName,
+    pvalue_column: ColumnName,
+    sheet_name: SheetName = 0,
 ) -> pd.DataFrame:
     """Select and rename the gene, fold-change, and p-value columns."""
 
@@ -1951,7 +1956,7 @@ def normalize_tiedie_hmi_table(
 
 def write_tiedie_hmi_table(
     interaction_frame: pd.DataFrame,
-    output_path: str | Path,
+    output_path: PathLike,
 ) -> Path:
     """Write a TieDIE-compatible HMI table to disk."""
 
@@ -1966,8 +1971,8 @@ def write_tiedie_hmi_table(
 
 
 def load_hmi_table_for_tiedie(
-    file_path: str | Path,
-    repo_root: Path | None = None,
+    file_path: PathLike,
+    repo_root: Optional[Path] = None,
 ) -> pd.DataFrame:
     """Load and harmonize an HMI table for TieDIE processing."""
 
@@ -2015,9 +2020,9 @@ def _consensus_direction_label(value: object) -> str:
 
 
 def read_endpoint_gene_table(
-    endpoint_file: str | Path,
+    endpoint_file: PathLike,
     separator: str = '\t',
-    pvalue_column: int | None = 3,
+    pvalue_column: Optional[int] = 3,
 ) -> pd.DataFrame:
     """Read a DEG table and rename its first column to `target_genesymbol`."""
 
@@ -2043,12 +2048,12 @@ def read_endpoint_gene_table(
 
 
 def build_tiedie_inputs_from_omnipath_network(
-    endpoint_file: str | Path,
-    hmi_prediction_file: str | Path,
-    output_dir: str | Path,
-    repo_root: Path | None = None,
+    endpoint_file: PathLike,
+    hmi_prediction_file: PathLike,
+    output_dir: PathLike,
+    repo_root: Optional[Path] = None,
     endpoint_separator: str = '\t',
-    endpoint_pvalue_column: int | None = 3,
+    endpoint_pvalue_column: Optional[int] = 3,
     endpoint_value_column: int = 2,
     pathway_input_filename: str = 'pathway.sif',
     upstream_input_filename: str = 'upstream.input',
@@ -2361,8 +2366,8 @@ def combine_tiedie_upstream_tables(
 
 def run_command(
     command: list[str],
-    cwd: str | Path | None = None,
-    env: dict[str, str] | None = None,
+    cwd: Optional[PathLike] = None,
+    env: Optional[dict[str, str]] = None,
 ) -> subprocess.CompletedProcess[str]:
     """Run a subprocess command and echo it in notebook-friendly form."""
 

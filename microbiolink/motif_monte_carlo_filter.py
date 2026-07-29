@@ -9,6 +9,9 @@ import math
 import re
 from pathlib import Path
 from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -17,7 +20,9 @@ from microbiolink.DMI import extract_uniprot_id
 from microbiolink.DMI import read_fasta_sequences
 
 
-PathLike = str | Path
+PathLike = Union[str, Path]
+GpuLike = Union[str, int]
+StructureProfile = Dict[str, Optional[np.ndarray]]
 
 INTERACTION_COLUMN_CANDIDATES = {
     'human_protein': ['humanprotein'],
@@ -207,13 +212,15 @@ def read_interaction_table(filename: PathLike) -> pd.DataFrame:
     return normalized
 
 
-def read_structure_score_table(filename: PathLike) -> dict[str, dict[str, np.ndarray | None]]:
+def read_structure_score_table(
+    filename: PathLike,
+) -> dict[str, StructureProfile]:
     """Read residue-level structural scores from a table."""
 
     frame = _read_delimited_table(filename)
     resolved = _resolve_columns(frame, STRUCTURE_COLUMN_CANDIDATES)
     binding_column = resolved.get('binding_score')
-    profiles: dict[str, dict[str, np.ndarray | None]] = {}
+    profiles: dict[str, StructureProfile] = {}
 
     grouped = frame.groupby(resolved['human_protein'], sort = False)
     for protein_name, group in grouped:
@@ -255,7 +262,7 @@ def build_sequence_dictionary(fasta_file: PathLike) -> dict[str, str]:
 def predict_structure_profiles_from_sequences(
     sequences: dict[str, str],
     force_cpu: bool,
-    gpu: str | int,
+    gpu: GpuLike,
 ) -> dict[str, dict[str, np.ndarray]]:
     """Predict residue-level disorder and binding tracks with AIUPred."""
 
@@ -313,11 +320,11 @@ def predict_structure_profiles_from_sequences(
 
 def load_structure_profiles(
     interaction_frame: pd.DataFrame,
-    structure_scores: PathLike | None,
-    fasta_file: PathLike | None,
+    structure_scores: Optional[PathLike],
+    fasta_file: Optional[PathLike],
     force_cpu: bool,
-    gpu: str | int,
-) -> dict[str, dict[str, np.ndarray | None]]:
+    gpu: GpuLike,
+) -> dict[str, StructureProfile]:
     """Load or predict per-residue structural profiles."""
 
     if structure_scores is not None:
@@ -363,7 +370,7 @@ def _convert_coordinates(
 
 def _support_mask(
     disorder_profile: np.ndarray,
-    binding_profile: np.ndarray | None,
+    binding_profile: Optional[np.ndarray],
     disorder_threshold: float,
     binding_threshold: float,
     require_binding: bool,
@@ -474,7 +481,7 @@ def _nanmean_or_nan(values: np.ndarray) -> float:
 
 def compute_motif_statistics(
     disorder_profile: np.ndarray,
-    binding_profile: np.ndarray | None,
+    binding_profile: Optional[np.ndarray],
     support_mask: np.ndarray,
     start: int,
     end: int,
@@ -527,7 +534,7 @@ def monte_carlo_pvalue(
 
 def annotate_interactions_with_monte_carlo(
     interaction_frame: pd.DataFrame,
-    structure_profiles: dict[str, dict[str, np.ndarray | None]],
+    structure_profiles: dict[str, StructureProfile],
     coordinate_system: str,
     iterations: int,
     alpha: float,
@@ -638,9 +645,9 @@ def annotate_interactions_with_monte_carlo(
 def run_monte_carlo_filter(
     interaction_file: PathLike,
     output_file: PathLike,
-    filtered_output_file: PathLike | None = None,
-    structure_scores: PathLike | None = None,
-    fasta_file: PathLike | None = None,
+    filtered_output_file: Optional[PathLike] = None,
+    structure_scores: Optional[PathLike] = None,
+    fasta_file: Optional[PathLike] = None,
     coordinate_system: str = 'zero_based_half_open',
     iterations: int = 1000,
     alpha: float = 0.05,
@@ -650,7 +657,7 @@ def run_monte_carlo_filter(
     require_binding: bool = False,
     seed: int = 0,
     force_cpu: bool = False,
-    gpu: str | int = 0,
+    gpu: GpuLike = 0,
 ) -> pd.DataFrame:
     """Run the standalone Monte Carlo motif filter."""
 
