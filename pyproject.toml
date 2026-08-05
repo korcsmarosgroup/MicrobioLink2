@@ -32,6 +32,7 @@ microbiolink-download-domains = "microbiolink.cli:download_domains"
 microbiolink-download-fasta = "microbiolink.cli:download_fasta"
 microbiolink-idr-filter = "microbiolink.cli:idr_filter"
 microbiolink-membrane-filter = "microbiolink.cli:membrane_filter"
+microbiolink-monte-carlo = "microbiolink.cli:monte_carlo_filter"
 microbiolink-zscore-filter = "microbiolink.cli:zscore_filter"
 
 [tool.hatch.metadata]

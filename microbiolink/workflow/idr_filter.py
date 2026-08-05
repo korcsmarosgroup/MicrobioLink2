@@ -5,7 +5,7 @@ import functools
 import numpy as np
 import pandas as pd
 
-from ..utils import fasta
+from ..utils import dmi_reader, fasta
 from . import dmi
 
 OUTPUT_COLUMNS = [
@@ -16,7 +16,7 @@ OUTPUT_COLUMNS = [
 ]
 
 
-def _iupred_profile(sequence: str) -> tuple[np.ndarray, np.ndarray]:
+def iupred_profile(sequence: str) -> tuple[np.ndarray, np.ndarray]:
     """Compute per-residue IUPred2 disorder and ANCHOR2 binding scores.
 
     Args:
@@ -37,7 +37,7 @@ def _iupred_profile(sequence: str) -> tuple[np.ndarray, np.ndarray]:
     return np.asarray(disorder_short), np.asarray(binding)
 
 
-def _aiupred_profile(
+def aiupred_profile(
     sequence: str, force_cpu: bool, gpu_num: int
 ) -> tuple[np.ndarray, np.ndarray]:
     """Compute per-residue AIUPred disorder and binding scores.
@@ -61,7 +61,7 @@ def _aiupred_profile(
 
 
 @functools.lru_cache(maxsize=None)
-def _cached_profile(
+def cached_profile(
     method: str,
     sequence: str,
     force_cpu: bool,
@@ -89,49 +89,66 @@ def _cached_profile(
     """
 
     if method == "iupred":
-        return _iupred_profile(sequence)
+        return iupred_profile(sequence)
 
     if method == "aiupred":
-        return _aiupred_profile(sequence, force_cpu, gpu_num)
+        return aiupred_profile(sequence, force_cpu, gpu_num)
 
     raise ValueError(f"method must be 'iupred' or 'aiupred', got {method!r}")
 
 
-def _build_sequence_lookup(sequences: dict[str, str] | None) -> dict[str, str]:
-    """Reindex a header-keyed FASTA dict by UniProt accession.
+def validate_method(method: str) -> None:
+    """Validate that method is a supported disorder predictor.
 
     Args:
-        sequences: FASTA header -> sequence mapping (Module 3's output shape), or None.
+        method: The disorder predictor name to check.
 
-    Returns:
-        A dict mapping each UniProt accession to its sequence. Empty if sequences is None.
+    Raises:
+        ValueError: If method is not 'iupred' or 'aiupred'.
     """
 
-    if sequences is None:
-        return {}
-
-    return {
-        fasta.extract_uniprot_id(header): sequence
-        for header, sequence in sequences.items()
-    }
+    if method not in {"iupred", "aiupred"}:
+        raise ValueError(f"method must be 'iupred' or 'aiupred', got {method!r}")
 
 
-def _motif_side(row: pd.Series) -> tuple[str, int, int]:
-    """Resolve which protein and position carries the motif for one DMI row.
+def disordered_mask(disorder_profile: np.ndarray, cutoff: float) -> np.ndarray:
+    """Mark which residues are disordered at a per-residue disorder cutoff.
 
     Args:
-        row: One row of Module 6's DMI output table.
+        disorder_profile: Per-residue disorder scores.
+        cutoff: Score at or above which a residue counts as disordered.
 
     Returns:
-        (motif_uniprot_id, start, end) for whichever side is the motif-bearing side:
-        human_uniprot_id/start/end if row['dmi_type'] == 'forward', otherwise the bacterial
-        equivalent.
+        A boolean array, True where disorder_profile >= cutoff.
     """
 
-    if row["dmi_type"] == "forward":
-        return row["human_uniprot_id"], row["start"], row["end"]
+    return disorder_profile >= cutoff
 
-    return row["bacterial_uniprot_id"], row["start"], row["end"]
+
+def disordered_region(mask: np.ndarray, position: int) -> tuple[int, int] | None:
+    """Find the maximal run of disordered residues containing a position.
+
+    Args:
+        mask: Boolean per-residue disorder mask (from disordered_mask).
+        position: Residue index the region must contain.
+
+    Returns:
+        The half-open (start, end) bounds of the maximal True run containing position, or None
+        if mask[position] is False.
+    """
+
+    if not mask[position]:
+        return None
+
+    start = position
+    while start > 0 and mask[start - 1]:
+        start -= 1
+
+    end = position + 1
+    while end < len(mask) and mask[end]:
+        end += 1
+
+    return start, end
 
 
 def _score_row(
@@ -162,12 +179,12 @@ def _score_row(
         sequence is not present in sequence_lookup.
     """
 
-    motif_id, start, end = _motif_side(row)
+    motif_id, start, end = dmi_reader.motif_side(row)
     sequence = sequence_lookup.get(motif_id)
     if sequence is None:
         return None
 
-    disorder_profile, binding_profile = _cached_profile(
+    disorder_profile, binding_profile = cached_profile(
         method, sequence, force_cpu, gpu_num
     )
     disorder_window = disorder_profile[start:end]
@@ -182,42 +199,6 @@ def _score_row(
     combined_score = (disordered_score + binding_score) / 2
 
     return passes, disordered_score, binding_score, combined_score
-
-
-def _validate_inputs(
-    dmi_table: pd.DataFrame,
-    method: str,
-    human_sequences: dict[str, str] | None,
-    bacterial_sequences: dict[str, str] | None,
-) -> None:
-    """Validate method and that sequences are supplied for whichever directions are present.
-
-    Args:
-        dmi_table: Module 6's output table.
-        method: 'iupred' or 'aiupred'.
-        human_sequences: Human FASTA header -> sequence mapping, or None.
-        bacterial_sequences: Bacterial FASTA header -> sequence mapping, or None.
-
-    Raises:
-        ValueError: If method is not 'iupred' or 'aiupred', or dmi_table contains 'forward'
-            rows with human_sequences=None (or 'reverse' rows with bacterial_sequences=None).
-    """
-
-    if method not in {"iupred", "aiupred"}:
-        raise ValueError(f"method must be 'iupred' or 'aiupred', got {method!r}")
-
-    has_forward = bool((dmi_table["dmi_type"] == "forward").any())
-    has_reverse = bool((dmi_table["dmi_type"] == "reverse").any())
-
-    if has_forward and human_sequences is None:
-        raise ValueError(
-            "dmi_table contains 'forward' rows but human_sequences was not supplied."
-        )
-
-    if has_reverse and bacterial_sequences is None:
-        raise ValueError(
-            "dmi_table contains 'reverse' rows but bacterial_sequences was not supplied."
-        )
 
 
 def _to_output_row(
@@ -319,9 +300,8 @@ def filter_by_disorder(
 
     Args:
         dmi_table: Module 6's output table.
-        human_sequences: Human FASTA header -> sequence mapping. Required for 'forward' rows.
-        bacterial_sequences: Bacterial FASTA header -> sequence mapping. Required for
-            'reverse' rows.
+        human_sequences: Human FASTA header -> sequence mapping (for 'forward' rows).
+        bacterial_sequences: Bacterial FASTA header -> sequence mapping (for 'reverse' rows).
         method: 'iupred' or 'aiupred'.
         disorder_cutoff: Minimum per-residue disorder score required across the motif window.
         binding_cutoff: Minimum per-residue binding score required across the motif window.
@@ -333,13 +313,16 @@ def filter_by_disorder(
         and combined_score columns added.
 
     Raises:
-        ValueError: See _validate_inputs.
+        ValueError: If method is invalid, or a present DMI direction lacks its sequences.
     """
 
-    _validate_inputs(dmi_table, method, human_sequences, bacterial_sequences)
+    validate_method(method)
+    dmi_reader.validate_direction_sequences(
+        dmi_table, human_sequences, bacterial_sequences
+    )
 
-    human_lookup = _build_sequence_lookup(human_sequences)
-    bacterial_lookup = _build_sequence_lookup(bacterial_sequences)
+    human_lookup = fasta.build_sequence_lookup(human_sequences)
+    bacterial_lookup = fasta.build_sequence_lookup(bacterial_sequences)
 
     kept_rows = _score_all_rows(
         dmi_table,

@@ -135,6 +135,21 @@ def _load_dmi_resources() -> dict[str, MotifResource]:
     return motif_resources
 
 
+def load_motif_regexes() -> dict[str, str]:
+    """Return a motif_id -> regex mapping for every packaged motif class.
+
+    Reuses the lru_cache'd _load_dmi_resources so it stays the single source of truth for the
+    packaged ELM and 3did resources and is cheap to call repeatedly.
+
+    Returns:
+        A dict mapping each motif_id to its regex pattern.
+    """
+
+    return {
+        motif_id: resource.regex for motif_id, resource in _load_dmi_resources().items()
+    }
+
+
 # SECTION 2: Motif matching and role-based interaction prediction
 
 

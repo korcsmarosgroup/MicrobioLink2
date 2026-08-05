@@ -20,16 +20,16 @@ def read_fasta_sequences(filename: PathLike) -> dict[str, str]:
     current_header: str | None = None
     current_fragments: list[str] = []
 
-    with open(Path(filename), encoding='utf-8') as fasta_file:
+    with open(Path(filename), encoding="utf-8") as fasta_file:
         for raw_line in fasta_file:
             line = raw_line.strip()
 
             if not line:
                 continue
 
-            if line.startswith('>'):
+            if line.startswith(">"):
                 if current_header is not None:
-                    sequences[current_header] = ''.join(current_fragments)
+                    sequences[current_header] = "".join(current_fragments)
 
                 current_header = line[1:]
                 current_fragments = []
@@ -38,7 +38,7 @@ def read_fasta_sequences(filename: PathLike) -> dict[str, str]:
             current_fragments.append(line)
 
     if current_header is not None:
-        sequences[current_header] = ''.join(current_fragments)
+        sequences[current_header] = "".join(current_fragments)
 
     return sequences
 
@@ -57,7 +57,27 @@ def extract_uniprot_id(fasta_header: str) -> str:
             '>db|accession|entry_name ...' structure.
     """
 
-    fields = fasta_header.split('|')
+    fields = fasta_header.split("|")
     if len(fields) < 2:
-        raise ValueError(f'FASTA header does not contain a UniProt accession: {fasta_header}')
+        raise ValueError(
+            f"FASTA header does not contain a UniProt accession: {fasta_header}"
+        )
     return fields[1]
+
+
+def build_sequence_lookup(sequences: dict[str, str] | None) -> dict[str, str]:
+    """Reindex a header-keyed FASTA dict by UniProt accession.
+
+    Args:
+        sequences: FASTA header -> sequence mapping (Module 3's output shape), or None.
+
+    Returns:
+        A dict mapping each UniProt accession to its sequence. Empty if sequences is None.
+    """
+
+    if sequences is None:
+        return {}
+
+    return {
+        extract_uniprot_id(header): sequence for header, sequence in sequences.items()
+    }
