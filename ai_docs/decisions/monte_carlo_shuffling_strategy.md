@@ -129,12 +129,56 @@ over-representation family was chosen. Everything below is a refinement *within*
 
 - **Reintroduces the disorder dependency.** To know which residues are disordered (for both the pool
   and each target's region), Module 8 reuses the existing disorder-profile helpers in
-  `idr_filter.py` (`_cached_profile`, `_iupred_profile`, `_aiupred_profile`). This reverses the
-  earlier "Module 8 needs no IUPred/AIUPred install" property. Acceptable because the realistic
-  pipeline is Module 7 (IDR) → Module 8, so the dependency is already present, and `_cached_profile`
-  means the profile is near-free if Module 7 ran in-process.
+  `idr_filter.py` (promoted to public for sharing: `cached_profile`, `iupred_profile`,
+  `aiupred_profile`). This reverses the earlier "Module 8 needs no IUPred/AIUPred install" property.
+  Acceptable because the realistic pipeline is Module 7 (IDR) → Module 8, so the dependency is already
+  present, and `cached_profile` means the profile is near-free if Module 7 ran in-process.
 - **Module 8 becomes a post-IDR step.** Running it standalone on the 8-column Module 6 table is
   dropped: "sample the disordered region" is undefined without a disorder profile.
+
+## Multiple-testing correction — Benjamini–Hochberg FDR (resolves open questions 1 and 2)
+
+Module 8 tests many motif instances in one run, so raw per-test p-values are corrected for multiple
+testing with **Benjamini–Hochberg (BH)**, controlling the **false discovery rate (FDR)** — the
+expected fraction of reported interactions whose motif is spurious. FDR is the right criterion for a
+discovery filter; Bonferroni / FWER (bounding *any* false positive) is far too strict over thousands
+of instances and would gut sensitivity for a guarantee this step does not need.
+
+Decisions:
+
+- **`alpha` is repurposed as the target FDR** (default `0.05`), not a per-test p-value threshold. A
+  motif passes iff its BH-adjusted q-value is `<= alpha`. Both the raw `monte_carlo_pvalue` and the
+  adjusted `monte_carlo_qvalue` are reported; the pass/fail decision uses the q-value.
+  - The q-value is computed **independently of `alpha`**: BH adjusts the ranked p-values, and `alpha`
+    only sets the cutoff the q-value is compared against. Changing the FDR target changes which rows
+    pass, never the q-values themselves — so q-values are computed once and can be re-thresholded
+    without recomputation.
+  - `0.05` is the familiar default and matches the previous per-test threshold. `0.10` is a common
+    looser choice for discovery screens where sensitivity matters more; user-configurable either way.
+- **The unit of testing is the unique motif instance `(motif class, protein, disordered region)`, not
+  the DMI row (this resolves open question 2).** Module 6's fan-out repeats one instance across many
+  (domain × partner) rows, all carrying an *identical* p-value; correcting over rows would inflate the
+  test count `m` with exact duplicates and distort the BH ranking. BH runs over de-duplicated
+  instances, and each instance's q-value is broadcast back to every row that shares it. A protein with
+  several motif instances contributes several independent tests — the natural reading of "test each
+  instance independently."
+- **BH, not Benjamini–Yekutieli.** Instances are near-independent; the only coupling is the shared
+  leave-one-out pool, a weak *positive* dependence within BH's PRDS validity. BY's
+  arbitrary-dependence guarantee would be needlessly conservative here.
+- **The MC p-value floor caps power, so `iterations` must scale with the test count.** The smallest
+  p-value MC can produce is `1/(iterations + 1)`, while BH's threshold for the most significant of `m`
+  instances is `≈ alpha/m`; resolving that tail requires roughly `iterations ≳ m/alpha`. The
+  per-unique-null caching makes high iteration counts affordable — cost is per unique
+  `(regex, region-length, composition)` null, not per instance. MC's discreteness (p-values are
+  multiples of `1/(iterations + 1)`) also makes BH mildly conservative; accepted, discrete-aware BH
+  variants are out of scope.
+
+**Structural consequence.** BH needs the full p-value vector before it can threshold anything, so the
+row-at-a-time "score → threshold → drop" flow is replaced by a two-phase **"score every instance →
+BH-correct → filter"**. See @ai_docs/plans/module_8_monte_carlo.md for the implementation.
+
+This is also the strongest argument for the deferred **frequency method with masking** below: its
+continuous p-values have no floor, removing the `iterations ≳ m/alpha` blow-up that BH exposes here.
 
 ## Future options worth revisiting
 
@@ -159,9 +203,5 @@ over-representation family was chosen. Everything below is a refinement *within*
 
 ## Open questions
 
-1. **Multiple testing.** Should p-values be corrected across the many motif instances tested (e.g.
-   Benjamini–Hochberg)? Note MC's p-value floor of `1/(iterations + 1)` limits how small a corrected
-   value can be — a point in favour of the analytic frequency method if correction becomes important.
-
-2. **Multiple motifs in one protein.** How to handle a protein with several motif instances (same or
-   different classes) — test each instance independently, or account for the joint expectation?
+Both original open questions (multiple-testing correction; multiple motifs per protein) are resolved
+above under "Multiple-testing correction". None remain open.
