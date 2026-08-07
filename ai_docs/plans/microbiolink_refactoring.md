@@ -157,7 +157,7 @@ The output should be the same as the outputs but with more columns that describe
 ### Module 9 - TieDie
 
 - Inputs:
-The input should be for DMIs either the table output from the monte-carlo simulation (module 8), the IDR prediction (module 7) or DMI prediction (module 7) based on the user preference. If DDIs are include it will also include module 5 output as an input. Other inputs is the differentially expressed gene list with p-values and log fold change values, this will be provided by the user.
+The input should be for DMIs either the table output from the monte-carlo simulation (module 8), the IDR prediction (module 7) or DMI prediction (module 6) based on the user preference. If DDIs are included it will also include module 5 output as an input. Other inputs is the differentially expressed gene list with p-values and log fold change values, this will be provided by the user.
 
 - Module Usage:
 There are three seperate steps in the TieDie process. There is a first step process which converts the inputs into the correct Inputs for the TieDie package, the second step runs the TieDie network propagation and the third step converts this into an output that the user can read and intepret. The code for the tiedie algorithm is in this package: github.com/saezlab/tiedie.
