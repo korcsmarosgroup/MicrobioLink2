@@ -24,6 +24,8 @@ version = "2.1.0"
 
 [project.optional-dependencies]
 idr = ["iupred[aiupred] @ git+https://github.com/saezlab/iupred.git"]
+# Module 9 (microbiolink-tiedie) requires this extra: pulls in tiedie (and networkx), Python >=3.9.
+tiedie = ["tiedie @ git+https://github.com/saezlab/tiedie.git"]
 
 [project.scripts]
 microbiolink-ddi = "microbiolink.cli:ddi"
@@ -33,6 +35,7 @@ microbiolink-download-fasta = "microbiolink.cli:download_fasta"
 microbiolink-idr-filter = "microbiolink.cli:idr_filter"
 microbiolink-membrane-filter = "microbiolink.cli:membrane_filter"
 microbiolink-monte-carlo = "microbiolink.cli:monte_carlo_filter"
+microbiolink-tiedie = "microbiolink.cli:tiedie"
 microbiolink-zscore-filter = "microbiolink.cli:zscore_filter"
 
 [tool.hatch.metadata]
