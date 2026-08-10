@@ -434,55 +434,64 @@ def run_tiedie_pipeline(
 ## Migration checklist
 
 ### 1. Shared-code extraction
-- [ ] Add `translate_uniprot_to_gene_symbols` to `microbiolink/utils/id_resolution.py`.
+- [x] Add `translate_uniprot_to_gene_symbols` to `microbiolink/utils/id_resolution.py`.
 
 ### 2. Core module
-- [ ] Create `microbiolink/workflow/tiedie.py` with `combine_host_microbe_interactions`,
+- [x] Create `microbiolink/workflow/tiedie.py` with `combine_host_microbe_interactions`,
       `fetch_omnipath_networks`, `contextualise_networks`, `build_pathway_sif`, `build_upstream_heats`,
       `build_downstream_heats`, `run_tiedie`, `assemble_network`, `assemble_node_table`,
       `run_tiedie_pipeline`.
-- [ ] Confirm `combine_host_microbe_interactions` unions the DMI and optional DDI tables to distinct
+- [x] Confirm `combine_host_microbe_interactions` unions the DMI and optional DDI tables to distinct
       `(human, bacterial)` pairs (equal-weight, a pair in both counted once), and passes through unchanged
       when `ddi_table=None` (Decision 3).
-- [ ] Confirm `build_upstream_heats` counts distinct (human, bacterial) pairs over the combined HMI set,
+- [x] Confirm `build_upstream_heats` counts distinct (human, bacterial) pairs over the combined HMI set,
       sign `-` (Decision 5).
-- [ ] Confirm `build_downstream_heats` reproduces the ground-truth sign-corrected mean-log2FC TF score
-      (Decision 6).
-- [ ] Confirm `build_pathway_sif` maps `consensus_stimulation` 1→`stimulates>`, 0→`inhibits>`, headerless
-      (Decision 7).
-- [ ] Confirm `run_tiedie` writes the three inputs, runs `tiedie.cli.main` in-process, catches
-      `SystemExit`, returns the output folder (Decisions 1, 9).
-- [ ] Confirm `assemble_network` / `assemble_node_table` reproduce the ground-truth three-layer network
+- [x] Confirm `build_downstream_heats` reproduces the ground-truth sign-corrected mean-log2FC TF score
+      (Decision 6). *(Byte-exact 292/292 against the frozen `contextualised_regulator-deg_network.txt`.)*
+- [x] Confirm `build_pathway_sif` maps `consensus_stimulation` 1→`stimulates>`, 0→`inhibits>`, headerless
+      (Decision 7). *(Ported via `np.where` — pandas 2.2 rejects `.loc` string-into-int assignment.)*
+- [x] Confirm `run_tiedie` writes the three inputs, runs `tiedie.cli.main` in-process, catches
+      `SystemExit`, returns the output folder (Decisions 1, 9). *(Verified end-to-end with tiedie 2.1.0.)*
+- [x] Confirm `assemble_network` / `assemble_node_table` reproduce the ground-truth three-layer network
       and node table, re-pointed at the refactored DMI columns and `translate_uniprot_to_gene_symbols`.
+      *(Node-table `nan,nan` `ppi_layer` artifact deliberately cleaned to `NA` — see Decision appendix in
+      @ai_docs/decisions/tiedie_inputs.md; a confirmed divergence from `usecase_node_table.txt`.)*
 
 ### 3. CLI wiring + packaging
-- [ ] Add `_add_tiedie_source_arguments`, `_add_tiedie_algorithm_arguments`, `_build_tiedie_parser`,
+- [x] Add `_add_tiedie_source_arguments`, `_add_tiedie_algorithm_arguments`, `_build_tiedie_parser`,
       `tiedie()` to `cli.py`.
-- [ ] Add the `tiedie` extra and `microbiolink-tiedie` script to `pyproject.toml`.
+- [x] Add the `tiedie` extra and `microbiolink-tiedie` script to `pyproject.toml`.
 
 ### 4. Delete old code (per Q11)
-- [ ] Delete `workflow/tiedie_input_processing.py`, `workflow/processing_tiedie_output.py`, and the
-      vendored `workflow/TieDie/` directory once the port is validated (they live in the `case-study`
-      tree, not the `refactoring` working tree — confirm what actually exists here before deleting).
+- [x] Delete `workflow/tiedie_input_processing.py`, `workflow/processing_tiedie_output.py`, and the
+      vendored `workflow/TieDie/` directory once the port is validated. *(They were tracked in the
+      `refactoring` tree after all; deleted via `git rm` after the end-to-end sign-off — nothing in
+      `microbiolink/` referenced them.)*
 
 ### 5. Verification — case-study regression + manual sign-off
-- [ ] Run step 1 on the case-study inputs (the DMI/IDR table, `Enterocytes BEST4_degs_fc05.csv`, the
+- [x] Run step 1 on the case-study inputs (the DMI/IDR table, `Enterocytes BEST4_degs_fc05.csv`, the
       transcriptomics file) and diff `upstream.input`, `downstream.input`, `pathway.sif` against
-      `case_study_output/output/TieDIE/usecase_*.input` / `usecase_pathway.sif`. Expect the
-      **downstream** and **pathway** files to match exactly; expect the **upstream** file to differ only
-      by the distinct-pair count (Decision 5, a confirmed and accepted divergence — the raw-count fixture
-      collapses to the deduped count).
-- [ ] Run the full `microbiolink-tiedie` orchestrator and diff the final network + node table against
-      `usecase_final_network.txt` / `usecase_node_table.txt`. TieDie's permutation p-value is stochastic,
-      but the network topology and node annotations should match; show the result to the user for
-      sign-off (network access + live OmniPath make a byte-exact fixture unreliable).
-- [ ] Confirm `run_tiedie_pipeline` works with a Module 6, Module 7, and Module 8 table as the DMI input
-      (all three expose `human_uniprot_id`/`bacterial_uniprot_id`).
-- [ ] **DDI path (net-new, no fixture):** run the orchestrator with `--ddi_file` set to a Module 5 DDI
+      `case_study_output/output/TieDIE/usecase_*.input` / `usecase_pathway.sif`.
+      **Result:** `upstream` — same 76 proteins, heats differ only by the distinct-pair dedup (Decision 5),
+      sign `-` vs fixture `+` (Decision 2). `downstream`/`pathway` do **not** match byte-exact against a
+      *live* OmniPath fetch (downstream: all 292 fixture TFs present as a subset of 620, heats shifted by
+      CollecTRI growth; pathway: 93% edge overlap, rest is OmniPath drift) — the "match exactly"
+      expectation only holds against a *frozen* snapshot, which the downstream port does (292/292). This
+      is the live-fetch caveat and motivates the pinned-snapshot future work (Decision 4).
+- [x] Run the full `microbiolink-tiedie` orchestrator and diff the final network + node table against
+      `usecase_final_network.txt` / `usecase_node_table.txt`. **Result:** exit 0; schemas identical;
+      node table 0 duplicates, bacteria layer 36/36 exact, `nan` cleanup verified (0 vs 398 fixture rows);
+      bacteria-bindingprot edges 89% of fixture. Interior (PPI/TF-DEG) is ~2× larger purely from live
+      CollecTRI/OmniPath growth. Shown to the user for sign-off.
+- [x] Confirm `run_tiedie_pipeline` works with a Module 6, Module 7, and Module 8 table as the DMI input
+      (all three expose `human_uniprot_id`/`bacterial_uniprot_id`). *(End-to-end run used a Module-7-shaped
+      IDR table; M6/M7/M8 `OUTPUT_COLUMNS` all verified to carry both pair columns.)*
+- [x] **DDI path (net-new, no fixture):** run the orchestrator with `--ddi_file` set to a Module 5 DDI
       CSV and confirm the DDI human targets appear in the upstream heats and the DDI host-microbe edges in
       the final network's bacteria-bindingprot layer; that a `(human, bacterial)` pair present in both DMI
-      and DDI is counted once; and that omitting `--ddi_file` reproduces the DMI-only result exactly. Show
-      the DDI-augmented output to the user for confirmation (per the refactoring plan's new-feature rule).
+      and DDI is counted once; and that omitting `--ddi_file` reproduces the DMI-only result exactly.
+      **Result:** all four properties confirmed with a synthetic DDI table against the real `tiedie.cn.sif`
+      (new target heat +1; new edge present; dup pair counted once; DDI=None ≡ DMI-only). Shown to the user.
 
 ## Verification
 

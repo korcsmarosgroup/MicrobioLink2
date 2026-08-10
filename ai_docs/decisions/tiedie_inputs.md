@@ -209,3 +209,35 @@ All four are **faithful-port defaults** chosen for fidelity, simplicity, and rep
 case study. The alternatives above are the paths to a more *statistically grounded* set of TieDie inputs
 once the pipeline carries the extra signal (interaction confidence, functional effect, regulon
 statistics) they need.
+
+---
+
+## Appendix — possible future development: boolean node-table layer columns
+
+Out of scope for the heat inputs above — this concerns the step-3 **node-table output** formatting, not
+the diffusion inputs — but recorded here for continuity.
+
+**Current encoding.** The node-annotation table marks each node's layer membership with one column per
+layer (`bacteria_layer`, `bindingprot_layer`, `ppi_layer`, `tf_layer`, `deg_layer`) whose **value is the
+role's display name** (`bacteria_layer = "bacteria"`, `tf_layer = "tf"`, …) or `"NA"` when the node is
+not in that layer. `all_nodes` is the comma-join of the non-`NA` values, so the label text is what makes
+that roll-up self-describing. `ppi_layer` is the special case: a node can be a PPI **source**
+(`"bindingprot and/or protein"`), a PPI **target** (`"protein and/or tf"`), or both, so it holds a
+comma-joined string of whichever roles apply. Absent membership is `"NA"` (already cleaned up from the
+ground truth's `nan,nan` artifact — a deliberate divergence from `usecase_node_table.txt`).
+
+**Proposed simplification (deferred).** Replace the label-as-value scheme with **boolean** flag columns
+(`True`/`False`, non-members `False`) and derive `all_nodes` from the column *names* of the `True` flags.
+This removes the redundant column-name/value duplication (`bacteria_layer = "bacteria"`) and makes layer
+membership a clean one-hot encoding.
+
+**Open design question (why deferred).** The `ppi_layer` dual role has no single obvious mapping:
+- **Single `ppi_layer` bool** — `True` if the node is in the PPI layer at all (source *or* target).
+  Simplest, but drops the source/target distinction (which used vague "and/or" labels anyway).
+- **Two bools `ppi_source_layer` / `ppi_target_layer`** — preserves the distinction losslessly, at the
+  cost of an extra column and less friendly `all_nodes` tokens (`ppi_source,ppi_target`).
+
+Secondary choices to settle if pursued: the exact `all_nodes` token names (short names like `bacteria`,
+`bindingprot`, `tf`, `deg` vs. keeping the descriptive PPI labels), and whether the boolean columns keep
+the `_layer` suffix. Since the node table is a manual-sign-off artifact (live OmniPath already makes it
+non-byte-exact), this further divergence from the fixture is acceptable when the time comes.
