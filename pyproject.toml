@@ -23,12 +23,16 @@ requires-python = ">=3.9"
 version = "2.1.0"
 
 [project.optional-dependencies]
+# Module 10 (microbiolink-enrichment) requires this extra: gget calls the live Enrichr API at
+# runtime and matplotlib draws the plot. Both are lazy-imported inside the workflow functions.
+enrichment = ["gget>=0.29.0", "matplotlib>=3.8.0"]
 idr = ["iupred[aiupred] @ git+https://github.com/saezlab/iupred.git"]
 # Module 9 (microbiolink-tiedie) requires this extra: pulls in tiedie (and networkx), Python >=3.9.
 tiedie = ["tiedie @ git+https://github.com/saezlab/tiedie.git"]
 
 [project.scripts]
 microbiolink-ddi = "microbiolink.cli:ddi"
+microbiolink-enrichment = "microbiolink.cli:enrichment"
 microbiolink-dmi = "microbiolink.cli:dmi"
 microbiolink-download-domains = "microbiolink.cli:download_domains"
 microbiolink-download-fasta = "microbiolink.cli:download_fasta"
