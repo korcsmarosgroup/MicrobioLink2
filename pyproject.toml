@@ -31,16 +31,16 @@ idr = ["iupred[aiupred] @ git+https://github.com/saezlab/iupred.git"]
 tiedie = ["tiedie @ git+https://github.com/saezlab/tiedie.git"]
 
 [project.scripts]
-microbiolink-ddi = "microbiolink.cli:ddi"
-microbiolink-enrichment = "microbiolink.cli:enrichment"
-microbiolink-dmi = "microbiolink.cli:dmi"
-microbiolink-download-domains = "microbiolink.cli:download_domains"
-microbiolink-download-fasta = "microbiolink.cli:download_fasta"
-microbiolink-idr-filter = "microbiolink.cli:idr_filter"
-microbiolink-membrane-filter = "microbiolink.cli:membrane_filter"
-microbiolink-monte-carlo = "microbiolink.cli:monte_carlo_filter"
-microbiolink-tiedie = "microbiolink.cli:tiedie"
-microbiolink-zscore-filter = "microbiolink.cli:zscore_filter"
+microbiolink-ddi = "microbiolink.cli.ddi:main"
+microbiolink-enrichment = "microbiolink.cli.enrichment:main"
+microbiolink-dmi = "microbiolink.cli.dmi:main"
+microbiolink-download-domains = "microbiolink.cli.domain_download:main"
+microbiolink-download-fasta = "microbiolink.cli.fasta_download:main"
+microbiolink-idr-filter = "microbiolink.cli.idr_filter:main"
+microbiolink-membrane-filter = "microbiolink.cli.membrane_filter:main"
+microbiolink-monte-carlo = "microbiolink.cli.monte_carlo:main"
+microbiolink-tiedie = "microbiolink.cli.tiedie:main"
+microbiolink-zscore-filter = "microbiolink.cli.zscore_filter:main"
 
 [tool.hatch.metadata]
 allow-direct-references = true
