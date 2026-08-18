@@ -19,7 +19,7 @@ description = "Prediction of microbe-host protein interactions using domain-moti
 license = "BSD-3-Clause"
 name = "microbiolink"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 version = "2.1.0"
 
 [project.optional-dependencies]
@@ -45,11 +45,11 @@ microbiolink-zscore-filter = "microbiolink.cli.zscore_filter:main"
 [tool.hatch.metadata]
 allow-direct-references = true
 
-[tool.hatch.build]
-include = ["microbiolink/data/*.tsv"]
-
 [tool.hatch.build.targets.wheel]
 packages = ["microbiolink"]
+
+[tool.hatch.build.targets.sdist]
+only-include = ["microbiolink", "README.md", "LICENSE"]
 
 [dependency-groups]
 dev = [
