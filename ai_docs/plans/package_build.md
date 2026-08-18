@@ -3,6 +3,16 @@
 Status: proposed
 Date: 2026-08-17
 
+## Decisions (locked)
+
+- **Python floor: `>=3.12`.** No dependency requires an older version, so we drop 3.9–3.11
+  (3.12 will soon be the oldest supported line).
+- **Backend: `hatchling`** (unchanged).
+- **Data inclusion: minimal** — delete the bad `include` block and rely on default package
+  inclusion; no explicit `force-include`.
+- **PyPI publishing: future goal only** — captured in the Future Work section, not part of
+  this build.
+
 ## Goal
 
 Produce a correct, installable distribution (sdist + wheel) for `microbiolink`, decide
@@ -133,9 +143,9 @@ choice — revisit if those conditions arise.
   block (Section 1).
 
 ### Step 2 — Metadata hygiene (quick review while in the file)
-- `requires-python = ">=3.9"` — confirm this is still accurate given current deps
-  (`pandas>=2.2`, `scipy>=1.13` support 3.9, but the dev interpreter here is 3.12). Keep 3.9
-  only if we actually test it; otherwise raise the floor.
+- Set `requires-python = ">=3.12"` (was `>=3.9`). All runtime deps (`pandas>=2.2`,
+  `scipy>=1.13`, `numpy>=1.26`, `mygene`, `omnipath`, `requests`) and the git extras support
+  3.12, so nothing forces a lower floor.
 - `version = "2.1.0"` — confirm this is the intended release version for this build.
 - Duplicate/legacy files: repo has both `claude.md` (33 bytes) and `CLAUDE.md`; not a
   packaging blocker but worth a cleanup pass. Neither ships in the wheel.
@@ -192,35 +202,58 @@ Note the `idr` and `tiedie` extras use **git direct references** — see Section
 
 ---
 
-## 4. Publishing (optional / future work)
+## 4. Distribution scope for now
 
-Not required to "build the package", but flagged because it constrains choices:
+This build targets a **locally / GitHub-installable** wheel + sdist. That means:
 
-- **Direct-reference dependencies block PyPI upload.** The `idr` and `tiedie` extras use
-  `... @ git+https://...` URLs. PyPI **rejects** packages whose metadata contains direct
-  URL references. So the wheel as-is can be built and installed locally / from a git checkout,
-  but **cannot be uploaded to PyPI** while those extras carry git URLs.
-  - Options if we ever publish: (a) get `iupred`/`tiedie` onto PyPI and pin normal version
-    specifiers; (b) drop them from packaged extras and document manual install in the docs;
-    (c) publish only to a private index / distribute the wheel directly.
-- If/when publishable: dry-run to **TestPyPI** first
-  (`uvx twine upload -r testpypi dist/*`), verify a clean install from TestPyPI, then upload
-  to real PyPI. Use a scoped API token, not a password.
-- This intersects the "Get Started / installation" documentation page — align the documented
-  install method with whatever distribution channel we choose.
+- `uv build` output can be installed directly (`pip install <wheel>`) or via
+  `pip install git+https://github.com/.../MicrobioLink2.git` / `uv add` from the repo.
+- The git-based extras (`idr`, `tiedie`) work in this mode because direct URL references are
+  allowed for local/VCS installs (`allow-direct-references = true` is already set).
+
+The plan ends at Step 6 (verified artifacts). No PyPI upload.
 
 ---
 
-## 5. Open questions for the user
+## 5. Future Work: publishing to PyPI
 
-1. **Target Python versions** — keep `>=3.9`, or raise the floor to match what we actually
-   test (e.g. 3.10/3.11/3.12)? Affects the `requires-python` and any CI matrix.
-2. **Is publishing to PyPI a goal?** If yes, we must resolve the git-dependency constraint in
-   Section 4 before release. If no, the plan ends at Step 6 (local/GitHub-installable wheel).
-3. **Data-file inclusion style** — minimal fix (delete bad block, rely on default inclusion)
-   vs. explicit `force-include`. Recommend minimal now; revisit if `.gitignore` changes.
-4. **Backend** — confirm we keep `hatchling` (recommended). Only reconsider `uv_build` if the
-   refactor moves us to a `src/` layout.
+Deferred, but recorded here because it constrains dependency choices when we get to it:
+
+- **Direct-reference dependencies block PyPI upload.** The `idr` and `tiedie` extras use
+  `... @ git+https://...` URLs. PyPI **rejects** any package whose metadata contains direct
+  URL references, so the current `pyproject.toml` cannot be uploaded as-is.
+  - Availability checked (2026-08-17): `tiedie` **is** on PyPI (but our pin is the
+    `saezlab/tiedie` git fork — confirm the PyPI release is equivalent before switching);
+    `iupred`/`aiupred` are **not** on PyPI (404).
+  - Resolution options: (a) switch `tiedie` to a normal PyPI version specifier if the fork's
+    changes are upstreamed/unneeded; (b) for `iupred`, either get it published or drop it from
+    packaged extras and document the manual `git+` install in the docs; (c) publish only to a
+    private index / distribute the wheel via GitHub Releases.
+### Upload tooling: `uv publish` is the primary path
+
+The upload itself is uv-native — we do **not** need twine to publish:
+
+- **Primary: `uv publish`.** uv both builds and uploads, and handles auth the same ways twine
+  does. Preferred order:
+  1. **Trusted Publishing (OIDC) from GitHub Actions** — no stored secret at all; the workflow
+     mints a short-lived credential. Configure the PyPI project to trust the repo/workflow, then
+     `uv publish --trusted-publishing always`.
+  2. Fallback for a manual/local upload: a scoped PyPI **API token** via `UV_PUBLISH_TOKEN`
+     (or `uv publish --token ...`). Never a password.
+- **`twine check` — optional pre-flight only.** uv has no equivalent, so keep this one twine
+  command to validate that package metadata and the README long-description render correctly on
+  the PyPI page: `uvx twine check dist/*` (runs via uvx, nothing installed into the project).
+  twine is **not** needed for the upload.
+
+### Release sequence (when ready)
+
+1. `uvx twine check dist/*` — metadata/README render check.
+2. Dry-run to **TestPyPI**: `uv publish --publish-url https://test.pypi.org/legacy/ ...`.
+3. Verify a clean install from TestPyPI in a fresh venv.
+4. Publish to real PyPI via `uv publish` (Trusted Publishing preferred).
+5. Align the documented install method on the "Get Started" docs page with the chosen channel.
+
+---
 
 ## Acceptance criteria
 
@@ -230,4 +263,5 @@ Not required to "build the package", but flagged because it constrains choices:
   `microbiolink-*` console scripts are registered and `--help` runs; packaged `.tsv` files are
   resolvable via `importlib.resources`.
 - `twine check dist/*` passes.
-- `pyproject.toml` build config reviewed and `hatchling` confirmed as the backend.
+- `pyproject.toml` build config reviewed: `hatchling` backend confirmed, minimal data
+  inclusion, and `requires-python = ">=3.12"`.
