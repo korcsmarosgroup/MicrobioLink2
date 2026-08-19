@@ -1,3 +1,9 @@
 .DS_Store
 __pycache__/
 *.pyc
+
+# Python virtual environment
+.venv/
+
+# Zensical documentation build output
+/site/

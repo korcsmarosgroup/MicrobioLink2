@@ -1,0 +1,18 @@
+# Read the Docs build for the MicrobioLink documentation.
+# Zensical is built via a full `build.commands` override (uv-driven); the
+# mkdocs-native `python.install` style is not used.
+version: 2
+
+build:
+  os: ubuntu-26.04
+  tools:
+    python: "3.14"
+  commands:
+    - pip install uv
+    - uv sync --group docs
+    # THROWAWAY STOPGAP — Zensical cannot render .ipynb yet. Renders the Phase 2
+    # tutorial notebooks to Markdown. Guarded with `|| true` so it is a no-op
+    # until those notebooks exist. Delete when Zensical ships native support.
+    - uv run jupyter nbconvert --to markdown docs/tutorials/t1_api_full.ipynb docs/tutorials/t2_api_basic.ipynb || true
+    - uv run zensical build
+    - mkdir -p $READTHEDOCS_OUTPUT/html && cp -r site/* $READTHEDOCS_OUTPUT/html/
