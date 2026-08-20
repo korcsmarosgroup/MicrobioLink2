@@ -149,9 +149,10 @@ choice — revisit if those conditions arise.
 - `version = "2.1.0"` — confirm this is the intended release version for this build.
 - Duplicate/legacy files: repo has both `claude.md` (33 bytes) and `CLAUDE.md`; not a
   packaging blocker but worth a cleanup pass. Neither ships in the wheel.
-- README installation section is stale (references the old Snakemake `workflow/` scripts and
-  conda env). Not required for a build, but should be updated before any public release —
-  tracked separately under the documentation plan.
+- ~~README installation section is stale (references the old Snakemake `workflow/` scripts and
+  conda env).~~ **Resolved (docs Phase 1, T8 #13):** the README is now trimmed to a pointer to
+  the hosted docs with a current `git+…` / extras quick-install; long-form install lives in
+  `docs/get-started.md`.
 
 ### Step 3 — Clean build
 ```bash

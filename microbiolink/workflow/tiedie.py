@@ -10,6 +10,11 @@ import pandas as pd
 
 from ..utils import id_resolution
 
+# Public API — Essential functions (see docs/api/tiedie.md).
+__all__ = [
+    'run_tiedie_pipeline',
+]
+
 UPSTREAM_SIGN_DEFAULT = "-"  # DMI/DDI tables carry no sign column (Decisions 2, 5)
 HMI_PAIR_COLUMNS = ["human_uniprot_id", "bacterial_uniprot_id"]
 STIMULATION_INTERACTION = "stimulates>"
@@ -603,7 +608,11 @@ def run_tiedie_pipeline(
         endpoint_value_column: 1-based column of the log2FC value in endpoint_genes.
         ddi_table: An optional Module 5 DDI table, merged into the pair set (Decision 3).
         work_dir: Working directory for TieDie I/O; a TemporaryDirectory if None.
-        size, alpha, depth, permute, use_pagerank: TieDie algorithm parameters (passed through).
+        size: TieDie diffusion size parameter (passed through).
+        alpha: TieDie diffusion tuning parameter; TieDie's own default if None.
+        depth: TieDie network search depth (passed through).
+        permute: Number of permutations for TieDie's significance estimate.
+        use_pagerank: Use PageRank instead of heat diffusion for propagation.
 
     Returns:
         (final_network, node_table) as data frames. Raises RuntimeError if TieDie fails.

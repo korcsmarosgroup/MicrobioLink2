@@ -5,9 +5,25 @@ import pandas as pd
 from ..utils import id_resolution
 from ..utils import uniprot_client
 
+# Public API — Essential functions (see docs/api/domain_download.md).
+__all__ = [
+    'download_domains',
+    'domain_table_to_mapping',
+]
+
 
 def domain_table_to_mapping(domain_table: pd.DataFrame) -> dict[str, list[str]]:
-    """Convert a UniProt Pfam table into a pfam_id -> uniprot_ids mapping."""
+    """Convert a UniProt Pfam table into a pfam_id -> uniprot_ids mapping.
+
+    Args:
+        domain_table: A UniProt protein table with an 'Entry' column of
+            accessions and a 'Pfam' column of semicolon-separated Pfam IDs
+            (rows with no Pfam annotation are skipped).
+
+    Returns:
+        A mapping of each Pfam ID to the list of UniProt accessions carrying
+        that domain (the input shape consumed by the DDI and DMI modules).
+    """
 
     mapping: dict[str, list[str]] = {}
     for _, row in domain_table.iterrows():

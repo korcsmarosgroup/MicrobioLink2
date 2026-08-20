@@ -12,6 +12,11 @@ from scipy.stats import false_discovery_control
 from ..utils import dmi_reader, fasta
 from . import dmi, idr_filter
 
+# Public API — Essential functions (see docs/api/monte_carlo.md).
+__all__ = [
+    'filter_by_monte_carlo',
+]
+
 MONTE_CARLO_COLUMNS = [
     "monte_carlo_hits",
     "monte_carlo_pvalue",

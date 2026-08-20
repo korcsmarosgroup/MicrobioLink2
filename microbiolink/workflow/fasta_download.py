@@ -6,6 +6,11 @@ from typing import Union
 from ..utils import id_resolution
 from ..utils import uniprot_client
 
+# Public API — Essential functions (see docs/api/fasta_download.md).
+__all__ = [
+    'download_fasta',
+]
+
 PathLike = Union[str, Path]
 
 HUMAN_FASTA_FILENAME = 'human_proteins.fasta'

@@ -4,6 +4,13 @@ import pandas as pd
 
 from ..utils import uniprot_client
 
+# Public API — Essential functions (see docs/api/membrane_filter.md).
+__all__ = [
+    'filter_membrane_proteins',
+    'filter_human_membrane_proteins',
+    'filter_bacterial_membrane_proteins',
+]
+
 LOCATION_FIELD = 'cc_subcellular_location'
 LOCATION_COLUMN = 'Subcellular location [CC]'
 

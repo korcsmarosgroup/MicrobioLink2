@@ -8,6 +8,11 @@ import pandas as pd
 from ..utils import dmi_reader, fasta
 from . import dmi
 
+# Public API — Essential functions (see docs/api/idr_filter.md).
+__all__ = [
+    'filter_by_disorder',
+]
+
 OUTPUT_COLUMNS = [
     *dmi.OUTPUT_COLUMNS,
     "disordered_score",

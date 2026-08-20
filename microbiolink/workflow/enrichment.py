@@ -9,6 +9,13 @@ import pandas as pd
 
 from ..utils import id_resolution
 
+# Public API — Essential functions (see docs/api/enrichment.md).
+__all__ = [
+    'run_enrichment_analysis',
+    'run_enrichment',
+    'plot_enrichment',
+]
+
 if TYPE_CHECKING:
     from matplotlib.figure import Figure
 

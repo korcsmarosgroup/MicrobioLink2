@@ -11,6 +11,12 @@ import pandas as pd
 from .. import data
 from ..utils import fasta
 
+# Public API — Essential functions (see docs/api/dmi.md).
+__all__ = [
+    'predict_domain_motif_interactions',
+    'load_motif_regexes',
+]
+
 OUTPUT_COLUMNS = [
     "dmi_type",
     "bacterial_uniprot_id",

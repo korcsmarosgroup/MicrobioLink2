@@ -17,7 +17,19 @@ nav = [
       { "3 · CLI, comprehensive" = "tutorials/t3_cli_full.md" },
       { "4 · CLI, basic" = "tutorials/t4_cli_basic.md" },
   ] },
-  { "API Reference" = "api/index.md" },
+  { "API Reference" = [
+      { "Overview" = "api/index.md" },
+      { "Z-score filter" = "api/zscore_filter.md" },
+      { "Membrane filter" = "api/membrane_filter.md" },
+      { "FASTA download" = "api/fasta_download.md" },
+      { "Domain download" = "api/domain_download.md" },
+      { "Domain–domain interactions" = "api/ddi.md" },
+      { "Domain–motif interactions" = "api/dmi.md" },
+      { "IDR filter" = "api/idr_filter.md" },
+      { "Monte Carlo filter" = "api/monte_carlo.md" },
+      { "TieDie propagation" = "api/tiedie.md" },
+      { "Enrichment analysis" = "api/enrichment.md" },
+  ] },
 ]
 
 # API documentation is generated statically from the microbiolink/workflow/

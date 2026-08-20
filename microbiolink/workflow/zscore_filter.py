@@ -7,6 +7,12 @@ import numpy as np
 import pandas as pd
 from scipy.stats import gaussian_kde
 
+# Public API — Essential functions (see docs/api/zscore_filter.md).
+__all__ = [
+    'filter_count_matrix_file',
+    'filter_counts_by_zscore',
+]
+
 PathLike = Union[str, Path]
 
 

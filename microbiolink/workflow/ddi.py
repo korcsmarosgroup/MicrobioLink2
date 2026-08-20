@@ -7,6 +7,11 @@ import pandas as pd
 
 from .. import data
 
+# Public API — Essential functions (see docs/api/ddi.md).
+__all__ = [
+    'predict_domain_domain_interactions',
+]
+
 OUTPUT_COLUMNS = [
     'bacterial_uniprot_id',
     'bacterial_pfam_domain',
