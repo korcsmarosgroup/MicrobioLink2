@@ -12,10 +12,10 @@ nav = [
   { "Pipeline Concepts" = "concepts.md" },
   { "Tutorials" = [
       { "Overview" = "tutorials/index.md" },
-      { "1 · API, comprehensive" = "tutorials/t1_api_full.md" },
-      { "2 · API, basic" = "tutorials/t2_api_basic.md" },
-      { "3 · CLI, comprehensive" = "tutorials/t3_cli_full.md" },
-      { "4 · CLI, basic" = "tutorials/t4_cli_basic.md" },
+      { "1 · Comprehensive run (notebook)" = "tutorials/t1_api_full.md" },
+      { "2 · Default run (notebook)" = "tutorials/t2_api_basic.md" },
+      { "3 · Comprehensive run (command line)" = "tutorials/t3_cli_full.md" },
+      { "4 · Default run (command line)" = "tutorials/t4_cli_basic.md" },
   ] },
   { "API Reference" = [
       { "Overview" = "api/index.md" },

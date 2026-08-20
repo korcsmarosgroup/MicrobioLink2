@@ -95,6 +95,28 @@ release).
     pip install "dist/microbiolink-2.1.0-py3-none-any.whl[enrichment]"
     ```
 
+### The environment for the full pipeline and the tutorials
+
+The base `microbiolink` install covers the core pipeline, but a
+**comprehensive** run &mdash; and every [Tutorial](tutorials/index.md),
+including the default first-run ones &mdash; additionally needs all three
+extras: `[idr]` for IDR filtering (`iupred` and `aiupred`), `[tiedie]` for
+TieDIE network propagation, and `[enrichment]` for functional enrichment
+(`gget`/Enrichr and `matplotlib`). Install them together to reproduce the
+tutorial environment:
+
+=== "uv"
+
+    ```bash
+    uv pip install "microbiolink[idr,tiedie,enrichment] @ git+https://github.com/korcsmarosgroup/MicrobioLink2.git"
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install "microbiolink[idr,tiedie,enrichment] @ git+https://github.com/korcsmarosgroup/MicrobioLink2.git"
+    ```
+
 ## Verify the installation
 
 Confirm the package imports and the console scripts resolve:
