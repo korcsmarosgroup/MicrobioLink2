@@ -7,3 +7,8 @@ __pycache__/
 
 # Zensical documentation build output
 /site/
+
+# MicrobioLink tutorial notebook run byproducts (downloaded FASTA etc.)
+docs/tutorials/t1_work/
+docs/tutorials/t2_work/
+.ipynb_checkpoints/
