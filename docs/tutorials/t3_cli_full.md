@@ -259,7 +259,7 @@ rank,path_name,p_val,z_score,combined_score,overlapping_genes,adj_p_val,database
 1,Regulation Of Signaling By NODAL R-HSA-1433617,8.5e-05,273.7,2565.3,"['ACVR1B', 'ACVR2B']",0.0151,Reactome_2022
 ```
 
-![HMI enrichment — top 20 Reactome terms among the direct host targets](assets/t3_enrichment_hmi.png)
+![HMI enrichment — the 14 significant Reactome terms among the direct host targets](assets/t3_enrichment_hmi.png)
 
 **Whole propagated network (`TieDIE`)** — enrich every node of the TieDie network:
 

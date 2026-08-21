@@ -195,7 +195,7 @@ microbiolink-enrichment \
     --output_image enrichment_hmi.png
 ```
 
-![HMI enrichment — top 20 Reactome terms among the direct host targets](assets/t4_enrichment_hmi.png)
+![HMI enrichment — the 2 significant Reactome terms among the direct host targets](assets/t4_enrichment_hmi.png)
 
 **Whole propagated network (`TieDIE`):**
 
