@@ -16,7 +16,7 @@ dependencies = [
     "scipy>=1.13.1",
 ]
 description = "Prediction of microbe-host protein interactions using domain-motif interactions and intrinsically disordered regions"
-license = "BSD-3-Clause"
+license = "BSD-2-Clause"
 name = "microbiolink"
 readme = "README.md"
 requires-python = ">=3.12"
